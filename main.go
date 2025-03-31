@@ -19,8 +19,6 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -175,15 +173,17 @@ createHandler handles POST /api/handlers to create a new handler.
 
 The endpoint:
 1. Validates session
-2. Parses request body
-3. Validates handler data
-4. Generates ID and access token
-5. Stores in database
+2. Checks if user hasn't reached the maximum handler limit (20)
+3. Parses request body
+4. Validates handler data
+5. Generates ID and access token
+6. Stores in database
 
 Response:
 - 201 Created: Success with created handler in body
 - 400 Bad Request: Invalid data
 - 401 Unauthorized: Invalid session
+- 403 Forbidden: Maximum number of handlers reached
 - 500 Internal Server Error: Database failure
 */
 func (s *Server) createHandler(w http.ResponseWriter, r *http.Request) {
@@ -196,6 +196,19 @@ func (s *Server) createHandler(w http.ResponseWriter, r *http.Request) {
 	ownerID, err := s.validateOwner(sessionID)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var count int64
+	if err := s.db.Model(&Handler{}).Where("owner_id = ?", ownerID).Count(&count).Error; err != nil {
+		log.Printf("Failed to count handlers: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	const maxHandlersPerUser = 10
+	if count >= maxHandlersPerUser {
+		http.Error(w, fmt.Sprintf("Maximum number of handlers (%d) reached", maxHandlersPerUser), http.StatusForbidden)
 		return
 	}
 
@@ -375,15 +388,10 @@ func (s *Server) deleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
-listHandlers handles GET /api/handlers to list handlers with pagination.
-
-Query parameters:
-- search: Optional search term for name
-- page: Page number (default 1)
-- limit: Items per page (default 10, max 100)
+listHandlers handles GET /api/handlers to list all handlers for the current user.
 
 Response:
-- 200 OK: Paginated list of handlers
+- 200 OK: List of all handlers
 - 401 Unauthorized: Invalid session
 - 500 Internal Server Error: Database failure
 */
@@ -400,57 +408,15 @@ func (s *Server) listHandlers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := r.URL.Query()
-	search := strings.TrimSpace(query.Get("search"))
-	page, _ := strconv.Atoi(query.Get("page"))
-	if page < 1 {
-		page = 1
-	}
-	limit, _ := strconv.Atoi(query.Get("limit"))
-	if limit < 1 || limit > 100 {
-		limit = 10
-	}
-
-	offset := (page - 1) * limit
-	db := s.db.Model(&Handler{}).Where("owner_id = ?", ownerID)
-
-	if search != "" {
-		searchPattern := "%" + strings.ToLower(search) + "%"
-		db = db.Where("LOWER(name) LIKE ?", searchPattern)
-	}
-
-	var total int64
-	if err := db.Count(&total).Error; err != nil {
-		log.Printf("Failed to count handlers: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
 	var handlers []Handler
-	if err := db.
-		Order("updated_at DESC").
-		Offset(offset).
-		Limit(limit).
-		Find(&handlers).Error; err != nil {
+	if err := s.db.Where("owner_id = ?", ownerID).Find(&handlers).Error; err != nil {
 		log.Printf("Failed to find handlers: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	response := struct {
-		Data       []Handler `json:"data"`
-		Total      int64     `json:"total"`
-		Page       int       `json:"page"`
-		TotalPages int       `json:"total_pages"`
-	}{
-		Data:       handlers,
-		Total:      total,
-		Page:       page,
-		TotalPages: int((total + int64(limit) - 1) / int64(limit)),
-	}
-
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(handlers)
 }
 
 /*
