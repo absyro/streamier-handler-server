@@ -6,126 +6,117 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
 	"github.com/gorilla/websocket"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-// Constants
 const (
 	MaxKeywords         = 20
 	MaxShortDescription = 180
 	MaxLongDescription  = 1000
 	MaxHandlerName      = 25
-	SessionCookieName   = "session_token"
 )
 
-// Handler represents an API handler configuration
 type Handler struct {
 	ID          string   `json:"id" gorm:"primaryKey;type:uuid"`
-	Name        string   `json:"name" gorm:"size:255"`
-	ShortDesc   string   `json:"short_desc" gorm:"size:180"`
-	IconID      string   `json:"icon_id" gorm:"size:50"`
-	IsDevMode   bool     `json:"is_dev_mode"`
-	Keywords    []string `json:"keywords" gorm:"type:text[]"`
-	LongDesc    string   `json:"long_desc" gorm:"size:1000"`
-	AccessToken string   `json:"access_token" gorm:"size:64"`
-	CreatedBy   string   `json:"created_by" gorm:"size:255"`
+	Name        string   `json:"name" gorm:"size:255" validate:"required,max=25"`
+	ShortDesc   string   `json:"short_desc" gorm:"size:180" validate:"required,max=180"`
+	Keywords    []string `json:"keywords" gorm:"type:text[]" validate:"max=20,dive,required,alphanumunicode"`
+	LongDesc    string   `json:"long_desc" gorm:"size:1000" validate:"max=1000"`
+	AccessToken string   `json:"access_token" gorm:"size:64;uniqueIndex"`
+	OwnerID     string   `json:"owner_id" gorm:"type:uuid"`
 	CreatedAt   int64    `json:"created_at"`
 	UpdatedAt   int64    `json:"updated_at"`
 }
 
-// Server is the main application server
-type Server struct {
-	db             *gorm.DB
-	sessionStore   sessions.Store
-	connectedConns map[string]*websocket.Conn
-	connMutex      sync.RWMutex
-	upgrader       websocket.Upgrader
+type ActiveConnection struct {
+	Conn      *websocket.Conn
+	HandlerID string
+	OwnerID   string
 }
 
-// NewServer initializes a new Server instance
-func NewServer(postgresDSN string, sessionStore sessions.Store) (*Server, error) {
+type Server struct {
+	db          *gorm.DB
+	activeConns map[string]*ActiveConnection // key: access_token
+	connMutex   sync.RWMutex
+	upgrader    websocket.Upgrader
+	validator   *validator.Validate
+}
+
+func NewServer(postgresDSN string) (*Server, error) {
 	db, err := gorm.Open(postgres.Open(postgresDSN), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to PostgreSQL: %v", err)
 	}
 
-	// Auto-migrate the Handler model
 	if err := db.AutoMigrate(&Handler{}); err != nil {
-		return nil, fmt.Errorf("failed to migrate database: %v", err)
+		return nil, fmt.Errorf("failed to migrate handlers table: %v", err)
 	}
 
+	validate := validator.New()
+
 	return &Server{
-		db:             db,
-		sessionStore:   sessionStore,
-		connectedConns: make(map[string]*websocket.Conn),
+		db:          db,
+		activeConns: make(map[string]*ActiveConnection),
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
-				return true // Adjust in production
+				return true
 			},
 		},
+		validator: validate,
 	}, nil
 }
 
-// getEmailFromSession extracts user email from session
-func (s *Server) getEmailFromSession(r *http.Request) (string, error) {
-	session, err := s.sessionStore.Get(r, SessionCookieName)
-	if err != nil {
-		return "", err
+func (s *Server) validateOwner(sessionID string) (string, error) {
+	var session struct {
+		UserID string
+	}
+	if err := s.db.Table("sessions").Select("user_id").Where("id = ?", sessionID).First(&session).Error; err != nil {
+		return "", fmt.Errorf("invalid session")
 	}
 
-	email, ok := session.Values["email"].(string)
-	if !ok || email == "" {
-		return "", fmt.Errorf("no email in session")
+	var ownerID string
+	if err := s.db.Table("users").Select("id").Where("id = ?", session.UserID).First(&ownerID).Error; err != nil {
+		return "", fmt.Errorf("owner not found")
 	}
 
-	return email, nil
+	return ownerID, nil
 }
 
-// validateHandler checks if handler data meets requirements
-func validateHandler(handler *Handler) error {
-	if len(handler.Name) > MaxHandlerName {
-		return fmt.Errorf("handler name exceeds %d characters", MaxHandlerName)
+func (s *Server) validateHandler(handler *Handler) error {
+	if err := s.validator.Struct(handler); err != nil {
+		return err
 	}
 
-	if len(handler.ShortDesc) > MaxShortDescription {
-		return fmt.Errorf("short description exceeds %d characters", MaxShortDescription)
-	}
-
-	if len(handler.LongDesc) > MaxLongDescription {
-		return fmt.Errorf("long description exceeds %d characters", MaxLongDescription)
-	}
-
-	if len(handler.Keywords) > MaxKeywords {
-		return fmt.Errorf("maximum %d keywords allowed", MaxKeywords)
-	}
-
-	for i, kw := range handler.Keywords {
-		handler.Keywords[i] = strings.ToLower(strings.TrimSpace(kw))
+	for _, kw := range handler.Keywords {
 		if strings.Contains(kw, " ") {
-			return fmt.Errorf("keywords must be snake_case (no spaces)")
+			return fmt.Errorf("keywords must not contain spaces")
 		}
 	}
 
 	return nil
 }
 
-// createHandler creates a new handler
 func (s *Server) createHandler(w http.ResponseWriter, r *http.Request) {
-	email, err := s.getEmailFromSession(r)
+	sessionID := r.Header.Get("X-Session-ID")
+	if sessionID == "" {
+		http.Error(w, "Session ID required", http.StatusUnauthorized)
+		return
+	}
+
+	ownerID, err := s.validateOwner(sessionID)
 	if err != nil {
-		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
@@ -135,20 +126,19 @@ func (s *Server) createHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validateHandler(&handler); err != nil {
+	if err := s.validateHandler(&handler); err != nil {
 		http.Error(w, "Validation error: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Set system fields
 	handler.ID = uuid.New().String()
 	handler.AccessToken = fmt.Sprintf("%x", rand.Int63())
-	handler.CreatedBy = email
+	handler.OwnerID = ownerID
 	handler.CreatedAt = time.Now().Unix()
 	handler.UpdatedAt = handler.CreatedAt
 
 	if err := s.db.Create(&handler).Error; err != nil {
-		log.Printf("Failed to insert handler: %v", err)
+		log.Printf("Failed to create handler: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -158,9 +148,14 @@ func (s *Server) createHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(handler)
 }
 
-// getHandler retrieves a handler by ID
 func (s *Server) getHandler(w http.ResponseWriter, r *http.Request) {
-	email, err := s.getEmailFromSession(r)
+	sessionID := r.Header.Get("X-Session-ID")
+	if sessionID == "" {
+		http.Error(w, "Session ID required", http.StatusUnauthorized)
+		return
+	}
+
+	ownerID, err := s.validateOwner(sessionID)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -169,13 +164,12 @@ func (s *Server) getHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	var handler Handler
 
-	result := s.db.Where("id = ? AND created_by = ?", id, email).First(&handler)
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
+	if err := s.db.Where("id = ? AND owner_id = ?", id, ownerID).First(&handler).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
 			http.Error(w, "Handler not found", http.StatusNotFound)
 			return
 		}
-		log.Printf("Failed to query handler: %v", result.Error)
+		log.Printf("Failed to query handler: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
@@ -184,9 +178,14 @@ func (s *Server) getHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(handler)
 }
 
-// updateHandler updates an existing handler
 func (s *Server) updateHandler(w http.ResponseWriter, r *http.Request) {
-	email, err := s.getEmailFromSession(r)
+	sessionID := r.Header.Get("X-Session-ID")
+	if sessionID == "" {
+		http.Error(w, "Session ID required", http.StatusUnauthorized)
+		return
+	}
+
+	ownerID, err := s.validateOwner(sessionID)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -199,14 +198,13 @@ func (s *Server) updateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validateHandler(&updates); err != nil {
+	if err := s.validateHandler(&updates); err != nil {
 		http.Error(w, "Validation error: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// First check if the handler exists and belongs to the user
 	var existing Handler
-	if err := s.db.Where("id = ? AND created_by = ?", id, email).First(&existing).Error; err != nil {
+	if err := s.db.Where("id = ? AND owner_id = ?", id, ownerID).First(&existing).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			http.Error(w, "Handler not found", http.StatusNotFound)
 			return
@@ -216,55 +214,52 @@ func (s *Server) updateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update fields
 	updates.ID = id
-	updates.CreatedBy = email // Ensure created_by doesn't change
+	updates.OwnerID = ownerID
 	updates.UpdatedAt = time.Now().Unix()
-	updates.AccessToken = existing.AccessToken // Preserve access token
-	updates.CreatedAt = existing.CreatedAt     // Preserve created_at
+	updates.AccessToken = existing.AccessToken
+	updates.CreatedAt = existing.CreatedAt
 
-	result := s.db.Model(&Handler{}).Where("id = ? AND created_by = ?", id, email).Updates(&updates)
-	if result.Error != nil {
-		log.Printf("Failed to update handler: %v", result.Error)
+	if err := s.db.Model(&Handler{}).Where("id = ? AND owner_id = ?", id, ownerID).Updates(&updates).Error; err != nil {
+		log.Printf("Failed to update handler: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	if result.RowsAffected == 0 {
-		http.Error(w, "Handler not found", http.StatusNotFound)
 		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// deleteHandler deletes a handler by ID
 func (s *Server) deleteHandler(w http.ResponseWriter, r *http.Request) {
-	email, err := s.getEmailFromSession(r)
+	sessionID := r.Header.Get("X-Session-ID")
+	if sessionID == "" {
+		http.Error(w, "Session ID required", http.StatusUnauthorized)
+		return
+	}
+
+	ownerID, err := s.validateOwner(sessionID)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	id := mux.Vars(r)["id"]
-	result := s.db.Where("id = ? AND created_by = ?", id, email).Delete(&Handler{})
-	if result.Error != nil {
-		log.Printf("Failed to delete handler: %v", result.Error)
+	if err := s.db.Where("id = ? AND owner_id = ?", id, ownerID).Delete(&Handler{}).Error; err != nil {
+		log.Printf("Failed to delete handler: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	if result.RowsAffected == 0 {
-		http.Error(w, "Handler not found", http.StatusNotFound)
 		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// listHandlers lists handlers with pagination and filtering
 func (s *Server) listHandlers(w http.ResponseWriter, r *http.Request) {
-	email, err := s.getEmailFromSession(r)
+	sessionID := r.Header.Get("X-Session-ID")
+	if sessionID == "" {
+		http.Error(w, "Session ID required", http.StatusUnauthorized)
+		return
+	}
+
+	ownerID, err := s.validateOwner(sessionID)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -282,14 +277,13 @@ func (s *Server) listHandlers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := (page - 1) * limit
-	db := s.db.Model(&Handler{}).Where("created_by = ?", email)
+	db := s.db.Model(&Handler{}).Where("owner_id = ?", ownerID)
 
 	if search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
 		db = db.Where("LOWER(name) LIKE ? OR ? = ANY(keywords)", searchPattern, strings.ToLower(search))
 	}
 
-	// Get total count for pagination
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
 		log.Printf("Failed to count handlers: %v", err)
@@ -297,7 +291,6 @@ func (s *Server) listHandlers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get paginated results
 	var handlers []Handler
 	if err := db.
 		Order("updated_at DESC").
@@ -325,26 +318,29 @@ func (s *Server) listHandlers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// websocketHandler manages WebSocket connections for handlers
 func (s *Server) websocketHandler(w http.ResponseWriter, r *http.Request) {
-	email, err := s.getEmailFromSession(r)
-	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	accessToken := r.URL.Query().Get("access_token")
+	if accessToken == "" {
+		http.Error(w, "Access token required", http.StatusBadRequest)
 		return
 	}
 
-	handlerID := r.URL.Query().Get("id")
-	if handlerID == "" {
-		http.Error(w, "Handler ID required", http.StatusBadRequest)
+	s.connMutex.Lock()
+	if _, exists := s.activeConns[accessToken]; exists {
+		s.connMutex.Unlock()
+		http.Error(w, "Only one connection per handler allowed", http.StatusConflict)
 		return
 	}
+	s.connMutex.Unlock()
 
-	// Verify the handler belongs to the user
-	var count int64
-	if err := s.db.Model(&Handler{}).
-		Where("id = ? AND created_by = ?", handlerID, email).
-		Count(&count).Error; err != nil || count == 0 {
-		http.Error(w, "Handler not found", http.StatusNotFound)
+	var handler Handler
+	if err := s.db.Where("access_token = ?", accessToken).First(&handler).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			http.Error(w, "Invalid access token", http.StatusUnauthorized)
+			return
+		}
+		log.Printf("Failed to query handler: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -354,13 +350,19 @@ func (s *Server) websocketHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	activeConn := &ActiveConnection{
+		Conn:      conn,
+		HandlerID: handler.ID,
+		OwnerID:   handler.OwnerID,
+	}
+
 	s.connMutex.Lock()
-	s.connectedConns[handlerID] = conn
+	s.activeConns[accessToken] = activeConn
 	s.connMutex.Unlock()
 
 	defer func() {
 		s.connMutex.Lock()
-		delete(s.connectedConns, handlerID)
+		delete(s.activeConns, accessToken)
 		s.connMutex.Unlock()
 		conn.Close()
 	}()
@@ -375,18 +377,16 @@ func (s *Server) websocketHandler(w http.ResponseWriter, r *http.Request) {
 
 func loadConfig() {
 	viper.SetConfigFile(".env")
-	viper.AutomaticEnv() // read from environment variables
+	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Printf("Warning: .env file not found, using environment variables")
 	}
 
-	// Set defaults
 	viper.SetDefault("DB_HOST", "localhost")
 	viper.SetDefault("DB_PORT", "5432")
 	viper.SetDefault("DB_SSL_MODE", "disable")
 
-	// Required variables
 	required := []string{"DB_USER", "DB_PASSWORD", "DB_NAME"}
 	for _, key := range required {
 		if viper.GetString(key) == "" {
@@ -398,15 +398,6 @@ func loadConfig() {
 func main() {
 	loadConfig()
 
-	// Initialize session store (use secure key in production)
-	sessionStore := sessions.NewCookieStore([]byte("your-secret-key"))
-	sessionStore.Options = &sessions.Options{
-		HttpOnly: true,
-		Secure:   true, // Enable in production with HTTPS
-		SameSite: http.SameSiteStrictMode,
-	}
-
-	// Initialize server with PostgreSQL
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		viper.GetString("DB_HOST"),
 		viper.GetString("DB_USER"),
@@ -415,21 +406,19 @@ func main() {
 		viper.GetString("DB_PORT"),
 		viper.GetString("DB_SSL_MODE"))
 
-	server, err := NewServer(dsn, sessionStore)
+	server, err := NewServer(dsn)
 	if err != nil {
 		log.Fatalf("Failed to initialize server: %v", err)
 	}
 
-	// Set up routes
 	r := mux.NewRouter()
 	r.HandleFunc("/api/handlers", server.createHandler).Methods("POST")
 	r.HandleFunc("/api/handlers/{id}", server.getHandler).Methods("GET")
 	r.HandleFunc("/api/handlers/{id}", server.updateHandler).Methods("PUT")
 	r.HandleFunc("/api/handlers/{id}", server.deleteHandler).Methods("DELETE")
 	r.HandleFunc("/api/handlers", server.listHandlers).Methods("GET")
-	r.HandleFunc("/api/ws", server.websocketHandler)
+	r.HandleFunc("/ws", server.websocketHandler)
 
-	// Add middleware for logging and recovery
 	http.Handle("/", loggingMiddleware(r))
 
 	port := ":8080"
@@ -437,7 +426,6 @@ func main() {
 	log.Fatal(http.ListenAndServe(port, nil))
 }
 
-// loggingMiddleware adds basic request logging
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
