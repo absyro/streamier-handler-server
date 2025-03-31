@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bwmarrin/snowflake"
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/spf13/viper"
@@ -28,13 +28,13 @@ const (
 )
 
 type Handler struct {
-	ID          string   `json:"id" gorm:"primaryKey;type:uuid"`
+	ID          string   `json:"id" gorm:"primaryKey;type:varchar(20)"`
 	Name        string   `json:"name" gorm:"size:255" validate:"required,max=25"`
 	ShortDesc   string   `json:"short_desc" gorm:"size:180" validate:"required,max=180"`
 	Keywords    []string `json:"keywords" gorm:"type:text[]" validate:"max=20,dive,required,alphanumunicode"`
 	LongDesc    string   `json:"long_desc" gorm:"size:1000" validate:"max=1000"`
 	AccessToken string   `json:"access_token" gorm:"size:64;uniqueIndex"`
-	OwnerID     string   `json:"owner_id" gorm:"type:uuid"`
+	OwnerID     string   `json:"owner_id" gorm:"type:varchar(20)"`
 	CreatedAt   int64    `json:"created_at"`
 	UpdatedAt   int64    `json:"updated_at"`
 }
@@ -47,10 +47,11 @@ type ActiveConnection struct {
 
 type Server struct {
 	db          *gorm.DB
-	activeConns map[string]*ActiveConnection // key: access_token
+	activeConns map[string]*ActiveConnection
 	connMutex   sync.RWMutex
 	upgrader    websocket.Upgrader
 	validator   *validator.Validate
+	node        *snowflake.Node
 }
 
 func NewServer(postgresDSN string) (*Server, error) {
@@ -65,6 +66,11 @@ func NewServer(postgresDSN string) (*Server, error) {
 
 	validate := validator.New()
 
+	node, err := snowflake.NewNode(rand.Int63n(1024))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create snowflake node: %v", err)
+	}
+
 	return &Server{
 		db:          db,
 		activeConns: make(map[string]*ActiveConnection),
@@ -74,6 +80,7 @@ func NewServer(postgresDSN string) (*Server, error) {
 			},
 		},
 		validator: validate,
+		node:      node,
 	}, nil
 }
 
@@ -131,7 +138,7 @@ func (s *Server) createHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handler.ID = uuid.New().String()
+	handler.ID = s.node.Generate().String()
 	handler.AccessToken = fmt.Sprintf("%x", rand.Int63())
 	handler.OwnerID = ownerID
 	handler.CreatedAt = time.Now().Unix()
