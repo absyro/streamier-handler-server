@@ -459,6 +459,16 @@ func (s *Server) listActiveHandlers(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	type ActiveHandlerResponse struct {
+		ID               string `json:"id"`
+		Name             string `json:"name"`
+		ShortDescription string `json:"short_description"`
+		LongDescription  string `json:"long_description"`
+		OwnerID          string `json:"owner_id"`
+		CreatedAt        int64  `json:"created_at"`
+		UpdatedAt        int64  `json:"updated_at"`
+	}
+
 	s.connMutex.RLock()
 	defer s.connMutex.RUnlock()
 
@@ -475,7 +485,7 @@ func (s *Server) listActiveHandlers(w http.ResponseWriter, r *http.Request) {
 	if len(handlerIDs) == 0 {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]any{
-			"items":    []Handler{},
+			"items":    []ActiveHandlerResponse{},
 			"total":    0,
 			"limit":    limit,
 			"offset":   offset,
@@ -515,7 +525,18 @@ func (s *Server) listActiveHandlers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	items := append(make([]Handler, 0, len(handlers)), handlers...)
+	items := make([]ActiveHandlerResponse, 0, len(handlers))
+	for _, h := range handlers {
+		items = append(items, ActiveHandlerResponse{
+			ID:               h.ID,
+			Name:             h.Name,
+			ShortDescription: h.ShortDescription,
+			LongDescription:  h.LongDescription,
+			OwnerID:          h.OwnerID,
+			CreatedAt:        h.CreatedAt,
+			UpdatedAt:        h.UpdatedAt,
+		})
+	}
 
 	response := map[string]any{
 		"items":    items,
