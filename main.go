@@ -20,23 +20,15 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	MaxKeywords         = 20
-	MaxShortDescription = 180
-	MaxLongDescription  = 1000
-	MaxHandlerName      = 25
-)
-
 type Handler struct {
-	ID          string   `json:"id" gorm:"primaryKey;type:varchar(20)"`
-	Name        string   `json:"name" gorm:"size:255" validate:"required,max=25"`
-	ShortDesc   string   `json:"short_desc" gorm:"size:180" validate:"required,max=180"`
-	Keywords    []string `json:"keywords" gorm:"type:text[]" validate:"max=20,dive,required,alphanumunicode"`
-	LongDesc    string   `json:"long_desc" gorm:"size:1000" validate:"max=1000"`
-	AccessToken string   `json:"access_token" gorm:"size:64;uniqueIndex"`
-	OwnerID     string   `json:"owner_id" gorm:"type:varchar(20)"`
-	CreatedAt   int64    `json:"created_at"`
-	UpdatedAt   int64    `json:"updated_at"`
+	ID          string `json:"id" gorm:"primaryKey;type:varchar(20)"`
+	Name        string `json:"name" gorm:"size:255" validate:"required,max=25"`
+	ShortDesc   string `json:"short_desc" gorm:"size:180" validate:"required,max=180"`
+	LongDesc    string `json:"long_desc" gorm:"size:1000" validate:"max=1000"`
+	AccessToken string `json:"access_token" gorm:"size:64;uniqueIndex"`
+	OwnerID     string `json:"owner_id" gorm:"type:varchar(20)"`
+	CreatedAt   int64  `json:"created_at"`
+	UpdatedAt   int64  `json:"updated_at"`
 }
 
 type ActiveConnection struct {
@@ -93,7 +85,7 @@ func (s *Server) validateOwner(sessionID string) (string, error) {
 	}
 
 	var ownerID string
-	if err := s.db.Table("users").Select("id").Where("id = ?", session.UserID).First(&ownerID).Error; err != nil {
+	if err := s.db.Table("users").Select("id").Where("id = ?", session.UserID).Take(&ownerID).Error; err != nil {
 		return "", fmt.Errorf("owner not found")
 	}
 
@@ -101,17 +93,7 @@ func (s *Server) validateOwner(sessionID string) (string, error) {
 }
 
 func (s *Server) validateHandler(handler *Handler) error {
-	if err := s.validator.Struct(handler); err != nil {
-		return err
-	}
-
-	for _, kw := range handler.Keywords {
-		if strings.Contains(kw, " ") {
-			return fmt.Errorf("keywords must not contain spaces")
-		}
-	}
-
-	return nil
+	return s.validator.Struct(handler)
 }
 
 func (s *Server) createHandler(w http.ResponseWriter, r *http.Request) {
@@ -288,7 +270,7 @@ func (s *Server) listHandlers(w http.ResponseWriter, r *http.Request) {
 
 	if search != "" {
 		searchPattern := "%" + strings.ToLower(search) + "%"
-		db = db.Where("LOWER(name) LIKE ? OR ? = ANY(keywords)", searchPattern, strings.ToLower(search))
+		db = db.Where("LOWER(name) LIKE ?", searchPattern)
 	}
 
 	var total int64
