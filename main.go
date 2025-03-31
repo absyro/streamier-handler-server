@@ -420,6 +420,131 @@ func (s *Server) listHandlers(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
+listActiveHandlers handles GET /api/active-handlers to list all active WebSocket connections.
+
+Query parameters:
+- owner_id: Filter by owner ID (optional)
+- search: Search term to filter by handler name or description (optional)
+- limit: Maximum number of results to return (default: 20, max: 100)
+- offset: Offset for pagination (default: 0)
+
+Response:
+- 200 OK: List of active handlers with pagination metadata
+- 500 Internal Server Error: Database failure
+*/
+func (s *Server) listActiveHandlers(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	ownerID := query.Get("owner_id")
+	searchTerm := query.Get("search")
+	limit := 20
+	offset := 0
+
+	if l := query.Get("limit"); l != "" {
+		if n, err := fmt.Sscanf(l, "%d", &limit); err != nil || n != 1 {
+			http.Error(w, "Invalid limit parameter", http.StatusBadRequest)
+			return
+		}
+		if limit < 1 || limit > 100 {
+			limit = 20
+		}
+	}
+
+	if o := query.Get("offset"); o != "" {
+		if n, err := fmt.Sscanf(o, "%d", &offset); err != nil || n != 1 {
+			http.Error(w, "Invalid offset parameter", http.StatusBadRequest)
+			return
+		}
+		if offset < 0 {
+			offset = 0
+		}
+	}
+
+	type ActiveHandlerResponse struct {
+		HandlerID string `json:"handler_id"`
+		OwnerID   string `json:"owner_id"`
+		Name      string `json:"name"`
+		ShortDesc string `json:"short_desc"`
+	}
+
+	s.connMutex.RLock()
+	defer s.connMutex.RUnlock()
+
+	var handlerIDs []string
+	activeHandlers := make(map[string]*ActiveConnection)
+	for _, conn := range s.activeConns {
+		if ownerID != "" && conn.OwnerID != ownerID {
+			continue
+		}
+		handlerIDs = append(handlerIDs, conn.HandlerID)
+		activeHandlers[conn.HandlerID] = conn
+	}
+
+	if len(handlerIDs) == 0 {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"items":    []ActiveHandlerResponse{},
+			"total":    0,
+			"limit":    limit,
+			"offset":   offset,
+			"has_more": false,
+		})
+		return
+	}
+
+	dbQuery := s.db.Model(&Handler{}).Where("id IN ?", handlerIDs)
+
+	if searchTerm != "" {
+		searchTerm = "%" + searchTerm + "%"
+		dbQuery = dbQuery.Where("name LIKE ? OR short_desc LIKE ? OR long_desc LIKE ?",
+			searchTerm, searchTerm, searchTerm)
+	}
+
+	if ownerID != "" {
+		dbQuery = dbQuery.Where("owner_id = ?", ownerID)
+	}
+
+	var total int64
+	if err := dbQuery.Count(&total).Error; err != nil {
+		log.Printf("Failed to count active handlers: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	var handlers []Handler
+	if err := dbQuery.
+		Select("id", "name", "short_desc", "owner_id").
+		Order("name ASC").
+		Offset(offset).
+		Limit(limit).
+		Find(&handlers).Error; err != nil {
+		log.Printf("Failed to query active handlers: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	items := make([]ActiveHandlerResponse, 0, len(handlers))
+	for _, h := range handlers {
+		items = append(items, ActiveHandlerResponse{
+			HandlerID: h.ID,
+			OwnerID:   h.OwnerID,
+			Name:      h.Name,
+			ShortDesc: h.ShortDesc,
+		})
+	}
+
+	response := map[string]interface{}{
+		"items":    items,
+		"total":    total,
+		"limit":    limit,
+		"offset":   offset,
+		"has_more": offset+len(items) < int(total),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+/*
 websocketHandler handles WebSocket connections at /ws.
 
 The endpoint:
@@ -563,6 +688,7 @@ func main() {
 	r.HandleFunc("/api/handlers/{id}", server.updateHandler).Methods("PUT")
 	r.HandleFunc("/api/handlers/{id}", server.deleteHandler).Methods("DELETE")
 	r.HandleFunc("/api/handlers", server.listHandlers).Methods("GET")
+	r.HandleFunc("/api/active-handlers", server.listActiveHandlers).Methods("GET")
 	r.HandleFunc("/ws", server.websocketHandler)
 
 	http.Handle("/", loggingMiddleware(r))
