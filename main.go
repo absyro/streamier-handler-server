@@ -37,22 +37,22 @@ Handler represents a service handler with its metadata.
 Fields:
 - ID: Unique identifier for the handler (snowflake)
 - Name: Display name of the handler (max 25 chars)
-- ShortDesc: Brief description (max 180 chars)
-- LongDesc: Detailed description (max 1000 chars)
+- ShortDescription: Brief description (max 180 chars)
+- LongDescription: Detailed description (max 1000 chars)
 - AccessToken: Secret token for WebSocket authentication
 - OwnerID: User ID of the handler owner
 - CreatedAt: Unix timestamp of creation time
 - UpdatedAt: Unix timestamp of last update time
 */
 type Handler struct {
-	ID          string `json:"id" gorm:"primaryKey;type:varchar(20)"`
-	Name        string `json:"name" gorm:"size:255" validate:"required,max=25"`
-	ShortDesc   string `json:"short_desc" gorm:"size:180" validate:"required,max=180"`
-	LongDesc    string `json:"long_desc" gorm:"size:1000" validate:"max=1000"`
-	AccessToken string `json:"access_token" gorm:"size:64;uniqueIndex"`
-	OwnerID     string `json:"owner_id" gorm:"type:varchar(20)"`
-	CreatedAt   int64  `json:"created_at"`
-	UpdatedAt   int64  `json:"updated_at"`
+	ID               string `json:"id" gorm:"primaryKey;type:varchar(20)"`
+	Name             string `json:"name" gorm:"size:255" validate:"required,max=25"`
+	ShortDescription string `json:"short_description" gorm:"size:180" validate:"required,max=180"`
+	LongDescription  string `json:"long_description" gorm:"size:1000" validate:"max=1000"`
+	AccessToken      string `json:"access_token" gorm:"size:64;uniqueIndex"`
+	OwnerID          string `json:"owner_id" gorm:"type:varchar(20)"`
+	CreatedAt        int64  `json:"created_at"`
+	UpdatedAt        int64  `json:"updated_at"`
 }
 
 /*
@@ -460,10 +460,10 @@ func (s *Server) listActiveHandlers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type ActiveHandlerResponse struct {
-		HandlerID string `json:"handler_id"`
-		OwnerID   string `json:"owner_id"`
-		Name      string `json:"name"`
-		ShortDesc string `json:"short_desc"`
+		HandlerID        string `json:"handler_id"`
+		OwnerID          string `json:"owner_id"`
+		Name             string `json:"name"`
+		ShortDescription string `json:"short_description"`
 	}
 
 	s.connMutex.RLock()
@@ -481,7 +481,7 @@ func (s *Server) listActiveHandlers(w http.ResponseWriter, r *http.Request) {
 
 	if len(handlerIDs) == 0 {
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		json.NewEncoder(w).Encode(map[string]any{
 			"items":    []ActiveHandlerResponse{},
 			"total":    0,
 			"limit":    limit,
@@ -495,7 +495,7 @@ func (s *Server) listActiveHandlers(w http.ResponseWriter, r *http.Request) {
 
 	if searchTerm != "" {
 		searchTerm = "%" + searchTerm + "%"
-		dbQuery = dbQuery.Where("name LIKE ? OR short_desc LIKE ? OR long_desc LIKE ?",
+		dbQuery = dbQuery.Where("name LIKE ? OR short_description LIKE ? OR long_description LIKE ?",
 			searchTerm, searchTerm, searchTerm)
 	}
 
@@ -512,7 +512,7 @@ func (s *Server) listActiveHandlers(w http.ResponseWriter, r *http.Request) {
 
 	var handlers []Handler
 	if err := dbQuery.
-		Select("id", "name", "short_desc", "owner_id").
+		Select("id", "name", "short_description", "owner_id").
 		Order("name ASC").
 		Offset(offset).
 		Limit(limit).
@@ -525,14 +525,14 @@ func (s *Server) listActiveHandlers(w http.ResponseWriter, r *http.Request) {
 	items := make([]ActiveHandlerResponse, 0, len(handlers))
 	for _, h := range handlers {
 		items = append(items, ActiveHandlerResponse{
-			HandlerID: h.ID,
-			OwnerID:   h.OwnerID,
-			Name:      h.Name,
-			ShortDesc: h.ShortDesc,
+			HandlerID:        h.ID,
+			OwnerID:          h.OwnerID,
+			Name:             h.Name,
+			ShortDescription: h.ShortDescription,
 		})
 	}
 
-	response := map[string]interface{}{
+	response := map[string]any{
 		"items":    items,
 		"total":    total,
 		"limit":    limit,
