@@ -1,3 +1,16 @@
+/*
+Package main implements a web server for managing handlers with WebSocket support.
+
+The server provides RESTful endpoints for CRUD operations on handlers and maintains
+active WebSocket connections. It uses PostgreSQL for persistence and includes
+authentication and validation.
+
+Key components:
+- Handler management (create, read, update, delete, list)
+- WebSocket connections with access token authentication
+- Session-based owner validation
+- Configuration via environment variables
+*/
 package main
 
 import (
@@ -20,6 +33,19 @@ import (
 	"gorm.io/gorm"
 )
 
+/*
+Handler represents a service handler with its metadata.
+
+Fields:
+- ID: Unique identifier for the handler (snowflake)
+- Name: Display name of the handler (max 25 chars)
+- ShortDesc: Brief description (max 180 chars)
+- LongDesc: Detailed description (max 1000 chars)
+- AccessToken: Secret token for WebSocket authentication
+- OwnerID: User ID of the handler owner
+- CreatedAt: Unix timestamp of creation time
+- UpdatedAt: Unix timestamp of last update time
+*/
 type Handler struct {
 	ID          string `json:"id" gorm:"primaryKey;type:varchar(20)"`
 	Name        string `json:"name" gorm:"size:255" validate:"required,max=25"`
@@ -31,12 +57,31 @@ type Handler struct {
 	UpdatedAt   int64  `json:"updated_at"`
 }
 
+/*
+ActiveConnection represents an active WebSocket connection.
+
+Fields:
+- Conn: The WebSocket connection
+- HandlerID: Associated handler ID
+- OwnerID: Owner of the handler
+*/
 type ActiveConnection struct {
 	Conn      *websocket.Conn
 	HandlerID string
 	OwnerID   string
 }
 
+/*
+Server contains the application state and dependencies.
+
+Fields:
+- db: Database connection
+- activeConns: Map of active WebSocket connections
+- connMutex: Mutex for concurrent access to activeConns
+- upgrader: WebSocket connection upgrader
+- validator: Request validator
+- node: Snowflake ID generator node
+*/
 type Server struct {
 	db          *gorm.DB
 	activeConns map[string]*ActiveConnection
@@ -46,6 +91,16 @@ type Server struct {
 	node        *snowflake.Node
 }
 
+/*
+NewServer initializes a new Server instance.
+
+Parameters:
+- postgresDSN: PostgreSQL connection string
+
+Returns:
+- *Server: Initialized server instance
+- error: Any initialization error
+*/
 func NewServer(postgresDSN string) (*Server, error) {
 	db, err := gorm.Open(postgres.Open(postgresDSN), &gorm.Config{})
 	if err != nil {
@@ -76,6 +131,16 @@ func NewServer(postgresDSN string) (*Server, error) {
 	}, nil
 }
 
+/*
+validateOwner checks if a session is valid and returns the owner ID.
+
+Parameters:
+- sessionID: Session identifier from request header
+
+Returns:
+- string: Owner ID if session is valid
+- error: Validation error if session is invalid
+*/
 func (s *Server) validateOwner(sessionID string) (string, error) {
 	var session struct {
 		UserID string
@@ -92,10 +157,35 @@ func (s *Server) validateOwner(sessionID string) (string, error) {
 	return ownerID, nil
 }
 
+/*
+validateHandler validates handler fields using struct tags.
+
+Parameters:
+- handler: Handler instance to validate
+
+Returns:
+- error: Validation errors if any
+*/
 func (s *Server) validateHandler(handler *Handler) error {
 	return s.validator.Struct(handler)
 }
 
+/*
+createHandler handles POST /api/handlers to create a new handler.
+
+The endpoint:
+1. Validates session
+2. Parses request body
+3. Validates handler data
+4. Generates ID and access token
+5. Stores in database
+
+Response:
+- 201 Created: Success with created handler in body
+- 400 Bad Request: Invalid data
+- 401 Unauthorized: Invalid session
+- 500 Internal Server Error: Database failure
+*/
 func (s *Server) createHandler(w http.ResponseWriter, r *http.Request) {
 	sessionID := r.Header.Get("X-Session-ID")
 	if sessionID == "" {
@@ -137,6 +227,20 @@ func (s *Server) createHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(handler)
 }
 
+/*
+getHandler handles GET /api/handlers/{id} to retrieve a handler.
+
+The endpoint:
+1. Validates session
+2. Checks ownership
+3. Returns handler data
+
+Response:
+- 200 OK: Success with handler in body
+- 401 Unauthorized: Invalid session
+- 404 Not Found: Handler not found or not owned
+- 500 Internal Server Error: Database failure
+*/
 func (s *Server) getHandler(w http.ResponseWriter, r *http.Request) {
 	sessionID := r.Header.Get("X-Session-ID")
 	if sessionID == "" {
@@ -167,6 +271,22 @@ func (s *Server) getHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(handler)
 }
 
+/*
+updateHandler handles PUT /api/handlers/{id} to update a handler.
+
+The endpoint:
+1. Validates session
+2. Checks ownership
+3. Validates updates
+4. Applies changes
+
+Response:
+- 204 No Content: Success
+- 400 Bad Request: Invalid data
+- 401 Unauthorized: Invalid session
+- 404 Not Found: Handler not found or not owned
+- 500 Internal Server Error: Database failure
+*/
 func (s *Server) updateHandler(w http.ResponseWriter, r *http.Request) {
 	sessionID := r.Header.Get("X-Session-ID")
 	if sessionID == "" {
@@ -218,6 +338,19 @@ func (s *Server) updateHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+/*
+deleteHandler handles DELETE /api/handlers/{id} to remove a handler.
+
+The endpoint:
+1. Validates session
+2. Checks ownership
+3. Deletes handler
+
+Response:
+- 204 No Content: Success
+- 401 Unauthorized: Invalid session
+- 500 Internal Server Error: Database failure
+*/
 func (s *Server) deleteHandler(w http.ResponseWriter, r *http.Request) {
 	sessionID := r.Header.Get("X-Session-ID")
 	if sessionID == "" {
@@ -241,6 +374,19 @@ func (s *Server) deleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+/*
+listHandlers handles GET /api/handlers to list handlers with pagination.
+
+Query parameters:
+- search: Optional search term for name
+- page: Page number (default 1)
+- limit: Items per page (default 10, max 100)
+
+Response:
+- 200 OK: Paginated list of handlers
+- 401 Unauthorized: Invalid session
+- 500 Internal Server Error: Database failure
+*/
 func (s *Server) listHandlers(w http.ResponseWriter, r *http.Request) {
 	sessionID := r.Header.Get("X-Session-ID")
 	if sessionID == "" {
@@ -307,6 +453,25 @@ func (s *Server) listHandlers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+/*
+websocketHandler handles WebSocket connections at /ws.
+
+The endpoint:
+1. Validates access token
+2. Checks for existing connection
+3. Upgrades to WebSocket
+4. Manages connection lifecycle
+
+Query parameters:
+- access_token: Required handler access token
+
+Response:
+- 101 Switching Protocols: Successful upgrade
+- 400 Bad Request: Missing token
+- 401 Unauthorized: Invalid token
+- 409 Conflict: Existing connection
+- 500 Internal Server Error: Database failure
+*/
 func (s *Server) websocketHandler(w http.ResponseWriter, r *http.Request) {
 	accessToken := r.URL.Query().Get("access_token")
 	if accessToken == "" {
@@ -364,6 +529,23 @@ func (s *Server) websocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/*
+loadConfig loads configuration from environment variables.
+
+Configuration sources:
+1. .env file
+2. Environment variables
+
+Required variables:
+- DB_USER
+- DB_PASSWORD
+- DB_NAME
+
+Default values:
+- DB_HOST: localhost
+- DB_PORT: 5432
+- DB_SSL_MODE: disable
+*/
 func loadConfig() {
 	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
@@ -384,6 +566,15 @@ func loadConfig() {
 	}
 }
 
+/*
+main is the application entry point.
+
+It:
+1. Loads configuration
+2. Initializes database connection
+3. Sets up HTTP routes
+4. Starts the server
+*/
 func main() {
 	loadConfig()
 
@@ -415,6 +606,15 @@ func main() {
 	log.Fatal(http.ListenAndServe(port, nil))
 }
 
+/*
+loggingMiddleware provides request logging.
+
+Parameters:
+- next: The next handler in the chain
+
+Returns:
+- http.Handler: Wrapped handler with logging
+*/
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
