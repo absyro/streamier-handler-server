@@ -33,6 +33,8 @@ const eslintConfig = [
       "no-duplicate-imports": "off",
       "id-length": "off",
       "sort-imports": "off",
+      "max-statements": "off",
+      "no-await-in-loop": "off",
     },
   },
   ...eslintTS.configs.all,
@@ -114,6 +116,8 @@ const eslintConfig = [
       "@typescript-eslint/no-magic-numbers": "off",
       "@typescript-eslint/parameter-properties": "off",
       "@typescript-eslint/max-params": "off",
+      "@typescript-eslint/no-misused-spread": "off",
+      "@typescript-eslint/init-declarations": "off",
     },
   },
   {

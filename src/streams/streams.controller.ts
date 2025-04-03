@@ -11,33 +11,26 @@ import {
 
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
+import { Stream } from "./entities/stream.entity";
 import { StreamsService } from "./streams.service";
 
 @Controller("api/streams")
 export class StreamsController {
-  constructor(private readonly streamsService: StreamsService) {}
+  public constructor(private readonly streamsService: StreamsService) {}
 
   @Post()
   public async create(
     @Headers("x-session-id") sessionId: string,
     @Body() createStreamDto: CreateStreamDto,
-  ) {
+  ): Promise<Stream> {
     return this.streamsService.create(createStreamDto);
-  }
-
-  @Get("by-handler/:handlerId")
-  public async findByHandlerId(
-    @Headers("x-session-id") sessionId: string,
-    @Param("handlerId") handlerId: string,
-  ) {
-    return this.streamsService.findByHandlerId(handlerId);
   }
 
   @Get(":id")
   public async findOne(
     @Headers("x-session-id") sessionId: string,
     @Param("id") id: string,
-  ) {
+  ): Promise<Stream> {
     return this.streamsService.findOne(id);
   }
 
@@ -45,7 +38,7 @@ export class StreamsController {
   public async remove(
     @Headers("x-session-id") sessionId: string,
     @Param("id") id: string,
-  ) {
+  ): Promise<void> {
     return this.streamsService.remove(id);
   }
 
@@ -54,7 +47,7 @@ export class StreamsController {
     @Headers("x-session-id") sessionId: string,
     @Param("id") id: string,
     @Body() updateStreamDto: UpdateStreamDto,
-  ) {
+  ): Promise<Stream> {
     return this.streamsService.update(id, updateStreamDto);
   }
 }
