@@ -1,11 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
-
-import { Stream } from "../../streams/entities/stream.entity";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Handler {
   @Column({ length: 64, unique: true })
-  public accessToken: string;
+  public authToken: string;
 
   @Column({ type: "bigint" })
   public createdAt: number;
@@ -27,9 +25,6 @@ export class Handler {
 
   @Column({ length: 180 })
   public shortDescription: string;
-
-  @OneToMany(() => Stream, (stream) => stream.handler)
-  public streams: Stream[];
 
   @Column({ type: "bigint" })
   public updatedAt: number;

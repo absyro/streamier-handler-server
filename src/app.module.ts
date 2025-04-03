@@ -4,7 +4,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import Joi from "joi";
 
 import { HandlersModule } from "./handlers/handlers.module";
-import { StreamsModule } from "./streams/streams.module";
 import { Environment } from "./types/environment";
 
 @Module({
@@ -44,7 +43,6 @@ import { Environment } from "./types/environment";
       username: process.env.DB_USER,
     }),
     HandlersModule,
-    StreamsModule,
   ],
 })
 export class AppModule {}

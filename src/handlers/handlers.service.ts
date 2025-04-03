@@ -47,7 +47,7 @@ export class HandlersService {
 
     handler.iconId = createHandlerDto.iconId;
 
-    handler.accessToken = this.generateAccessToken();
+    handler.authToken = this.generateAuthToken();
 
     handler.ownerId = ownerId;
 
@@ -62,6 +62,10 @@ export class HandlersService {
     const ownerId = await this.validateOwner(sessionId);
 
     return this.handlerRepository.find({ where: { ownerId } });
+  }
+
+  public async findByAuthToken(authToken: string): Promise<Handler> {
+    return this.handlerRepository.findOne({ where: { authToken } });
   }
 
   public async findOne(sessionId: string, id: string): Promise<Handler> {
@@ -110,7 +114,7 @@ export class HandlersService {
     return "user-id-from-session";
   }
 
-  private generateAccessToken(): string {
+  private generateAuthToken(): string {
     return (
       Math.random().toString(36).substring(2, 15) +
       Math.random().toString(36).substring(2, 15)

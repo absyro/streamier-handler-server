@@ -35,6 +35,9 @@ const eslintConfig = [
       "max-statements": "off",
       "no-await-in-loop": "off",
       "one-var": "off",
+      "no-undefined": "off",
+      "no-underscore-dangle": "off",
+      "no-ternary": "off",
     },
   },
   ...eslintTS.configs.all,
@@ -120,6 +123,7 @@ const eslintConfig = [
       "@typescript-eslint/init-declarations": "off",
       "@typescript-eslint/no-namespace": "off",
       "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/member-ordering": "off",
     },
   },
   {
