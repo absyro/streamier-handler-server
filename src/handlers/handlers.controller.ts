@@ -3,26 +3,26 @@ import {
   Controller,
   Delete,
   Get,
-  Headers,
   Param,
   Post,
   Put,
   Query,
 } from "@nestjs/common";
 
+import { UserId } from "../common/decorators/user-id.decorator";
 import { ActiveHandlerResponseDto } from "./dto/active-handler.dto";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
 import { HandlersService } from "./handlers.service";
 
-@Controller("api/handlers")
+@Controller("handlers")
 export class HandlersController {
   public constructor(private readonly handlersService: HandlersService) {}
 
   @Post()
   public async create(
-    @Headers("x-session-id") sessionId: string,
+    @UserId() userId: string,
     @Body() createHandlerDto: CreateHandlerDto,
   ): Promise<Handler> {
     return this.handlersService.createOneForSessionId(
@@ -32,18 +32,16 @@ export class HandlersController {
   }
 
   @Get()
-  public async findAll(
-    @Headers("x-session-id") sessionId: string,
-  ): Promise<Handler[]> {
-    return this.handlersService.findAllBySessionId(sessionId);
+  public async findAll(@UserId() userId: string): Promise<Handler[]> {
+    return this.handlersService.findAllByUserId(sessionId);
   }
 
   @Get(":handlerId")
   public async findOne(
-    @Headers("x-session-id") sessionId: string,
+    @UserId() userId: string,
     @Param("handlerId") handlerId: string,
   ): Promise<Handler> {
-    return this.handlersService.findOneBySessionIdAndHandlerId(
+    return this.handlersService.findOneByUserIdAndHandlerId(
       sessionId,
       handlerId,
     );
@@ -77,10 +75,10 @@ export class HandlersController {
 
   @Delete(":handlerId")
   public async remove(
-    @Headers("x-session-id") sessionId: string,
+    @UserId() userId: string,
     @Param("handlerId") handlerId: string,
   ): Promise<void> {
-    return this.handlersService.deleteOneBySessionIdAndHandlerId(
+    return this.handlersService.deleteOneByUserIdAndHandlerId(
       sessionId,
       handlerId,
     );
@@ -88,11 +86,11 @@ export class HandlersController {
 
   @Put(":handlerId")
   public async update(
-    @Headers("x-session-id") sessionId: string,
+    @UserId() userId: string,
     @Param("handlerId") handlerId: string,
     @Body() updateHandlerDto: UpdateHandlerDto,
   ): Promise<Handler> {
-    return this.handlersService.updateOneBySessionIdAndHandlerId(
+    return this.handlersService.updateOneByUserIdAndHandlerId(
       sessionId,
       handlerId,
       updateHandlerDto,
