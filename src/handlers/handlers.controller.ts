@@ -18,7 +18,7 @@ import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
 import { HandlersService } from "./handlers.service";
 
-@Controller("handlers")
+@Controller("api/handlers")
 export class HandlersController {
   public constructor(
     private readonly handlersService: HandlersService,

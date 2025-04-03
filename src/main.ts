@@ -4,7 +4,6 @@ import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 import { AppModule } from "./app.module";
-import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { WsAdapter } from "./websocket/websocket.adapter";
 
 async function bootstrap(): Promise<void> {
@@ -23,8 +22,6 @@ async function bootstrap(): Promise<void> {
         .build(),
     ),
   );
-
-  app.useGlobalFilters(new HttpExceptionFilter());
 
   app.useWebSocketAdapter(new WsAdapter(app));
 
