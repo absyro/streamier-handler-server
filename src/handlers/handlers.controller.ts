@@ -6,13 +6,13 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UnauthorizedException,
 } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import randomatic from "randomatic";
-import { Repository } from "typeorm";
+import { DataSource } from "typeorm";
 
 import { UserId } from "../common/decorators/user-id.decorator";
+import { ActiveHandlerResponseDto } from "./dto/active-handler.dto";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
@@ -22,8 +22,7 @@ import { HandlersService } from "./handlers.service";
 export class HandlersController {
   public constructor(
     private readonly handlersService: HandlersService,
-    @InjectRepository(Handler)
-    private readonly handlerRepository: Repository<Handler>,
+    private readonly dataSource: DataSource,
   ) {}
 
   @Post()
@@ -31,45 +30,7 @@ export class HandlersController {
     @UserId() userId: string,
     @Body() createHandlerDto: CreateHandlerDto,
   ): Promise<Handler> {
-    const count = await this.handlerRepository.count({ where: { userId } });
-
-    const maxHandlersPerUser = 10;
-
-    if (count >= maxHandlersPerUser) {
-      throw new Error(
-        `Maximum number of handlers (${maxHandlersPerUser}) reached`,
-      );
-    }
-
-    const handler = new Handler();
-
-    let id: string;
-
-    let authToken: string;
-
-    do {
-      id = randomatic("Aa0!", 64);
-    } while (await this.handlerRepository.exists({ where: { id } }));
-
-    do {
-      authToken = randomatic("Aa0!", 8);
-    } while (await this.handlerRepository.exists({ where: { authToken } }));
-
-    handler.id = id;
-
-    handler.name = createHandlerDto.name;
-
-    handler.shortDescription = createHandlerDto.shortDescription;
-
-    handler.longDescription = createHandlerDto.longDescription;
-
-    handler.iconId = createHandlerDto.iconId;
-
-    handler.authToken = authToken;
-
-    handler.userId = userId;
-
-    return this.handlerRepository.save(handler);
+    return this.handlersService.createOne(userId, createHandlerDto);
   }
 
   @Get()
@@ -85,6 +46,32 @@ export class HandlersController {
     const { authToken, ...handler } = await this.handlersService.findOne(id);
 
     return { ...handler, ...(handler.userId === userId && { authToken }) };
+  }
+
+  @Get("active/list")
+  public listActiveHandlers(
+    @Query("owner_id") ownerId?: string,
+    @Query("search") searchTerm?: string,
+    @Query("limit") limit = "20",
+    @Query("offset") offset = "0",
+  ): {
+    hasMore: boolean;
+    items: ActiveHandlerResponseDto[];
+    limit: number;
+    offset: number;
+    total: number;
+  } {
+    /*
+     * Implementation would query active connections and handlers
+     * Similar to the Go version but adapted for NestJS
+     */
+    return {
+      hasMore: false,
+      items: [],
+      limit: Number.parseInt(limit, 10),
+      offset: Number.parseInt(offset, 10),
+      total: 0,
+    };
   }
 
   @Delete(":id")

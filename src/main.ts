@@ -1,6 +1,7 @@
 import type { NestExpressApplication } from "@nestjs/platform-express";
 
 import { NestFactory } from "@nestjs/core";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
@@ -10,6 +11,18 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,
   });
+
+  SwaggerModule.setup("api", app, () =>
+    SwaggerModule.createDocument(
+      app,
+      new DocumentBuilder()
+        .setTitle("Cats example")
+        .setDescription("The cats API description")
+        .setVersion("1.0")
+        .addTag("cats")
+        .build(),
+    ),
+  );
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
