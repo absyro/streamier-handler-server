@@ -32,8 +32,8 @@ import { Environment } from "./types/environment";
       }),
     }),
     TypeOrmModule.forRoot({
+      autoLoadEntities: true,
       database: process.env.DB_NAME,
-      entities: [`${__dirname}/**/*.entity{.ts,.js}`],
       host: process.env.DB_HOST,
       password: process.env.DB_PASSWORD,
       port: process.env.DB_PORT,

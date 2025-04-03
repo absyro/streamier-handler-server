@@ -1,18 +1,16 @@
-import { IsOptional, IsString, MaxLength } from "class-validator";
+import { IsString, MaxLength } from "class-validator";
 
 export class CreateHandlerDto {
-  @IsOptional()
   @IsString()
   @MaxLength(50)
-  public iconId?: string;
+  public iconId: string;
 
-  @IsOptional()
   @IsString()
   @MaxLength(1000)
-  public longDescription?: string;
+  public longDescription: string;
 
   @IsString()
-  @MaxLength(25)
+  @MaxLength(100)
   public name: string;
 
   @IsString()

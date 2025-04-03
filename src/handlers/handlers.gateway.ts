@@ -30,7 +30,7 @@ export class HandlersGateway
     }
 
     try {
-      const handler = await this.handlersService.findByAuthToken(authToken);
+      const handler = await this.handlersService.findOneByAuthToken(authToken);
 
       if (!handler) {
         socket.disconnect(true);

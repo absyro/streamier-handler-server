@@ -25,22 +25,28 @@ export class HandlersController {
     @Headers("x-session-id") sessionId: string,
     @Body() createHandlerDto: CreateHandlerDto,
   ): Promise<Handler> {
-    return this.handlersService.create(sessionId, createHandlerDto);
+    return this.handlersService.createOneForSessionId(
+      sessionId,
+      createHandlerDto,
+    );
   }
 
   @Get()
   public async findAll(
     @Headers("x-session-id") sessionId: string,
   ): Promise<Handler[]> {
-    return this.handlersService.findAll(sessionId);
+    return this.handlersService.findAllBySessionId(sessionId);
   }
 
-  @Get(":id")
+  @Get(":handlerId")
   public async findOne(
     @Headers("x-session-id") sessionId: string,
-    @Param("id") id: string,
+    @Param("handlerId") handlerId: string,
   ): Promise<Handler> {
-    return this.handlersService.findOne(sessionId, id);
+    return this.handlersService.findOneBySessionIdAndHandlerId(
+      sessionId,
+      handlerId,
+    );
   }
 
   @Get("active/list")
@@ -69,20 +75,27 @@ export class HandlersController {
     };
   }
 
-  @Delete(":id")
+  @Delete(":handlerId")
   public async remove(
     @Headers("x-session-id") sessionId: string,
-    @Param("id") id: string,
+    @Param("handlerId") handlerId: string,
   ): Promise<void> {
-    return this.handlersService.remove(sessionId, id);
+    return this.handlersService.deleteOneBySessionIdAndHandlerId(
+      sessionId,
+      handlerId,
+    );
   }
 
-  @Put(":id")
+  @Put(":handlerId")
   public async update(
     @Headers("x-session-id") sessionId: string,
-    @Param("id") id: string,
+    @Param("handlerId") handlerId: string,
     @Body() updateHandlerDto: UpdateHandlerDto,
   ): Promise<Handler> {
-    return this.handlersService.update(sessionId, id, updateHandlerDto);
+    return this.handlersService.updateOneBySessionIdAndHandlerId(
+      sessionId,
+      handlerId,
+      updateHandlerDto,
+    );
   }
 }

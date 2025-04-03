@@ -38,6 +38,7 @@ const eslintConfig = [
       "no-undefined": "off",
       "no-underscore-dangle": "off",
       "no-ternary": "off",
+      "sort-vars": "off",
     },
   },
   ...eslintTS.configs.all,
