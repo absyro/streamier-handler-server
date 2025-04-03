@@ -9,10 +9,13 @@ import { Request, Response } from "express";
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   public catch(exception: HttpException, host: ArgumentsHost): void {
-    const context = host.switchToHttp(),
-      request = context.getRequest<Request>(),
-      response = context.getResponse<Response>(),
-      status = exception.getStatus();
+    const context = host.switchToHttp();
+
+    const request = context.getRequest<Request>();
+
+    const response = context.getResponse<Response>();
+
+    const status = exception.getStatus();
 
     response.status(status).json({
       message: exception.message,

@@ -3,7 +3,6 @@ import { InjectRepository } from "@nestjs/typeorm";
 import randomatic from "randomatic";
 import { Repository } from "typeorm";
 
-import { appConfig } from "../config/configuration";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
@@ -22,9 +21,11 @@ export class HandlersService {
     const ownerId = await this.validateOwner(sessionId),
       count = await this.handlerRepository.count({ where: { ownerId } });
 
-    if (count >= appConfig.maxHandlersPerUser) {
+    const maxHandlersPerUser = 10;
+
+    if (count >= maxHandlersPerUser) {
       throw new Error(
-        `Maximum number of handlers (${appConfig.maxHandlersPerUser}) reached`,
+        `Maximum number of handlers (${maxHandlersPerUser}) reached`,
       );
     }
 

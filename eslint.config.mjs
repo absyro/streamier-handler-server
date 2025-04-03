@@ -118,6 +118,8 @@ const eslintConfig = [
       "@typescript-eslint/max-params": "off",
       "@typescript-eslint/no-misused-spread": "off",
       "@typescript-eslint/init-declarations": "off",
+      "@typescript-eslint/no-namespace": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
     },
   },
   {

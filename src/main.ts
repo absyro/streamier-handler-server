@@ -4,7 +4,6 @@ import { NestFactory } from "@nestjs/core";
 
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
-import { appConfig } from "./config/configuration";
 import { WsAdapter } from "./websocket/websocket.adapter";
 
 async function bootstrap(): Promise<void> {
@@ -16,7 +15,7 @@ async function bootstrap(): Promise<void> {
 
   app.useWebSocketAdapter(new WsAdapter(app));
 
-  await app.listen(appConfig.port);
+  await app.listen(process.env.PORT);
 }
 
 bootstrap().catch(() => {});
