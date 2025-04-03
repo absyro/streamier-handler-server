@@ -1,9 +1,10 @@
-import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { Request } from "express";
+import type { ExecutionContext } from "@nestjs/common";
+import type { Request } from "express";
 
-export const Session = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest<Request>();
-    return request.headers["x-session-id"];
-  },
-);
+import { createParamDecorator } from "@nestjs/common";
+
+export const Session = createParamDecorator((_, context: ExecutionContext) => {
+  const request = context.switchToHttp().getRequest<Request>();
+
+  return request.headers["x-session-id"];
+});

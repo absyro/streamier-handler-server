@@ -1,18 +1,18 @@
 import { NestFactory } from "@nestjs/core";
+
 import { AppModule } from "./app.module";
-import { appConfig } from "./config/configuration";
-import { LoggingMiddleware } from "./common/middleware/logging.middleware";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
+import { appConfig } from "./config/configuration";
 import { WsAdapter } from "./websocket/websocket.adapter";
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.use(LoggingMiddleware);
+
   app.useWebSocketAdapter(new WsAdapter(app));
 
   await app.listen(appConfig.port);
-  console.log(`Server running on port ${appConfig.port}`);
 }
-bootstrap();
+
+bootstrap().catch(() => {});

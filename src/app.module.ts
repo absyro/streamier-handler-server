@@ -1,21 +1,22 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+
+import { appConfig } from "./config/configuration";
 import { HandlersModule } from "./handlers/handlers.module";
 import { StreamsModule } from "./streams/streams.module";
-import { appConfig } from "./config/configuration";
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: "postgres",
-      host: appConfig.database.host,
-      port: appConfig.database.port,
-      username: appConfig.database.username,
-      password: appConfig.database.password,
       database: appConfig.database.database,
-      entities: [__dirname + "/**/*.entity{.ts,.js}"],
-      synchronize: true,
+      entities: [`${__dirname}/**/*.entity{.ts,.js}`],
+      host: appConfig.database.host,
+      password: appConfig.database.password,
+      port: appConfig.database.port,
       ssl: appConfig.database.sslMode === "require",
+      synchronize: true,
+      type: "postgres",
+      username: appConfig.database.username,
     }),
     HandlersModule,
     StreamsModule,

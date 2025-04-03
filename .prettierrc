@@ -1,0 +1,16 @@
+{
+  "overrides": [
+    {
+      "files": ["package.json"],
+      "options": {
+        "plugins": ["prettier-plugin-packagejson"]
+      }
+    },
+    {
+      "files": ["*.{j,cj,mj,t,ct,mt}s"],
+      "options": {
+        "plugins": ["prettier-plugin-jsdoc"]
+      }
+    }
+  ]
+}

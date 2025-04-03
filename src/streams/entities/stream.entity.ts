@@ -1,29 +1,30 @@
-import { Entity, PrimaryColumn, Column, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+
 import { Handler } from "../../handlers/entities/handler.entity";
 
 @Entity()
 export class Stream {
-  @PrimaryColumn({ type: "varchar", length: 20 })
-  id: string;
-
-  @Column({ length: 100 })
-  name: string;
-
   @Column({ type: "jsonb" })
-  configuration: Record<string, unknown>;
+  public configuration: Record<string, unknown>;
 
-  @Column({ default: true })
-  isActive: boolean;
-
-  @Column({ type: "varchar", length: 20 })
-  handlerId: string;
+  @Column({ type: "bigint" })
+  public createdAt: number;
 
   @ManyToOne(() => Handler, (handler) => handler.streams)
-  handler: Handler;
+  public handler: Handler;
+
+  @Column({ length: 20, type: "varchar" })
+  public handlerId: string;
+
+  @PrimaryColumn({ length: 20, type: "varchar" })
+  public id: string;
+
+  @Column({ default: true })
+  public isActive: boolean;
+
+  @Column({ length: 100 })
+  public name: string;
 
   @Column({ type: "bigint" })
-  createdAt: number;
-
-  @Column({ type: "bigint" })
-  updatedAt: number;
+  public updatedAt: number;
 }

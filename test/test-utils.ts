@@ -36,7 +36,7 @@ export class TestUtils {
 
   static async createSocketClient(
     port: number,
-    accessToken?: string
+    accessToken?: string,
   ): Promise<Socket> {
     return new Promise((resolve) => {
       const client = io(`http://localhost:${port}/handlers`, {
