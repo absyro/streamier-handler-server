@@ -14,7 +14,7 @@ export class HandlersService {
     private readonly handlerRepository: Repository<Handler>,
   ) {}
 
-  public async createOneByUserId(
+  public async createOne(
     userId: string,
     createHandlerDto: CreateHandlerDto,
   ): Promise<Handler> {
@@ -59,7 +59,7 @@ export class HandlersService {
     return this.handlerRepository.save(handler);
   }
 
-  public async deleteOneById(id: string): Promise<void> {
+  public async deleteOne(id: string): Promise<void> {
     const result = await this.handlerRepository.delete({ id });
 
     if (result.affected === 0) {
@@ -67,23 +67,23 @@ export class HandlersService {
     }
   }
 
-  public async findAllByUserId(userId: string): Promise<Handler[]> {
+  public async findAll(userId: string): Promise<Handler[]> {
     return this.handlerRepository.find({ where: { userId } });
   }
 
-  public async findOneByAuthToken(authToken: string): Promise<Handler> {
-    return this.handlerRepository.findOne({ where: { authToken } });
-  }
-
-  public async findOneById(id: string): Promise<Handler> {
+  public async findOne(id: string): Promise<Handler> {
     return this.handlerRepository.findOne({ where: { id } });
   }
 
-  public async updateOneById(
+  public async findOneUsingAuthToken(authToken: string): Promise<Handler> {
+    return this.handlerRepository.findOne({ where: { authToken } });
+  }
+
+  public async updateOne(
     id: string,
     updateHandlerDto: UpdateHandlerDto,
   ): Promise<Handler> {
-    const existing = await this.findOneById(id);
+    const existing = await this.findOne(id);
 
     const updated = { ...existing, ...updateHandlerDto };
 
