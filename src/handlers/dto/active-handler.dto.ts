@@ -1,10 +1,10 @@
 export class ActiveHandlerResponseDto {
-  id: string;
-  name: string;
-  shortDescription: string;
-  longDescription: string;
-  ownerId: string;
-  iconId: string;
-  createdAt: number;
-  updatedAt: number;
+  public createdAt: number;
+  public iconId: string;
+  public id: string;
+  public longDescription: string;
+  public name: string;
+  public ownerId: string;
+  public shortDescription: string;
+  public updatedAt: number;
 }

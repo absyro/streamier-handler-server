@@ -1,3 +1,5 @@
+import type { NestExpressApplication } from "@nestjs/platform-express";
+
 import { NestFactory } from "@nestjs/core";
 
 import { AppModule } from "./app.module";
@@ -6,7 +8,9 @@ import { appConfig } from "./config/configuration";
 import { WsAdapter } from "./websocket/websocket.adapter";
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    cors: true,
+  });
 
   app.useGlobalFilters(new HttpExceptionFilter());
 

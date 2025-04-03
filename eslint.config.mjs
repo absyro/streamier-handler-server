@@ -111,6 +111,9 @@ const eslintConfig = [
       "@typescript-eslint/class-methods-use-this": "off",
       "@typescript-eslint/no-empty-function": "off",
       "@typescript-eslint/no-extraneous-class": "off",
+      "@typescript-eslint/no-magic-numbers": "off",
+      "@typescript-eslint/parameter-properties": "off",
+      "@typescript-eslint/max-params": "off",
     },
   },
   {

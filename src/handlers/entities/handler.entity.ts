@@ -1,36 +1,36 @@
-import { Entity, PrimaryColumn, Column } from "typeorm";
-import { OneToMany } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+
 import { Stream } from "../../streams/entities/stream.entity";
 
 @Entity()
 export class Handler {
-  @PrimaryColumn({ type: "varchar", length: 20 })
-  id: string;
-
-  @Column({ length: 255 })
-  name: string;
-
-  @Column({ length: 180 })
-  shortDescription: string;
-
-  @Column({ length: 1000, nullable: true })
-  longDescription: string;
-
   @Column({ length: 64, unique: true })
-  accessToken: string;
+  public accessToken: string;
 
-  @Column({ type: "varchar", length: 20 })
-  ownerId: string;
+  @Column({ type: "bigint" })
+  public createdAt: number;
 
   @Column({ length: 50, nullable: true })
-  iconId: string;
+  public iconId: string;
 
-  @Column({ type: "bigint" })
-  createdAt: number;
+  @PrimaryColumn({ length: 20, type: "varchar" })
+  public id: string;
 
-  @Column({ type: "bigint" })
-  updatedAt: number;
+  @Column({ length: 1000, nullable: true })
+  public longDescription: string;
+
+  @Column({ length: 255 })
+  public name: string;
+
+  @Column({ length: 20, type: "varchar" })
+  public ownerId: string;
+
+  @Column({ length: 180 })
+  public shortDescription: string;
 
   @OneToMany(() => Stream, (stream) => stream.handler)
-  streams: Stream[];
+  public streams: Stream[];
+
+  @Column({ type: "bigint" })
+  public updatedAt: number;
 }

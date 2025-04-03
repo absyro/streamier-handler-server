@@ -24,7 +24,7 @@ export class HandlersGateway
 
   constructor(
     private readonly handlersService: HandlersService,
-    private readonly streamsService: StreamsService
+    private readonly streamsService: StreamsService,
   ) {}
 
   async handleConnection(socket: Socket) {
@@ -68,7 +68,7 @@ export class HandlersGateway
       configuration: Record<string, unknown>;
       name: string;
       handlerId: string;
-    }
+    },
   ): Promise<{ error?: string; success: boolean; stream?: any }> {
     try {
       const connection = this.getConnectionBySocket(client);
@@ -85,14 +85,17 @@ export class HandlersGateway
       const stream = await this.streamsService.create(createDto);
       return { success: true, stream };
     } catch (error) {
-      return { error: error.message, success: false };
+      return {
+        error: error instanceof Error ? error.message : "Unknown error",
+        success: false,
+      };
     }
   }
 
   @SubscribeMessage("stream:read")
   async handleStreamRead(
     client: Socket,
-    streamId: string
+    streamId: string,
   ): Promise<{ error?: string; success: boolean; stream?: any }> {
     try {
       const connection = this.getConnectionBySocket(client);
@@ -107,14 +110,17 @@ export class HandlersGateway
 
       return { success: true, stream };
     } catch (error) {
-      return { error: error.message, success: false };
+      return {
+        error: error instanceof Error ? error.message : "Unknown error",
+        success: false,
+      };
     }
   }
 
   @SubscribeMessage("stream:update")
   async handleStreamUpdate(
     client: Socket,
-    payload: { streamId: string; changes: any }
+    payload: { streamId: string; changes: any },
   ): Promise<{ error?: string; success: boolean; stream?: any }> {
     try {
       const connection = this.getConnectionBySocket(client);
@@ -124,18 +130,21 @@ export class HandlersGateway
 
       const updated = await this.streamsService.update(
         payload.streamId,
-        payload.changes
+        payload.changes,
       );
       return { success: true, stream: updated };
     } catch (error) {
-      return { error: error.message, success: false };
+      return {
+        error: error instanceof Error ? error.message : "Unknown error",
+        success: false,
+      };
     }
   }
 
   @SubscribeMessage("stream:delete")
   async handleStreamDelete(
     client: Socket,
-    streamId: string
+    streamId: string,
   ): Promise<{ error?: string; success: boolean }> {
     try {
       const connection = this.getConnectionBySocket(client);
@@ -146,12 +155,15 @@ export class HandlersGateway
       await this.streamsService.remove(streamId);
       return { success: true };
     } catch (error) {
-      return { error: error.message, success: false };
+      return {
+        error: error instanceof Error ? error.message : "Unknown error",
+        success: false,
+      };
     }
   }
 
   private getConnectionBySocket(
-    socket: Socket
+    socket: Socket,
   ): { socket: Socket; handler: Handler } | undefined {
     for (const conn of this.activeConnections.values()) {
       if (conn.socket === socket) {

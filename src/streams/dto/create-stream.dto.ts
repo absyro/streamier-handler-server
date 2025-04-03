@@ -1,15 +1,15 @@
-import { IsString, IsNotEmpty, IsObject, MaxLength } from "class-validator";
+import { IsNotEmpty, IsObject, IsString, MaxLength } from "class-validator";
 
 export class CreateStreamDto {
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(100)
-  name: string;
-
   @IsObject()
-  configuration: Record<string, unknown>;
+  public configuration: Record<string, unknown>;
 
-  @IsString()
   @IsNotEmpty()
-  handlerId: string;
+  @IsString()
+  public handlerId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100)
+  public name: string;
 }
