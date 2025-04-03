@@ -3,9 +3,11 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { HandlersService } from "./handlers.service";
+import { StreamsService } from "../streams/streams.service";
 import { Handler } from "./entities/handler.entity";
 
 @WebSocketGateway({ namespace: "handlers" })
@@ -20,7 +22,10 @@ export class HandlersGateway
     { socket: Socket; handler: Handler }
   >();
 
-  constructor(private readonly handlersService: HandlersService) {}
+  constructor(
+    private readonly handlersService: HandlersService,
+    private readonly streamsService: StreamsService
+  ) {}
 
   async handleConnection(socket: Socket) {
     const accessToken = socket.handshake.query.access_token as string;
@@ -55,5 +60,104 @@ export class HandlersGateway
         break;
       }
     }
+  }
+  @SubscribeMessage("stream:create")
+  async handleStreamCreate(
+    client: Socket,
+    payload: {
+      configuration: Record<string, unknown>;
+      name: string;
+      handlerId: string;
+    }
+  ): Promise<{ error?: string; success: boolean; stream?: any }> {
+    try {
+      const connection = this.getConnectionBySocket(client);
+      if (!connection) {
+        return { error: "Not authorized", success: false };
+      }
+
+      const createDto = {
+        name: payload.name,
+        configuration: payload.configuration,
+        handlerId: payload.handlerId,
+      };
+
+      const stream = await this.streamsService.create(createDto);
+      return { success: true, stream };
+    } catch (error) {
+      return { error: error.message, success: false };
+    }
+  }
+
+  @SubscribeMessage("stream:read")
+  async handleStreamRead(
+    client: Socket,
+    streamId: string
+  ): Promise<{ error?: string; success: boolean; stream?: any }> {
+    try {
+      const connection = this.getConnectionBySocket(client);
+      if (!connection) {
+        return { error: "Not authorized", success: false };
+      }
+
+      const stream = await this.streamsService.findOne(streamId);
+      if (!stream) {
+        return { error: "Stream not found", success: false };
+      }
+
+      return { success: true, stream };
+    } catch (error) {
+      return { error: error.message, success: false };
+    }
+  }
+
+  @SubscribeMessage("stream:update")
+  async handleStreamUpdate(
+    client: Socket,
+    payload: { streamId: string; changes: any }
+  ): Promise<{ error?: string; success: boolean; stream?: any }> {
+    try {
+      const connection = this.getConnectionBySocket(client);
+      if (!connection) {
+        return { error: "Not authorized", success: false };
+      }
+
+      const updated = await this.streamsService.update(
+        payload.streamId,
+        payload.changes
+      );
+      return { success: true, stream: updated };
+    } catch (error) {
+      return { error: error.message, success: false };
+    }
+  }
+
+  @SubscribeMessage("stream:delete")
+  async handleStreamDelete(
+    client: Socket,
+    streamId: string
+  ): Promise<{ error?: string; success: boolean }> {
+    try {
+      const connection = this.getConnectionBySocket(client);
+      if (!connection) {
+        return { error: "Not authorized", success: false };
+      }
+
+      await this.streamsService.remove(streamId);
+      return { success: true };
+    } catch (error) {
+      return { error: error.message, success: false };
+    }
+  }
+
+  private getConnectionBySocket(
+    socket: Socket
+  ): { socket: Socket; handler: Handler } | undefined {
+    for (const conn of this.activeConnections.values()) {
+      if (conn.socket === socket) {
+        return conn;
+      }
+    }
+    return undefined;
   }
 }

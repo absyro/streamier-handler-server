@@ -1,4 +1,6 @@
 import { Entity, PrimaryColumn, Column } from "typeorm";
+import { OneToMany } from "typeorm";
+import { Stream } from "../../streams/entities/stream.entity";
 
 @Entity()
 export class Handler {
@@ -28,4 +30,7 @@ export class Handler {
 
   @Column({ type: "bigint" })
   updatedAt: number;
+
+  @OneToMany(() => Stream, (stream) => stream.handler)
+  streams: Stream[];
 }

@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { HandlersModule } from "./handlers/handlers.module";
+import { StreamsModule } from "./streams/streams.module";
 import { appConfig } from "./config/configuration";
 
 @Module({
@@ -17,6 +18,7 @@ import { appConfig } from "./config/configuration";
       ssl: appConfig.database.sslMode === "require",
     }),
     HandlersModule,
+    StreamsModule,
   ],
 })
 export class AppModule {}
