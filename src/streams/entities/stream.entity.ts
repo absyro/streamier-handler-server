@@ -1,6 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
-
-import { Handler } from "../../handlers/entities/handler.entity";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class Stream {
@@ -9,9 +7,6 @@ export class Stream {
 
   @Column({ type: "bigint" })
   public createdAt: number;
-
-  @ManyToOne(() => Handler, (handler) => handler.streams)
-  public handler: Handler;
 
   @Column({ length: 20, type: "varchar" })
   public handlerId: string;

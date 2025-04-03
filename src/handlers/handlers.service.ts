@@ -1,34 +1,27 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import randomatic from "randomatic";
 import { Repository } from "typeorm";
-import { Handler } from "./entities/handler.entity";
+
+import { appConfig } from "../config/configuration";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
-import { appConfig } from "../config/configuration";
-import * as Snowflake from "snowflake-id";
+import { Handler } from "./entities/handler.entity";
 
 @Injectable()
 export class HandlersService {
-  private snowflake = new Snowflake();
-
-  constructor(
+  public constructor(
     @InjectRepository(Handler)
     private readonly handlerRepository: Repository<Handler>,
   ) {}
 
-  async validateOwner(sessionId: string): Promise<string> {
-    // In a real app, you would validate the session and return the owner ID
-    // This is a simplified version
-    return "user-id-from-session";
-  }
-
-  async create(
+  public async create(
     sessionId: string,
     createHandlerDto: CreateHandlerDto,
   ): Promise<Handler> {
-    const ownerId = await this.validateOwner(sessionId);
+    const ownerId = await this.validateOwner(sessionId),
+      count = await this.handlerRepository.count({ where: { ownerId } });
 
-    const count = await this.handlerRepository.count({ where: { ownerId } });
     if (count >= appConfig.maxHandlersPerUser) {
       throw new Error(
         `Maximum number of handlers (${appConfig.maxHandlersPerUser}) reached`,
@@ -36,58 +29,84 @@ export class HandlersService {
     }
 
     const handler = new Handler();
-    handler.id = this.snowflake.generate();
+
+    let id: string;
+
+    do {
+      id = randomatic("aA0", 8);
+    } while ((await this.handlerRepository.count({ where: { id } })) > 0);
+
+    handler.id = id;
+
     handler.name = createHandlerDto.name;
+
     handler.shortDescription = createHandlerDto.shortDescription;
+
     handler.longDescription = createHandlerDto.longDescription;
+
     handler.iconId = createHandlerDto.iconId;
+
     handler.accessToken = this.generateAccessToken();
+
     handler.ownerId = ownerId;
+
     handler.createdAt = Date.now();
+
     handler.updatedAt = handler.createdAt;
 
     return this.handlerRepository.save(handler);
   }
 
-  async findAll(sessionId: string): Promise<Handler[]> {
+  public async findAll(sessionId: string): Promise<Handler[]> {
     const ownerId = await this.validateOwner(sessionId);
+
     return this.handlerRepository.find({ where: { ownerId } });
   }
 
-  async findOne(sessionId: string, id: string): Promise<Handler> {
-    const ownerId = await this.validateOwner(sessionId);
-    const handler = await this.handlerRepository.findOne({
-      where: { id, ownerId },
-    });
+  public async findOne(sessionId: string, id: string): Promise<Handler> {
+    const ownerId = await this.validateOwner(sessionId),
+      handler = await this.handlerRepository.findOne({
+        where: { id, ownerId },
+      });
+
     if (!handler) {
       throw new NotFoundException("Handler not found");
     }
+
     return handler;
   }
 
-  async update(
+  public async remove(sessionId: string, id: string): Promise<void> {
+    const ownerId = await this.validateOwner(sessionId),
+      result = await this.handlerRepository.delete({ id, ownerId });
+
+    if (result.affected === 0) {
+      throw new NotFoundException("Handler not found");
+    }
+  }
+
+  public async update(
     sessionId: string,
     id: string,
     updateHandlerDto: UpdateHandlerDto,
   ): Promise<Handler> {
-    const ownerId = await this.validateOwner(sessionId);
-    const existing = await this.findOne(sessionId, id);
-
-    const updated = {
-      ...existing,
-      ...updateHandlerDto,
-      updatedAt: Date.now(),
-    };
+    const existing = await this.findOne(sessionId, id),
+      ownerId = await this.validateOwner(sessionId),
+      updated = {
+        ...existing,
+        ...updateHandlerDto,
+        updatedAt: Date.now(),
+      };
 
     return this.handlerRepository.save(updated);
   }
 
-  async remove(sessionId: string, id: string): Promise<void> {
-    const ownerId = await this.validateOwner(sessionId);
-    const result = await this.handlerRepository.delete({ id, ownerId });
-    if (result.affected === 0) {
-      throw new NotFoundException("Handler not found");
-    }
+  public async validateOwner(sessionId: string): Promise<string> {
+    /*
+     * In a real app, you would validate the session and return the owner ID
+     * This is a simplified version
+     */
+    return "user-id-from-session";
   }
 
   private generateAccessToken(): string {
