@@ -1,42 +1,56 @@
-# Binaries for programs and plugins
-*.exe
-*.dll
-*.so
-*.dylib
+# compiled output
+/dist
+/node_modules
+/build
 
-# Output of `go build` and `go test`
-/bin/
-/build/
-/dist/
-*.out
-
-# Dependency directories (for vendored dependencies)
-vendor/
-
-# Go module files
-go.sum
-
-# IDE and editor-specific files
-.idea/
-*.iml
-.vscode/
-*.swp
-
-# Logs and debugging
+# Logs
+logs
 *.log
-*.trace
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Operating system files
+# OS
 .DS_Store
-Thumbs.db
 
-# Temporary files
-*.tmp
-*.temp
-*.bak
+# Tests
+/coverage
+/.nyc_output
 
-# Test binary
-*.test
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
-# Environment variables
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# dotenv environment variable files
 .env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# temp directory
+.temp
+.tmp
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

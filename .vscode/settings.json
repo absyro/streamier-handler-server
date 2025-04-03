@@ -1,6 +1,4 @@
 {
   "editor.formatOnSave": true,
-  "[go]": {
-    "editor.defaultFormatter": "golang.go"
-  }
+  "material-icon-theme.activeIconPack": "nest"
 }
