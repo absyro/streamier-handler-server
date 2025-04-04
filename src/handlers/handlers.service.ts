@@ -71,11 +71,13 @@ export class HandlersService {
     return this.handlerRepository.find({ where: { userId } });
   }
 
-  public async findOne(id: string): Promise<Handler> {
+  public async findOne(id: string): Promise<Handler | null> {
     return this.handlerRepository.findOne({ where: { id } });
   }
 
-  public async findOneUsingAuthToken(authToken: string): Promise<Handler> {
+  public async findOneUsingAuthToken(
+    authToken: string,
+  ): Promise<Handler | null> {
     return this.handlerRepository.findOne({ where: { authToken } });
   }
 

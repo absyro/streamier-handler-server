@@ -155,6 +155,8 @@ const eslintConfig = [
     rules: {
       "unicorn/prefer-top-level-await": "off",
       "unicorn/prefer-module": "off",
+      "unicorn/explicit-length-check": "off",
+      "unicorn/no-null": "off",
     },
   },
   eslintPluginPerfectionist.configs["recommended-natural"],

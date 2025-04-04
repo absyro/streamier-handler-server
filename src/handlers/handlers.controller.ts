@@ -11,7 +11,6 @@ import {
 } from "@nestjs/common";
 import { DataSource } from "typeorm";
 
-import { UserId } from "../common/decorators/user-id.decorator";
 import { ActiveHandlerResponseDto } from "./dto/active-handler.dto";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
@@ -27,20 +26,18 @@ export class HandlersController {
 
   @Post()
   public async createOne(
-    @UserId() userId: string,
     @Body() createHandlerDto: CreateHandlerDto,
   ): Promise<Handler> {
     return this.handlersService.createOne(userId, createHandlerDto);
   }
 
   @Get()
-  public async findAll(@UserId() userId: string): Promise<Handler[]> {
+  public async findAll(): Promise<Handler[]> {
     return this.handlersService.findAll(userId);
   }
 
   @Get(":id")
   public async findOne(
-    @UserId() userId: string,
     @Param("id") id: string,
   ): Promise<Omit<Handler, "updateTimestamp">> {
     const { authToken, ...handler } = await this.handlersService.findOne(id);
@@ -75,10 +72,7 @@ export class HandlersController {
   }
 
   @Delete(":id")
-  public async remove(
-    @UserId() userId: string,
-    @Param("id") id: string,
-  ): Promise<void> {
+  public async remove(@Param("id") id: string): Promise<void> {
     const [handler] = await this.dataSource.query<{ user_id: string }[]>(
       "SELECT user_id FROM handlers WHERE id = ?",
       [id],
@@ -93,7 +87,6 @@ export class HandlersController {
 
   @Put(":id")
   public async update(
-    @UserId() userId: string,
     @Param("id") id: string,
     @Body() updateHandlerDto: UpdateHandlerDto,
   ): Promise<Handler> {

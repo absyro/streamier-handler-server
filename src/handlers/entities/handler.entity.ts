@@ -3,31 +3,31 @@ import { BeforeUpdate, Column, Entity, PrimaryColumn } from "typeorm";
 @Entity()
 export class Handler {
   @Column({ length: 64, unique: true })
-  public authToken: string;
+  public authToken!: string;
 
   @Column({ default: () => "CURRENT_TIMESTAMP", type: "timestamp" })
-  public createdAt: Date;
+  public createdAt!: Date;
 
   @Column({ length: 50 })
-  public iconId: string;
+  public iconId!: string;
 
   @PrimaryColumn({ length: 8, type: "varchar" })
-  public id: string;
+  public id!: string;
 
   @Column({ length: 1000 })
-  public longDescription: string;
+  public longDescription!: string;
 
   @Column({ length: 255 })
-  public name: string;
+  public name!: string;
 
   @Column({ length: 180 })
-  public shortDescription: string;
+  public shortDescription!: string;
 
   @Column({ default: () => "CURRENT_TIMESTAMP", type: "timestamp" })
-  public updatedAt: Date;
+  public updatedAt!: Date;
 
   @Column({ length: 20, type: "varchar" })
-  public userId: string;
+  public userId!: string;
 
   @BeforeUpdate()
   public updateTimestamp(): void {
