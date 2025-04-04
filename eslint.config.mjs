@@ -40,6 +40,7 @@ const eslintConfig = [
       "no-ternary": "off",
       "sort-vars": "off",
       "max-lines-per-function": "off",
+      "require-atomic-updates": "off",
     },
   },
   ...eslintTS.configs.all,

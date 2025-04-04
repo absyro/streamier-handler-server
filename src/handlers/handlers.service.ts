@@ -97,10 +97,6 @@ export class HandlersService {
     return this.handlerRepository.findOne({ where: { authToken } });
   }
 
-  public async isAuthTokenValid(authToken: string): Promise<boolean> {
-    return this.handlerRepository.exists({ where: { authToken } });
-  }
-
   public async updateOne(
     id: string,
     updateHandlerDto: UpdateHandlerDto,
