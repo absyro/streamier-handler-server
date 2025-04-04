@@ -1,3 +1,4 @@
+import { Logger } from "@nestjs/common";
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -29,32 +30,34 @@ export class HandlersGateway
       return;
     }
 
-    try {
-      const handler =
-        await this.handlersService.findOneUsingAuthToken(authToken);
+    const handler = await this.handlersService.findOneUsingAuthToken(authToken);
 
-      if (!handler) {
-        socket.disconnect(true);
-
-        return;
-      }
-
-      if (this._activeConnections.has(authToken)) {
-        socket.disconnect(true);
-
-        return;
-      }
-
-      this._activeConnections.set(authToken, { handler, socket });
-    } catch {
+    if (!handler) {
       socket.disconnect(true);
+
+      return;
     }
+
+    if (this._activeConnections.has(authToken)) {
+      socket.disconnect(true);
+
+      return;
+    }
+
+    this._activeConnections.set(authToken, { handler, socket });
+
+    Logger.log(`Handler ${handler.name} connected`, "HandlersGateway");
   }
 
   public handleDisconnect(socket: Socket): void {
-    for (const [token, conn] of this._activeConnections.entries()) {
-      if (conn.socket === socket) {
-        this._activeConnections.delete(token);
+    for (const [authToken, connection] of this._activeConnections.entries()) {
+      if (connection.socket === socket) {
+        this._activeConnections.delete(authToken);
+
+        Logger.log(
+          `Handler ${connection.handler.name} disconnected`,
+          "HandlersGateway",
+        );
 
         break;
       }
