@@ -14,17 +14,20 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import { Request } from "express";
+import { Namespace } from "socket.io";
 import { CommonService } from "src/common/common.service";
 
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
+import { HandlersGateway } from "./handlers.gateway";
 import { HandlersService } from "./handlers.service";
 
 @Controller("api/handlers")
 export class HandlersController {
   public constructor(
     private readonly handlersService: HandlersService,
+    private readonly handlersGateway: HandlersGateway,
     private readonly commonService: CommonService,
   ) {}
 
@@ -51,6 +54,25 @@ export class HandlersController {
     }
 
     return this.handlersService.findAll(userId);
+  }
+
+  @Get("connected/list")
+  public async findAllConnected(): Promise<
+    Omit<Handler, "authToken" | "updateTimestamp">[]
+  > {
+    const server: Namespace = this.handlersGateway
+      .server as unknown as Namespace;
+
+    const sockets = await server.fetchSockets();
+
+    const authTokens = sockets.map(
+      (socket) => socket.handshake.auth.token as string,
+    );
+
+    const handlers =
+      await this.handlersService.findAllUsingAuthTokens(authTokens);
+
+    return handlers.map(({ authToken, ...handler }) => handler);
   }
 
   @Get(":id")

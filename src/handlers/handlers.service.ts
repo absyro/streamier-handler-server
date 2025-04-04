@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import randomatic from "randomatic";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
@@ -79,6 +79,14 @@ export class HandlersService {
     return this.handlerRepository.find({ where: { ownerId: userId } });
   }
 
+  public async findAllUsingAuthTokens(
+    authTokens: string[],
+  ): Promise<Handler[]> {
+    return this.handlerRepository.find({
+      where: { authToken: In(authTokens) },
+    });
+  }
+
   public async findOne(id: string): Promise<Handler | null> {
     return this.handlerRepository.findOne({ where: { id } });
   }
@@ -87,6 +95,10 @@ export class HandlersService {
     authToken: string,
   ): Promise<Handler | null> {
     return this.handlerRepository.findOne({ where: { authToken } });
+  }
+
+  public async isAuthTokenValid(authToken: string): Promise<boolean> {
+    return this.handlerRepository.exists({ where: { authToken } });
   }
 
   public async updateOne(

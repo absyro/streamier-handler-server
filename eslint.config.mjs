@@ -123,6 +123,7 @@ const eslintConfig = [
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/member-ordering": "off",
       "@typescript-eslint/no-unsafe-type-assertion": "off",
+      "@typescript-eslint/no-unused-vars": "off",
     },
   },
   {

@@ -1,23 +1,16 @@
-import { Logger } from "@nestjs/common";
 import {
   OnGatewayConnection,
-  OnGatewayDisconnect,
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { ActiveConnection } from "src/websocket/interfaces/active-connection.interface";
 
 import { HandlersService } from "./handlers.service";
 
 @WebSocketGateway({ namespace: "handlers" })
-export class HandlersGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+export class HandlersGateway implements OnGatewayConnection {
   @WebSocketServer()
   public server!: Server;
-
-  private readonly _activeConnections = new Map<string, ActiveConnection>();
 
   public constructor(private readonly handlersService: HandlersService) {}
 
@@ -30,37 +23,20 @@ export class HandlersGateway
       return;
     }
 
-    const handler = await this.handlersService.findOneUsingAuthToken(authToken);
+    const sockets = await this.server.fetchSockets();
 
-    if (!handler) {
+    if (
+      sockets.some(
+        (s) => s.handshake.auth.token === authToken && s.id !== socket.id,
+      )
+    ) {
       socket.disconnect(true);
 
       return;
     }
 
-    if (this._activeConnections.has(authToken)) {
+    if (!(await this.handlersService.isAuthTokenValid(authToken))) {
       socket.disconnect(true);
-
-      return;
-    }
-
-    this._activeConnections.set(authToken, { handler, socket });
-
-    Logger.log(`Handler ${handler.name} connected`, "HandlersGateway");
-  }
-
-  public handleDisconnect(socket: Socket): void {
-    for (const [authToken, connection] of this._activeConnections.entries()) {
-      if (connection.socket === socket) {
-        this._activeConnections.delete(authToken);
-
-        Logger.log(
-          `Handler ${connection.handler.name} disconnected`,
-          "HandlersGateway",
-        );
-
-        break;
-      }
     }
   }
 }
