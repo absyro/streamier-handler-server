@@ -35,11 +35,11 @@ export class HandlersService {
     let authToken: string;
 
     do {
-      id = randomatic("Aa0!", 64);
+      id = randomatic("a0", 8);
     } while (await this.handlerRepository.exists({ where: { id } }));
 
     do {
-      authToken = randomatic("Aa0!", 8);
+      authToken = randomatic("Aa0!", 64);
     } while (await this.handlerRepository.exists({ where: { authToken } }));
 
     handler.id = id;
