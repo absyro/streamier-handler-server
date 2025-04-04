@@ -14,7 +14,7 @@ export class HandlersGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  public server: Server;
+  public server!: Server;
 
   private readonly _activeConnections = new Map<string, ActiveConnection>();
 

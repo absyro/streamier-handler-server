@@ -15,6 +15,10 @@ export class WsAdapter extends IoAdapter {
       },
     }) as Server;
 
+    server.use((_, next) => {
+      next(new Error("unauthorized"));
+    });
+
     return server;
   }
 }
