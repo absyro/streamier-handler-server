@@ -63,7 +63,7 @@
     "@commitlint/cz-commitlint": "^19.8.0",
     "@eslint/compat": "^1.2.8",
     "@golevelup/ts-jest": "^0.6.2",
-    "@nestjs/cli": "^10.0.0",
+    "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.4.15",
     "@stylistic/eslint-plugin-ts": "^4.2.0",
