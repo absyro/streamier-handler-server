@@ -43,7 +43,7 @@ export class HandlersService {
     } while (await this.handlerRepository.exists({ where: { id } }));
 
     do {
-      authToken = randomatic("Aa0!", 64);
+      authToken = randomatic("Aa0", 64);
     } while (await this.handlerRepository.exists({ where: { authToken } }));
 
     handler.id = id;

@@ -80,7 +80,7 @@ export class HandlersController {
       throw new UnauthorizedException();
     }
 
-    return this.handlersService.deleteOne(id);
+    await this.handlersService.deleteOne(id);
   }
 
   @Put(":id")
