@@ -9,6 +9,7 @@ import {
   Put,
   Req,
   UnauthorizedException,
+  ValidationPipe,
 } from "@nestjs/common";
 import { Request } from "express";
 import { CommonService } from "src/common/common.service";
@@ -27,7 +28,7 @@ export class HandlersController {
 
   @Post()
   public async createOne(
-    @Body() createHandlerDto: CreateHandlerDto,
+    @Body(new ValidationPipe()) createHandlerDto: CreateHandlerDto,
     @Req() request: Request,
   ): Promise<Handler> {
     const userId = await this.commonService.getUserIdFromRequest(request);
@@ -85,7 +86,7 @@ export class HandlersController {
   @Put(":id")
   public async update(
     @Param("id") id: string,
-    @Body() updateHandlerDto: UpdateHandlerDto,
+    @Body(new ValidationPipe()) updateHandlerDto: UpdateHandlerDto,
     @Req() request: Request,
   ): Promise<Handler> {
     const userId = await this.commonService.getUserIdFromRequest(request);
