@@ -56,8 +56,8 @@ export class HandlersController {
     return this.handlersService.findAll(userId);
   }
 
-  @Get("connected/list")
-  public async findAllConnected(): Promise<
+  @Get("active/list")
+  public async findAllActive(): Promise<
     Omit<Handler, "authToken" | "updateTimestamp">[]
   > {
     const server: Namespace = this.handlersGateway
