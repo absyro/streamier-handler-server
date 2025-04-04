@@ -9,9 +9,9 @@ export class ActiveHandlerResponseDto {
 
   public name!: string;
 
-  public ownerId!: string;
-
   public shortDescription!: string;
 
   public updatedAt!: Date;
+
+  public userId!: string;
 }

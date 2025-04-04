@@ -3,15 +3,16 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
-  Query,
+  Req,
   UnauthorizedException,
 } from "@nestjs/common";
-import { DataSource } from "typeorm";
+import { Request } from "express";
+import { CommonService } from "src/common/common.service";
 
-import { ActiveHandlerResponseDto } from "./dto/active-handler.dto";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
@@ -21,64 +22,60 @@ import { HandlersService } from "./handlers.service";
 export class HandlersController {
   public constructor(
     private readonly handlersService: HandlersService,
-    private readonly dataSource: DataSource,
+    private readonly commonService: CommonService,
   ) {}
 
   @Post()
   public async createOne(
     @Body() createHandlerDto: CreateHandlerDto,
+    @Req() request: Request,
   ): Promise<Handler> {
+    const userId = await this.commonService.getUserIdFromRequest(request);
+
+    if (typeof userId !== "string") {
+      throw new UnauthorizedException();
+    }
+
     return this.handlersService.createOne(userId, createHandlerDto);
   }
 
   @Get()
-  public async findAll(): Promise<Handler[]> {
+  public async findAll(@Req() request: Request): Promise<Handler[]> {
+    const userId = await this.commonService.getUserIdFromRequest(request);
+
+    if (typeof userId !== "string") {
+      throw new UnauthorizedException();
+    }
+
     return this.handlersService.findAll(userId);
   }
 
   @Get(":id")
   public async findOne(
     @Param("id") id: string,
-  ): Promise<Omit<Handler, "updateTimestamp">> {
-    const { authToken, ...handler } = await this.handlersService.findOne(id);
+    @Req() request: Request,
+  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
+    const h = await this.handlersService.findOne(id);
+
+    if (!h) {
+      throw new NotFoundException();
+    }
+
+    const { authToken, ...handler } = h;
+
+    const userId = await this.commonService.getUserIdFromRequest(request);
 
     return { ...handler, ...(handler.userId === userId && { authToken }) };
   }
 
-  @Get("active/list")
-  public listActiveHandlers(
-    @Query("owner_id") ownerId?: string,
-    @Query("search") searchTerm?: string,
-    @Query("limit") limit = "20",
-    @Query("offset") offset = "0",
-  ): {
-    hasMore: boolean;
-    items: ActiveHandlerResponseDto[];
-    limit: number;
-    offset: number;
-    total: number;
-  } {
-    /*
-     * Implementation would query active connections and handlers
-     * Similar to the Go version but adapted for NestJS
-     */
-    return {
-      hasMore: false,
-      items: [],
-      limit: Number.parseInt(limit, 10),
-      offset: Number.parseInt(offset, 10),
-      total: 0,
-    };
-  }
-
   @Delete(":id")
-  public async remove(@Param("id") id: string): Promise<void> {
-    const [handler] = await this.dataSource.query<{ user_id: string }[]>(
-      "SELECT user_id FROM handlers WHERE id = ?",
-      [id],
-    );
+  public async remove(
+    @Param("id") id: string,
+    @Req() request: Request,
+  ): Promise<void> {
+    const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (handler.user_id !== userId) {
+    if (typeof userId !== "string") {
       throw new UnauthorizedException();
     }
 
@@ -89,13 +86,11 @@ export class HandlersController {
   public async update(
     @Param("id") id: string,
     @Body() updateHandlerDto: UpdateHandlerDto,
+    @Req() request: Request,
   ): Promise<Handler> {
-    const [handler] = await this.dataSource.query<{ user_id: string }[]>(
-      "SELECT user_id FROM handlers WHERE id = ?",
-      [id],
-    );
+    const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (handler.user_id !== userId) {
+    if (typeof userId !== "string") {
       throw new UnauthorizedException();
     }
 

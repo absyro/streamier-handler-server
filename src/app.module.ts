@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import Joi from "joi";
 
+import { CommonModule } from "./common/common.module";
 import { HandlersModule } from "./handlers/handlers.module";
 import { Environment } from "./types/environment";
 
@@ -45,6 +46,7 @@ import { Environment } from "./types/environment";
       }),
     }),
     HandlersModule,
+    CommonModule,
   ],
 })
 export class AppModule {}
