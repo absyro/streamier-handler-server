@@ -66,7 +66,7 @@ export class HandlersController {
 
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    return { ...handler, ...(handler.userId === userId && { authToken }) };
+    return { ...handler, ...(handler.ownerId === userId && { authToken }) };
   }
 
   @Delete(":id")
