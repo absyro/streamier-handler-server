@@ -4,7 +4,6 @@ import eslintPluginStylisticTS from "@stylistic/eslint-plugin-ts";
 import eslintConfigPrettier from "eslint-config-prettier";
 import eslintPluginImport from "eslint-plugin-import";
 import eslintPluginPerfectionist from "eslint-plugin-perfectionist";
-import eslintPluginUnicorn from "eslint-plugin-unicorn";
 import globals from "globals";
 import path from "node:path";
 import eslintTS from "typescript-eslint";
@@ -148,15 +147,6 @@ const eslintConfig = [
   {
     rules: {
       "import/no-unresolved": "off",
-    },
-  },
-  eslintPluginUnicorn.configs.recommended,
-  {
-    rules: {
-      "unicorn/prefer-top-level-await": "off",
-      "unicorn/prefer-module": "off",
-      "unicorn/explicit-length-check": "off",
-      "unicorn/no-null": "off",
     },
   },
   eslintPluginPerfectionist.configs["recommended-natural"],
