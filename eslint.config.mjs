@@ -122,6 +122,7 @@ const eslintConfig = [
       "@typescript-eslint/no-namespace": "off",
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/member-ordering": "off",
+      "@typescript-eslint/no-unsafe-type-assertion": "off",
     },
   },
   {
