@@ -39,6 +39,7 @@ const eslintConfig = [
       "no-underscore-dangle": "off",
       "no-ternary": "off",
       "sort-vars": "off",
+      "max-lines-per-function": "off",
     },
   },
   ...eslintTS.configs.all,
