@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import randomatic from "randomatic";
 import { Repository } from "typeorm";
@@ -27,7 +31,7 @@ export class HandlersService {
     const maxHandlersPerUser = 10;
 
     if (count >= maxHandlersPerUser) {
-      throw new Error(
+      throw new BadRequestException(
         `Maximum number of handlers (${maxHandlersPerUser}) reached`,
       );
     }
