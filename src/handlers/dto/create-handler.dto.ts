@@ -2,7 +2,7 @@ import { IsString, MaxLength } from "class-validator";
 
 export class CreateHandlerDto {
   @IsString()
-  @MaxLength(50)
+  @MaxLength(12)
   public iconId!: string;
 
   @IsString()

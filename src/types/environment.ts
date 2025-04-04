@@ -17,7 +17,6 @@ export interface Environment {
 
 declare global {
   namespace NodeJS {
-    // eslint-disable-next-line unicorn/prevent-abbreviations
     interface ProcessEnv extends Environment {}
   }
 }
