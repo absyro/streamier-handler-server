@@ -17,35 +17,45 @@ export class StreamsService {
 
   public async createStream(
     handlerId: string,
+    userId: string,
     createStreamDto: CreateStreamDto,
   ): Promise<object> {
     await this._validateData(CreateStreamDto, createStreamDto);
 
-    return this._emitToHandler(handlerId, "create", createStreamDto);
+    return this._emitToHandler(handlerId, "create", userId, createStreamDto);
   }
 
   public async deleteStream(
     handlerId: string,
+    userId: string,
     streamId: string,
   ): Promise<void> {
-    return this._emitToHandler(handlerId, "delete", streamId);
+    return this._emitToHandler(handlerId, "delete", userId, streamId);
   }
 
   public async readStream(
     handlerId: string,
+    userId: string,
     streamId: string,
   ): Promise<object> {
-    return this._emitToHandler(handlerId, "read", streamId);
+    return this._emitToHandler(handlerId, "read", userId, streamId);
   }
 
   public async updateStream(
     handlerId: string,
+    userId: string,
     streamId: string,
     updateStreamDto: UpdateStreamDto,
   ): Promise<object> {
     await this._validateData(UpdateStreamDto, updateStreamDto);
 
-    return this._emitToHandler(handlerId, "update", streamId, updateStreamDto);
+    return this._emitToHandler(
+      handlerId,
+      "update",
+      userId,
+      streamId,
+      updateStreamDto,
+    );
   }
 
   private async _emitToHandler<T>(
