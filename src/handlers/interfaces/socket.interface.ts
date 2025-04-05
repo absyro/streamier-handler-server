@@ -4,7 +4,5 @@ export type HandlerSocket = Socket<
   DefaultEventsMap,
   DefaultEventsMap,
   DefaultEventsMap,
-  {
-    id: string;
-  }
+  { id: string }
 >;

@@ -3,15 +3,15 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
-import { Server } from "socket.io";
 
 import { HandlersService } from "./handlers.service";
+import { HandlerServer } from "./interfaces/server.interface";
 import { HandlerSocket } from "./interfaces/socket.interface";
 
 @WebSocketGateway({ namespace: "handlers" })
 export class HandlersGateway implements OnGatewayConnection {
   @WebSocketServer()
-  public server!: Server;
+  public server!: HandlerServer;
 
   public constructor(private readonly handlersService: HandlersService) {}
 
