@@ -22,7 +22,7 @@ export class StreamsController {
   @ApiResponse({ description: "Stream successfully created", status: 201 })
   @ApiResponse({ description: "Bad request", status: 400 })
   @ApiResponse({ description: "Handler not found", status: 404 })
-  @Post()
+  @Post(":handlerId")
   public async createStream(
     @Body() createStreamDto: CreateStreamDto,
     @Param("handlerId") handlerId: string,
