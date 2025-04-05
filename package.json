@@ -1,5 +1,5 @@
 {
-  "name": "streamier-socketio-server",
+  "name": "streamier-handler-server",
   "private": true,
   "scripts": {
     "build": "nest build",

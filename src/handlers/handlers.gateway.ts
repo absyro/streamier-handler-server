@@ -5,8 +5,8 @@ import {
 } from "@nestjs/websockets";
 
 import { HandlersService } from "./handlers.service";
-import { HandlerServer } from "./interfaces/server.interface";
-import { HandlerSocket } from "./interfaces/socket.interface";
+import { HandlerServer } from "./interfaces/handler-server.interface";
+import { HandlerSocket } from "./interfaces/handler-socket.interface";
 
 @WebSocketGateway({ namespace: "handlers" })
 export class HandlersGateway implements OnGatewayConnection {
