@@ -1,10 +1,6 @@
 {
-  "name": "streamier-ws-server",
-  "version": "0.0.1",
+  "name": "streamier-socketio-server",
   "private": true,
-  "description": "",
-  "license": "UNLICENSED",
-  "author": "",
   "scripts": {
     "build": "nest build",
     "format": "prettier . --check --write",

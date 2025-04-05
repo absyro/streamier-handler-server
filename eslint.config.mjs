@@ -11,7 +11,7 @@ import eslintTS from "typescript-eslint";
 const eslintConfig = [
   includeIgnoreFile(path.join(import.meta.dirname, ".gitignore")),
   {
-    ignores: ["*.config.mjs"],
+    ignores: ["*.config.{cj,mj,j}s"],
   },
   {
     languageOptions: {
