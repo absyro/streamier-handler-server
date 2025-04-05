@@ -5,6 +5,7 @@ import Joi from "joi";
 
 import { CommonModule } from "./common/common.module";
 import { HandlersModule } from "./handlers/handlers.module";
+import { StreamsModule } from "./streams/streams.module";
 import { Environment } from "./types/environment";
 
 @Module({
@@ -46,6 +47,7 @@ import { Environment } from "./types/environment";
       }),
     }),
     HandlersModule,
+    StreamsModule,
     CommonModule,
   ],
 })
