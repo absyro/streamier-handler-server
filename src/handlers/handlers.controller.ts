@@ -14,7 +14,6 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import { Request } from "express";
-import { Namespace } from "socket.io";
 import { CommonService } from "src/common/common.service";
 
 import { CreateHandlerDto } from "./dto/create-handler.dto";
@@ -60,8 +59,7 @@ export class HandlersController {
   public async findAllActive(): Promise<
     Omit<Handler, "authToken" | "updateTimestamp">[]
   > {
-    const server: Namespace = this.handlersGateway
-      .server as unknown as Namespace;
+    const { server } = this.handlersGateway;
 
     const sockets = await server.fetchSockets();
 

@@ -3,9 +3,10 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
-import { DefaultEventsMap, Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 
 import { HandlersService } from "./handlers.service";
+import { HandlerSocket } from "./interfaces/socket.interface";
 
 @WebSocketGateway({ namespace: "handlers" })
 export class HandlersGateway implements OnGatewayConnection {
@@ -14,16 +15,7 @@ export class HandlersGateway implements OnGatewayConnection {
 
   public constructor(private readonly handlersService: HandlersService) {}
 
-  public async handleConnection(
-    socket: Socket<
-      DefaultEventsMap,
-      DefaultEventsMap,
-      DefaultEventsMap,
-      {
-        id: string;
-      }
-    >,
-  ): Promise<void> {
+  public async handleConnection(socket: HandlerSocket): Promise<void> {
     const authToken = socket.handshake.auth.token as unknown;
 
     if (typeof authToken !== "string") {
