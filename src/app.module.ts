@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { ThrottlerModule } from "@nestjs/throttler";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import Joi from "joi";
 
@@ -45,6 +46,14 @@ import { Environment } from "./types/environment";
         type: "postgres",
         username: process.env.DB_USER,
       }),
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          limit: 20,
+          ttl: 60000,
+        },
+      ],
     }),
     HandlersModule,
     StreamsModule,
