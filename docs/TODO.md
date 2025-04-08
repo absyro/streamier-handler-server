@@ -19,6 +19,7 @@
 - [ ] Refactor code for readability and maintainability
 - [ ] Update documentation after refactor
 - [ ] Include Sentry from NestJS
+- [ ] UpdateHandlerDto is not working in swagger definitions
 
 ## 🧹 Cleanup
 

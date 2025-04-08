@@ -21,8 +21,6 @@ import {
 import { Request } from "express";
 import { CommonService } from "src/common/common.service";
 
-import { CreateStreamDto } from "./dto/create-stream.dto";
-import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
 @ApiBadRequestResponse({ description: "Bad request" })
@@ -44,7 +42,7 @@ export class StreamsController {
   @ApiOperation({ summary: "Create a new stream" })
   @Post()
   public async createStream(
-    @Body() createStreamDto: CreateStreamDto,
+    @Body() data: unknown,
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
   ): Promise<object> {
@@ -54,7 +52,7 @@ export class StreamsController {
       throw new UnauthorizedException();
     }
 
-    return this.streamsService.createStream(handlerId, userId, createStreamDto);
+    return this.streamsService.createStream(handlerId, userId, data);
   }
 
   @ApiNotFoundResponse({ description: "Stream not found" })
@@ -100,7 +98,7 @@ export class StreamsController {
   public async updateStream(
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
-    @Body() updateStreamDto: UpdateStreamDto,
+    @Body() changes: unknown,
     @Req() request: Request,
   ): Promise<object> {
     const userId = await this.commonService.getUserIdFromRequest(request);
@@ -113,7 +111,7 @@ export class StreamsController {
       handlerId,
       userId,
       streamId,
-      updateStreamDto,
+      changes,
     );
   }
 }

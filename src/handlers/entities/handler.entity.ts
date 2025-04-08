@@ -14,7 +14,7 @@ export class Handler {
   @PrimaryColumn({ length: 8, name: "id" })
   public id!: string;
 
-  @Column({ length: 1000, name: "long_description" })
+  @Column({ length: 5000, name: "long_description" })
   public longDescription!: string;
 
   @Column({ length: 100, name: "name" })

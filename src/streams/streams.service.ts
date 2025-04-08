@@ -4,12 +4,7 @@ import {
   NotFoundException,
   NotImplementedException,
 } from "@nestjs/common";
-import { plainToInstance } from "class-transformer";
-import { validateOrReject } from "class-validator";
 import { HandlersGateway } from "src/handlers/handlers.gateway";
-
-import { CreateStreamDto } from "./dto/create-stream.dto";
-import { UpdateStreamDto } from "./dto/update-stream.dto";
 
 @Injectable()
 export class StreamsService {
@@ -18,11 +13,9 @@ export class StreamsService {
   public async createStream(
     handlerId: string,
     userId: string,
-    createStreamDto: CreateStreamDto,
+    data: unknown,
   ): Promise<object> {
-    await this._validateData(CreateStreamDto, createStreamDto);
-
-    return this._emitToHandler(handlerId, "create", userId, createStreamDto);
+    return this._emitToHandler(handlerId, "create", userId, data);
   }
 
   public async deleteStream(
@@ -45,17 +38,9 @@ export class StreamsService {
     handlerId: string,
     userId: string,
     streamId: string,
-    updateStreamDto: UpdateStreamDto,
+    changes: unknown,
   ): Promise<object> {
-    await this._validateData(UpdateStreamDto, updateStreamDto);
-
-    return this._emitToHandler(
-      handlerId,
-      "update",
-      userId,
-      streamId,
-      updateStreamDto,
-    );
+    return this._emitToHandler(handlerId, "update", userId, streamId, changes);
   }
 
   private async _emitToHandler<T>(
@@ -97,18 +82,5 @@ export class StreamsService {
         resolve(response as T);
       });
     });
-  }
-
-  private async _validateData(
-    dtoClass: new () => object,
-    data: unknown,
-  ): Promise<void> {
-    const dto = plainToInstance(dtoClass, data);
-
-    try {
-      await validateOrReject(dto);
-    } catch (errors) {
-      throw new BadRequestException(errors);
-    }
   }
 }
