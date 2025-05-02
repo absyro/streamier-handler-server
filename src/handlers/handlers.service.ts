@@ -22,11 +22,7 @@ export class HandlersService {
     userId: string,
     createHandlerDto: CreateHandlerDto,
   ): Promise<Handler> {
-    const count = await this.handlerRepository.count({
-      where: {
-        ownerId: userId,
-      },
-    });
+    const count = await this.handlerRepository.count({ where: { userId } });
 
     const maxHandlersPerUser = 10;
 
@@ -62,7 +58,7 @@ export class HandlersService {
 
     handler.authToken = authToken;
 
-    handler.ownerId = userId;
+    handler.userId = userId;
 
     return this.handlerRepository.save(handler);
   }
@@ -76,7 +72,7 @@ export class HandlersService {
   }
 
   public async findAll(userId: string): Promise<Handler[]> {
-    return this.handlerRepository.find({ where: { ownerId: userId } });
+    return this.handlerRepository.find({ where: { userId } });
   }
 
   public async findAllUsingAuthTokens(

@@ -27,10 +27,6 @@ export class Handler {
   @Column({ length: 100, name: "name" })
   public name!: string;
 
-  @ApiProperty({ name: "owner_id" })
-  @Column({ length: 8, name: "owner_id" })
-  public ownerId!: string;
-
   @ApiProperty({ name: "short_description" })
   @Column({ length: 180, name: "short_description" })
   public shortDescription!: string;
@@ -38,6 +34,10 @@ export class Handler {
   @ApiProperty({ name: "updated_at" })
   @Column({ default: () => "CURRENT_TIMESTAMP", name: "updated_at" })
   public updatedAt!: Date;
+
+  @ApiProperty({ name: "user_id" })
+  @Column({ length: 8, name: "user_id" })
+  public userId!: string;
 
   @BeforeUpdate()
   public updateTimestamp(): void {
