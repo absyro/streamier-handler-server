@@ -68,6 +68,17 @@ export class Handler {
   public shortDescription!: string;
 
   @ApiProperty({
+    description: "Tags associated with the handler ",
+    example: ["discord", "bot", "automation"],
+    maxItems: 10,
+    maxLength: 30,
+    name: "tags",
+    type: [String],
+  })
+  @Column({ name: "tags", type: "simple-array" })
+  public tags!: string[];
+
+  @ApiProperty({
     description: "Timestamp when the handler was last updated",
     example: "2024-04-01T12:30:00Z",
     name: "updated_at",
