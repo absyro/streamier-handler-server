@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { BeforeUpdate, Column, Entity, PrimaryColumn } from "typeorm";
 
-@Entity()
+@Entity({ name: "handlers" })
 export class Handler {
   @ApiProperty({
     description: "Authentication token used for WebSocket connections",
