@@ -46,8 +46,9 @@ export class HandlersController {
     type: Handler,
   })
   @ApiHeader({
-    description: "The ID of the session",
-    name: "x-session-id",
+    description: "Session ID for authentication",
+    example: "Session 1234567890",
+    name: "Authorization",
     required: true,
   })
   @ApiOperation({
@@ -69,8 +70,9 @@ export class HandlersController {
   }
 
   @ApiHeader({
-    description: "The ID of the session",
-    name: "x-session-id",
+    description: "Session ID for authentication",
+    example: "Session 1234567890",
+    name: "Authorization",
     required: true,
   })
   @ApiOkResponse({
@@ -119,8 +121,9 @@ export class HandlersController {
   }
 
   @ApiHeader({
-    description: "The ID of the session",
-    name: "x-session-id",
+    description: "Session ID for authentication",
+    example: "Session 1234567890",
+    name: "Authorization",
     required: true,
   })
   @ApiNotFoundResponse({ description: "Handler not found" })
@@ -151,8 +154,9 @@ export class HandlersController {
   }
 
   @ApiHeader({
-    description: "The ID of the session",
-    name: "x-session-id",
+    description: "Session ID for authentication",
+    example: "Session 1234567890",
+    name: "Authorization",
     required: true,
   })
   @ApiNoContentResponse({ description: "Handler successfully deleted" })
@@ -177,8 +181,9 @@ export class HandlersController {
   }
 
   @ApiHeader({
-    description: "The ID of the session",
-    name: "x-session-id",
+    description: "Session ID for authentication",
+    example: "Session 1234567890",
+    name: "Authorization",
     required: true,
   })
   @ApiNotFoundResponse({ description: "Handler not found" })

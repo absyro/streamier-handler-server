@@ -7,11 +7,13 @@ export class CommonService {
   public constructor(private readonly dataSource: DataSource) {}
 
   public async getUserIdFromRequest(request: Request): Promise<null | string> {
-    const sessionId = request.headers["x-session-id"];
+    const authHeader = request.headers.authorization;
 
-    if (typeof sessionId !== "string") {
+    if (typeof authHeader !== "string" || !authHeader.startsWith("Session ")) {
       return null;
     }
+
+    const [, sessionId] = authHeader.split(" ");
 
     const result = await this.dataSource.query<{ user_id: string }[]>(
       "SELECT user_id FROM sessions WHERE id = $1",

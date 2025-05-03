@@ -31,8 +31,8 @@ import { StreamsService } from "./streams.service";
 })
 @ApiHeader({
   description: "Session ID for authentication",
-  example: "123e4567-e89b-12d3-a456-426614174000",
-  name: "x-session-id",
+  example: "Session 1234567890",
+  name: "Authorization",
   required: true,
 })
 @ApiTags("Streams")
