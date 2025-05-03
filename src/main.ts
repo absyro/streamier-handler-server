@@ -1,9 +1,11 @@
 import type { NestExpressApplication } from "@nestjs/platform-express";
+import type { RedocOptions } from "nestjs-redoc";
 
 import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import compression from "compression";
+import { RedocModule } from "nestjs-redoc";
 import { dedent } from "ts-dedent";
 
 import { AppModule } from "./app.module";
@@ -14,35 +16,37 @@ async function bootstrap(): Promise<void> {
     cors: true,
   });
 
-  SwaggerModule.setup("api", app, () =>
-    SwaggerModule.createDocument(
-      app,
-      new DocumentBuilder()
-        .setTitle("Streamier Handler Server API")
-        .setDescription(
-          dedent`
-          This documentation includes all available API endpoints for the Streamier Handler Server.
+  const document = SwaggerModule.createDocument(
+    app,
+    new DocumentBuilder()
+      .setTitle("Streamier Handler Server API")
+      .setDescription(
+        dedent`
+        This documentation includes all available API endpoints for the Streamier Handler Server.
 
-          ## Authentication
-          All endpoints except \`/api/handlers/active/list\` require authentication using the \`X-Session-Id\` header.
+        ## Authentication
+        All endpoints except \`/api/handlers/active/list\` require authentication using the \`X-Session-Id\` header.
 
-          ## Rate Limiting
-          The API is rate-limited to prevent abuse.
+        ## Rate Limiting
+        The API is rate-limited to prevent abuse.
 
-          ## Error Handling
-          All errors are returned in a consistent format with appropriate HTTP status codes.`,
-        )
-        .setVersion("1.0.0")
-        .setTermsOfService("https://www.streamier.net/terms-of-service")
-        .setExternalDoc("official documentation", "https://docs.streamier.net")
-        .setContact(
-          "Streamier Support",
-          "https://www.streamier.net/contact-us",
-          "contact@streamier.net",
-        )
-        .build(),
-    ),
+        ## Error Handling
+        All errors are returned in a consistent format with appropriate HTTP status codes.`,
+      )
+      .setVersion("1.0.0")
+      .setTermsOfService("https://www.streamier.net/terms-of-service")
+      .setExternalDoc("official documentation", "https://docs.streamier.net")
+      .setContact(
+        "Streamier Support",
+        "https://www.streamier.net/contact-us",
+        "contact@streamier.net",
+      )
+      .build(),
   );
+
+  const redocOptions: RedocOptions = {};
+
+  await RedocModule.setup("/docs", app, document, redocOptions);
 
   app.use(compression());
 

@@ -28,6 +28,7 @@
     "class-validator": "^0.14.1",
     "compression": "^1.8.0",
     "joi": "^17.13.3",
+    "nestjs-redoc": "^2.2.2",
     "radash": "^12.1.0",
     "randomatic": "^3.1.1",
     "reflect-metadata": "^0.2.0",
