@@ -44,7 +44,7 @@
     "@compodoc/compodoc": "^1.1.26",
     "@eslint/compat": "^1.2.8",
     "@nestjs/cli": "^10.4.9",
-    "@nestjs/schematics": "^10.0.0",
+    "@nestjs/schematics": "^11.0.5",
     "@stylistic/eslint-plugin-ts": "^4.2.0",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.11.16",
