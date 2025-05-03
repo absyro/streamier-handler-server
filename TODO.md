@@ -16,8 +16,6 @@
 
 ## 🚧 Development
 
-- [ ] Refactor code for readability and maintainability
-- [ ] Update documentation after refactor
 - [ ] Include Sentry from NestJS
 - [ ] Include streamier logo in redoc
 
