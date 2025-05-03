@@ -4,6 +4,7 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import compression from "compression";
+import { dedent } from "ts-dedent";
 
 import { AppModule } from "./app.module";
 import { WsAdapter } from "./websocket/websocket.adapter";
@@ -17,9 +18,19 @@ async function bootstrap(): Promise<void> {
     SwaggerModule.createDocument(
       app,
       new DocumentBuilder()
-        .setTitle("Streamier Handler Server Docs")
+        .setTitle("Streamier Handler Server API")
         .setDescription(
-          "This documentation includes all available API endpoints for the Streamier Handler Server.",
+          dedent`
+          This documentation includes all available API endpoints for the Streamier Handler Server.
+
+          ## Authentication
+          All endpoints except \`/api/handlers/active/list\` require authentication using the \`X-Session-Id\` header.
+
+          ## Rate Limiting
+          The API is rate-limited to prevent abuse.
+
+          ## Error Handling
+          All errors are returned in a consistent format with appropriate HTTP status codes.`,
         )
         .setVersion("1.0.0")
         .setTermsOfService("https://www.streamier.net/terms-of-service")

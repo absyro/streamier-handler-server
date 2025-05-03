@@ -65,6 +65,9 @@ importers:
       socket.io:
         specifier: ^4.8.1
         version: 4.8.1
+      ts-dedent:
+        specifier: ^2.2.0
+        version: 2.2.0
       typeorm:
         specifier: ^0.3.21
         version: 0.3.22(pg@8.14.1)(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.11.16)(@types/node@20.17.30)(typescript@5.8.3))
@@ -4320,6 +4323,10 @@ packages:
     engines: {node: '>=18.12'}
     peerDependencies:
       typescript: '>=4.8.4'
+
+  ts-dedent@2.2.0:
+    resolution: {integrity: sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==}
+    engines: {node: '>=6.10'}
 
   ts-loader@9.5.2:
     resolution: {integrity: sha512-Qo4piXvOTWcMGIgRiuFa6nHNm+54HbYaZCKqc9eeZCLRy3XqafQgwX2F7mofrbJG3g7EEb+lkiR+z2Lic2s3Zw==}
@@ -9539,6 +9546,8 @@ snapshots:
   ts-api-utils@2.1.0(typescript@5.8.3):
     dependencies:
       typescript: 5.8.3
+
+  ts-dedent@2.2.0: {}
 
   ts-loader@9.5.2(typescript@5.8.3)(webpack@5.97.1(@swc/core@1.11.16)):
     dependencies:

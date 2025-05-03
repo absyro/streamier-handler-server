@@ -20,11 +20,14 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { isString } from "class-validator";
 import { Request } from "express";
 import { CommonService } from "src/common/common.service";
+import { dedent } from "ts-dedent";
 
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
@@ -32,8 +35,9 @@ import { Handler } from "./entities/handler.entity";
 import { HandlersGateway } from "./handlers.gateway";
 import { HandlersService } from "./handlers.service";
 
-@ApiBadRequestResponse({ description: "Bad request" })
+@ApiBadRequestResponse({ description: "Invalid request parameters or body" })
 @ApiTags("Handlers")
+@ApiUnauthorizedResponse({ description: "Missing or invalid authentication" })
 @Controller("api/handlers")
 export class HandlersController {
   public constructor(
@@ -53,8 +57,12 @@ export class HandlersController {
     required: true,
   })
   @ApiOperation({
-    description: "Create a new handler",
-    summary: "Create handler",
+    description: dedent`
+    Creates a new handler with the specified configuration.
+
+    The handler will be associated with the authenticated user and will be assigned a unique ID and authentication token.
+    The authentication token can be used to establish WebSocket connections to the handler.`,
+    summary: "Create a new handler",
   })
   @Post()
   public async createOne(
@@ -81,7 +89,8 @@ export class HandlersController {
     type: [Handler],
   })
   @ApiOperation({
-    description: "Get all handlers belonging to the current user",
+    description:
+      "Retrieves a list of all handlers belonging to the authenticated user.",
     summary: "Get user's handlers",
   })
   @Get()
@@ -100,7 +109,8 @@ export class HandlersController {
     type: [Handler],
   })
   @ApiOperation({
-    description: "Get all currently active handlers (available to all users)",
+    description:
+      "Retrieves a list of all currently active handlers. This endpoint is publicly accessible and does not require authentication.",
     summary: "Get active handlers",
   })
   @Get("active/list")
@@ -133,8 +143,14 @@ export class HandlersController {
     type: Handler,
   })
   @ApiOperation({
-    description: "Get details for a specific handler",
+    description:
+      "Retrieves detailed information about a specific handler. If the handler belongs to the authenticated user, the authentication token will be included in the response.",
     summary: "Get handler details",
+  })
+  @ApiParam({
+    description: "The ID of the handler to retrieve",
+    example: "h1234567",
+    name: "id",
   })
   @Get(":id")
   public async findOne(
@@ -163,8 +179,14 @@ export class HandlersController {
   @ApiNoContentResponse({ description: "Handler successfully deleted" })
   @ApiNotFoundResponse({ description: "Handler not found" })
   @ApiOperation({
-    description: "Delete a specific handler",
+    description:
+      "Deletes a specific handler. Only handlers belonging to the authenticated user can be deleted.",
     summary: "Delete handler",
+  })
+  @ApiParam({
+    description: "The ID of the handler to delete",
+    example: "h1234567",
+    name: "id",
   })
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -193,8 +215,14 @@ export class HandlersController {
     type: Handler,
   })
   @ApiOperation({
-    description: "Update a specific handler",
+    description:
+      "Updates the configuration of a specific handler. Only handlers belonging to the authenticated user can be updated.",
     summary: "Update handler",
+  })
+  @ApiParam({
+    description: "The ID of the handler to update",
+    example: "h1234567",
+    name: "id",
   })
   @Put(":id")
   public async update(
