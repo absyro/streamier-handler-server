@@ -1,0 +1,1076 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>streamier-handler-server documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">streamier-handler-server documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content controller">
+                   <div class="content-data">
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Controllers</li>
+  <li class="breadcrumb-item" >HandlersController</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/handlers/handlers.controller.ts</code>
+        </p>
+
+            <p class="comment">
+                <h3>Prefix</h3>
+            </p>
+            <p class="comment">
+                <code>api/handlers</code>
+            </p>
+
+
+
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#createOne" >createOne</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#findAll" >findAll</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#findAllActive" >findAllActive</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#findOne" >findOne</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#remove" >remove</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Public</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#update" >update</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createOne"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>createOne</b></span>
+                        <a href="#createOne"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>createOne(createHandlerDto: <a href="../classes/CreateHandlerDto.html" target="_self">CreateHandlerDto</a>, request: Request)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@ApiCreatedResponse({description: &#x27;Handler successfully created&#x27;, type: Handler})<br />@ApiHeader({description: &#x27;Session ID for authentication&#x27;, example: &#x27;1234567890&#x27;, name: &#x27;X-Session-Id&#x27;, required: true})<br />@ApiOperation({description: undefined, summary: &#x27;Create a new handler&#x27;})<br />@Post()<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="68"
+                                    class="link-to-prism">src/handlers/handlers.controller.ts:68</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>createHandlerDto</td>
+                                            <td>
+                                                            <code><a href="../classes/CreateHandlerDto.html" target="_self" >CreateHandlerDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>request</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/Handler.html" target="_self" >Promise&lt;Handler&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="findAll"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>findAll</b></span>
+                        <a href="#findAll"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>findAll(request: Request)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@ApiHeader({description: &#x27;Session ID for authentication&#x27;, example: &#x27;1234567890&#x27;, name: &#x27;X-Session-Id&#x27;, required: true})<br />@ApiOkResponse({description: &#x27;List of all handlers for the user&#x27;, type: undefined})<br />@ApiOperation({description: &#x27;Retrieves a list of all handlers belonging to the authenticated user.&#x27;, summary: &#x27;Get user&#x27;s handlers&#x27;})<br />@Get()<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="97"
+                                    class="link-to-prism">src/handlers/handlers.controller.ts:97</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>request</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/Handler.html" target="_self" >Promise&lt;Handler[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="findAllActive"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>findAllActive</b></span>
+                        <a href="#findAllActive"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>findAllActive()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@ApiOkResponse({description: &#x27;List of all active handlers&#x27;, type: undefined})<br />@ApiOperation({description: &#x27;Retrieves a list of all currently active handlers. This endpoint is publicly accessible and does not require authentication.&#x27;, summary: &#x27;Get active handlers&#x27;})<br />@Get(&#x27;active/list&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="117"
+                                    class="link-to-prism">src/handlers/handlers.controller.ts:117</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;Omit[]&gt;</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="findOne"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>findOne</b></span>
+                        <a href="#findOne"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>findOne(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, request: Request)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@ApiHeader({description: &#x27;Session ID for authentication&#x27;, example: &#x27;1234567890&#x27;, name: &#x27;X-Session-Id&#x27;, required: true})<br />@ApiNotFoundResponse({description: &#x27;Handler not found&#x27;})<br />@ApiOkResponse({description: &#x27;Handler details&#x27;, type: Handler})<br />@ApiOperation({description: &#x27;Retrieves detailed information about a specific handler. If the handler belongs to the authenticated user, the authentication token will be included in the response.&#x27;, summary: &#x27;Get handler details&#x27;})<br />@ApiParam({description: &#x27;The ID of the handler to retrieve&#x27;, example: &#x27;h1234567&#x27;, name: &#x27;id&#x27;})<br />@Get(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="156"
+                                    class="link-to-prism">src/handlers/handlers.controller.ts:156</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>request</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/Handler.html" target="_self" >Promise&lt;Omit&lt;Handler, &quot;authToken&quot; | &quot;updateTimestamp&quot;&gt;&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="remove"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>remove</b></span>
+                        <a href="#remove"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>remove(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, request: Request)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@ApiHeader({description: &#x27;Session ID for authentication&#x27;, example: &#x27;1234567890&#x27;, name: &#x27;X-Session-Id&#x27;, required: true})<br />@ApiNoContentResponse({description: &#x27;Handler successfully deleted&#x27;})<br />@ApiNotFoundResponse({description: &#x27;Handler not found&#x27;})<br />@ApiOperation({description: &#x27;Deletes a specific handler. Only handlers belonging to the authenticated user can be deleted.&#x27;, summary: &#x27;Delete handler&#x27;})<br />@ApiParam({description: &#x27;The ID of the handler to delete&#x27;, example: &#x27;h1234567&#x27;, name: &#x27;id&#x27;})<br />@Delete(&#x27;:id&#x27;)<br />@HttpCode(HttpStatus.NO_CONTENT)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="193"
+                                    class="link-to-prism">src/handlers/handlers.controller.ts:193</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>request</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="update"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Public</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>update</b></span>
+                        <a href="#update"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>update(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, updateHandlerDto: <a href="../classes/UpdateHandlerDto.html" target="_self">UpdateHandlerDto</a>, request: Request)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@ApiHeader({description: &#x27;Session ID for authentication&#x27;, example: &#x27;1234567890&#x27;, name: &#x27;X-Session-Id&#x27;, required: true})<br />@ApiNotFoundResponse({description: &#x27;Handler not found&#x27;})<br />@ApiOkResponse({description: &#x27;Handler successfully updated&#x27;, type: Handler})<br />@ApiOperation({description: &#x27;Updates the configuration of a specific handler. Only handlers belonging to the authenticated user can be updated.&#x27;, summary: &#x27;Update handler&#x27;})<br />@ApiParam({description: &#x27;The ID of the handler to update&#x27;, example: &#x27;h1234567&#x27;, name: &#x27;id&#x27;})<br />@Put(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="228"
+                                    class="link-to-prism">src/handlers/handlers.controller.ts:228</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>updateHandlerDto</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateHandlerDto.html" target="_self" >UpdateHandlerDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>request</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/Handler.html" target="_self" >Promise&lt;Handler&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Req,
+  UnauthorizedException,
+} from &quot;@nestjs/common&quot;;
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiHeader,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from &quot;@nestjs/swagger&quot;;
+import { isString } from &quot;class-validator&quot;;
+import { Request } from &quot;express&quot;;
+import { dedent } from &quot;ts-dedent&quot;;
+
+import { CommonService } from &quot;../common/common.service&quot;;
+import { CreateHandlerDto } from &quot;./dto/create-handler.dto&quot;;
+import { UpdateHandlerDto } from &quot;./dto/update-handler.dto&quot;;
+import { Handler } from &quot;./entities/handler.entity&quot;;
+import { HandlersGateway } from &quot;./handlers.gateway&quot;;
+import { HandlersService } from &quot;./handlers.service&quot;;
+
+@ApiBadRequestResponse({ description: &quot;Invalid request parameters or body&quot; })
+@ApiTags(&quot;Handlers&quot;)
+@ApiUnauthorizedResponse({ description: &quot;Missing or invalid authentication&quot; })
+@Controller(&quot;api/handlers&quot;)
+export class HandlersController {
+  public constructor(
+    private readonly handlersService: HandlersService,
+    private readonly handlersGateway: HandlersGateway,
+    private readonly commonService: CommonService,
+  ) {}
+
+  @ApiCreatedResponse({
+    description: &quot;Handler successfully created&quot;,
+    type: Handler,
+  })
+  @ApiHeader({
+    description: &quot;Session ID for authentication&quot;,
+    example: &quot;1234567890&quot;,
+    name: &quot;X-Session-Id&quot;,
+    required: true,
+  })
+  @ApiOperation({
+    description: dedent&#x60;
+    Creates a new handler with the specified configuration.
+
+    The handler will be associated with the authenticated user and will be assigned a unique ID and authentication token.
+    The authentication token can be used to establish WebSocket connections to the handler.&#x60;,
+    summary: &quot;Create a new handler&quot;,
+  })
+  @Post()
+  public async createOne(
+    @Body() createHandlerDto: CreateHandlerDto,
+    @Req() request: Request,
+  ): Promise&lt;Handler&gt; {
+    const userId &#x3D; await this.commonService.getUserIdFromRequest(request);
+
+    if (!isString(userId)) {
+      throw new UnauthorizedException();
+    }
+
+    return this.handlersService.createOne(userId, createHandlerDto);
+  }
+
+  @ApiHeader({
+    description: &quot;Session ID for authentication&quot;,
+    example: &quot;1234567890&quot;,
+    name: &quot;X-Session-Id&quot;,
+    required: true,
+  })
+  @ApiOkResponse({
+    description: &quot;List of all handlers for the user&quot;,
+    type: [Handler],
+  })
+  @ApiOperation({
+    description:
+      &quot;Retrieves a list of all handlers belonging to the authenticated user.&quot;,
+    summary: &quot;Get user&#x27;s handlers&quot;,
+  })
+  @Get()
+  public async findAll(@Req() request: Request): Promise&lt;Handler[]&gt; {
+    const userId &#x3D; await this.commonService.getUserIdFromRequest(request);
+
+    if (!isString(userId)) {
+      throw new UnauthorizedException();
+    }
+
+    return this.handlersService.findAll(userId);
+  }
+
+  @ApiOkResponse({
+    description: &quot;List of all active handlers&quot;,
+    type: [Handler],
+  })
+  @ApiOperation({
+    description:
+      &quot;Retrieves a list of all currently active handlers. This endpoint is publicly accessible and does not require authentication.&quot;,
+    summary: &quot;Get active handlers&quot;,
+  })
+  @Get(&quot;active/list&quot;)
+  public async findAllActive(): Promise&lt;
+    Omit&lt;Handler, &quot;authToken&quot; | &quot;updateTimestamp&quot;&gt;[]
+  &gt; {
+    const { server } &#x3D; this.handlersGateway;
+
+    const sockets &#x3D; await server.fetchSockets();
+
+    const authTokens &#x3D; sockets.map(
+      (socket) &#x3D;&gt; socket.handshake.auth.token as string,
+    );
+
+    const handlers &#x3D;
+      await this.handlersService.findAllUsingAuthTokens(authTokens);
+
+    return handlers.map(({ authToken, ...handler }) &#x3D;&gt; handler);
+  }
+
+  @ApiHeader({
+    description: &quot;Session ID for authentication&quot;,
+    example: &quot;1234567890&quot;,
+    name: &quot;X-Session-Id&quot;,
+    required: true,
+  })
+  @ApiNotFoundResponse({ description: &quot;Handler not found&quot; })
+  @ApiOkResponse({
+    description: &quot;Handler details&quot;,
+    type: Handler,
+  })
+  @ApiOperation({
+    description:
+      &quot;Retrieves detailed information about a specific handler. If the handler belongs to the authenticated user, the authentication token will be included in the response.&quot;,
+    summary: &quot;Get handler details&quot;,
+  })
+  @ApiParam({
+    description: &quot;The ID of the handler to retrieve&quot;,
+    example: &quot;h1234567&quot;,
+    name: &quot;id&quot;,
+  })
+  @Get(&quot;:id&quot;)
+  public async findOne(
+    @Param(&quot;id&quot;) id: string,
+    @Req() request: Request,
+  ): Promise&lt;Omit&lt;Handler, &quot;authToken&quot; | &quot;updateTimestamp&quot;&gt;&gt; {
+    const h &#x3D; await this.handlersService.findOne(id);
+
+    if (!h) {
+      throw new NotFoundException();
+    }
+
+    const { authToken, ...handler } &#x3D; h;
+
+    const userId &#x3D; await this.commonService.getUserIdFromRequest(request);
+
+    return { ...handler, ...(handler.userId &#x3D;&#x3D;&#x3D; userId &amp;&amp; { authToken }) };
+  }
+
+  @ApiHeader({
+    description: &quot;Session ID for authentication&quot;,
+    example: &quot;1234567890&quot;,
+    name: &quot;X-Session-Id&quot;,
+    required: true,
+  })
+  @ApiNoContentResponse({ description: &quot;Handler successfully deleted&quot; })
+  @ApiNotFoundResponse({ description: &quot;Handler not found&quot; })
+  @ApiOperation({
+    description:
+      &quot;Deletes a specific handler. Only handlers belonging to the authenticated user can be deleted.&quot;,
+    summary: &quot;Delete handler&quot;,
+  })
+  @ApiParam({
+    description: &quot;The ID of the handler to delete&quot;,
+    example: &quot;h1234567&quot;,
+    name: &quot;id&quot;,
+  })
+  @Delete(&quot;:id&quot;)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public async remove(
+    @Param(&quot;id&quot;) id: string,
+    @Req() request: Request,
+  ): Promise&lt;void&gt; {
+    const userId &#x3D; await this.commonService.getUserIdFromRequest(request);
+
+    if (!isString(userId)) {
+      throw new UnauthorizedException();
+    }
+
+    await this.handlersService.deleteOne(id);
+  }
+
+  @ApiHeader({
+    description: &quot;Session ID for authentication&quot;,
+    example: &quot;1234567890&quot;,
+    name: &quot;X-Session-Id&quot;,
+    required: true,
+  })
+  @ApiNotFoundResponse({ description: &quot;Handler not found&quot; })
+  @ApiOkResponse({
+    description: &quot;Handler successfully updated&quot;,
+    type: Handler,
+  })
+  @ApiOperation({
+    description:
+      &quot;Updates the configuration of a specific handler. Only handlers belonging to the authenticated user can be updated.&quot;,
+    summary: &quot;Update handler&quot;,
+  })
+  @ApiParam({
+    description: &quot;The ID of the handler to update&quot;,
+    example: &quot;h1234567&quot;,
+    name: &quot;id&quot;,
+  })
+  @Put(&quot;:id&quot;)
+  public async update(
+    @Param(&quot;id&quot;) id: string,
+    @Body() updateHandlerDto: UpdateHandlerDto,
+    @Req() request: Request,
+  ): Promise&lt;Handler&gt; {
+    const userId &#x3D; await this.commonService.getUserIdFromRequest(request);
+
+    if (!isString(userId)) {
+      throw new UnauthorizedException();
+    }
+
+    return this.handlersService.updateOne(id, updateHandlerDto);
+  }
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
+            var COMPODOC_CURRENT_PAGE_URL = 'HandlersController.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
