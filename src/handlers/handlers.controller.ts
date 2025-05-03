@@ -22,6 +22,7 @@ import {
   ApiOperation,
   ApiTags,
 } from "@nestjs/swagger";
+import { isString } from "class-validator";
 import { Request } from "express";
 import { CommonService } from "src/common/common.service";
 
@@ -62,7 +63,7 @@ export class HandlersController {
   ): Promise<Handler> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (typeof userId !== "string") {
+    if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 
@@ -87,7 +88,7 @@ export class HandlersController {
   public async findAll(@Req() request: Request): Promise<Handler[]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (typeof userId !== "string") {
+    if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 
@@ -173,7 +174,7 @@ export class HandlersController {
   ): Promise<void> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (typeof userId !== "string") {
+    if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 
@@ -203,7 +204,7 @@ export class HandlersController {
   ): Promise<Handler> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (typeof userId !== "string") {
+    if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 

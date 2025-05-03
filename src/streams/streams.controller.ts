@@ -22,6 +22,7 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { Request } from "express";
+import { isString } from "radash";
 import { CommonService } from "src/common/common.service";
 
 import { StreamsService } from "./streams.service";
@@ -80,7 +81,7 @@ export class StreamsController {
   ): Promise<object> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (typeof userId !== "string") {
+    if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 
@@ -118,7 +119,7 @@ export class StreamsController {
   ): Promise<void> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (typeof userId !== "string") {
+    if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 
@@ -166,7 +167,7 @@ export class StreamsController {
   ): Promise<object> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (typeof userId !== "string") {
+    if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 
@@ -212,7 +213,7 @@ export class StreamsController {
   ): Promise<object> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (typeof userId !== "string") {
+    if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 

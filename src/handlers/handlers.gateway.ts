@@ -5,6 +5,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
+import { isString } from "class-validator";
 
 import { HandlersService } from "./handlers.service";
 import { HandlerSocketData } from "./interfaces/handler-socket-data.interface";
@@ -31,7 +32,7 @@ export class HandlersGateway implements OnGatewayConnection {
   ): Promise<void> {
     const authToken = socket.handshake.auth.token as unknown;
 
-    if (typeof authToken !== "string") {
+    if (!isString(authToken)) {
       socket.disconnect(true);
 
       return;

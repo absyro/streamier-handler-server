@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Request } from "express";
+import { isString } from "radash";
 import { DataSource } from "typeorm";
 
 @Injectable()
@@ -9,7 +10,7 @@ export class CommonService {
   public async getUserIdFromRequest(request: Request): Promise<null | string> {
     const authHeader = request.headers.authorization;
 
-    if (typeof authHeader !== "string" || !authHeader.startsWith("Session ")) {
+    if (!isString(authHeader) || !authHeader.startsWith("Session ")) {
       return null;
     }
 

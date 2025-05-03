@@ -4,6 +4,7 @@ import {
   NotFoundException,
   NotImplementedException,
 } from "@nestjs/common";
+import { isString } from "radash";
 import { HandlersGateway } from "src/handlers/handlers.gateway";
 
 @Injectable()
@@ -66,7 +67,7 @@ export class StreamsService {
           !(response instanceof Object) ||
           !("success" in response) ||
           typeof response.success !== "boolean" ||
-          ("error" in response && typeof response.error !== "string")
+          ("error" in response && !isString(response.error))
         ) {
           reject(new NotImplementedException("Invalid response format"));
 
