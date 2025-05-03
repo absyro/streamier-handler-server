@@ -42,4 +42,4 @@ async function bootstrap(): Promise<void> {
   await app.listen(process.env.PORT);
 }
 
-bootstrap().catch(() => {});
+void bootstrap();

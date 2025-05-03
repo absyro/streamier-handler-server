@@ -37,6 +37,7 @@ const eslintConfig = [
       "no-ternary": "off",
       "no-undefined": "off",
       "no-underscore-dangle": "off",
+      "no-void": "off",
       "one-var": ["error", "never"],
       "require-atomic-updates": "off",
       "sort-imports": "off",

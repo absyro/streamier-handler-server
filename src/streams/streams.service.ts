@@ -4,7 +4,7 @@ import {
   NotFoundException,
   NotImplementedException,
 } from "@nestjs/common";
-import { isString } from "radash";
+import { isObject, isString } from "radash";
 import { HandlersGateway } from "src/handlers/handlers.gateway";
 
 @Injectable()
@@ -64,7 +64,7 @@ export class StreamsService {
     return new Promise((resolve, reject) => {
       socket.emit(`stream:${event}`, ...data, (response: unknown) => {
         if (
-          !(response instanceof Object) ||
+          !isObject(response) ||
           !("success" in response) ||
           typeof response.success !== "boolean" ||
           ("error" in response && !isString(response.error))
