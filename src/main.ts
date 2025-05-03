@@ -8,6 +8,7 @@ import compression from "compression";
 import { RedocModule } from "nestjs-redoc";
 import { dedent } from "ts-dedent";
 
+import packageJson from "../package.json";
 import { AppModule } from "./app.module";
 import { WsAdapter } from "./websocket/websocket.adapter";
 
@@ -33,7 +34,7 @@ async function bootstrap(): Promise<void> {
         ## Error Handling
         All errors are returned in a consistent format with appropriate HTTP status codes.`,
       )
-      .setVersion("latest")
+      .setVersion(packageJson.version)
       .setTermsOfService("https://www.streamier.net/terms")
       .setExternalDoc("official documentation", "https://docs.streamier.net")
       .setContact(
