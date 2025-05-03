@@ -46,7 +46,7 @@ async function bootstrap(): Promise<void> {
 
   const redocOptions: RedocOptions = {};
 
-  await RedocModule.setup("/docs", app, document, redocOptions);
+  await RedocModule.setup("/api/docs", app, document, redocOptions);
 
   app.use(compression());
 
