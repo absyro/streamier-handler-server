@@ -23,8 +23,8 @@ import {
 } from "@nestjs/swagger";
 import { Request } from "express";
 import { isString } from "radash";
-import { CommonService } from "src/common/common.service";
 
+import { CommonService } from "../common/common.service";
 import { StreamsService } from "./streams.service";
 
 @ApiBadRequestResponse({

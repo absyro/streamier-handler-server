@@ -5,7 +5,8 @@ import {
   NotImplementedException,
 } from "@nestjs/common";
 import { isObject, isString } from "radash";
-import { HandlersGateway } from "src/handlers/handlers.gateway";
+
+import { HandlersGateway } from "../handlers/handlers.gateway";
 
 @Injectable()
 export class StreamsService {

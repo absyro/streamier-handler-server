@@ -26,9 +26,9 @@ import {
 } from "@nestjs/swagger";
 import { isString } from "class-validator";
 import { Request } from "express";
-import { CommonService } from "src/common/common.service";
 import { dedent } from "ts-dedent";
 
+import { CommonService } from "../common/common.service";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
