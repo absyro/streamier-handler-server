@@ -1,11 +1,12 @@
 {
   "name": "streamier-handler-server",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "build": "nest build",
-    "doc": "npx @compodoc/compodoc -p tsconfig.json -s",
-    "format": "prettier . --check --write",
-    "lint": "eslint . --fix",
+    "doc": "npx @compodoc/compodoc -p tsconfig.json -d docs -s",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
     "prepare": "husky",
     "start": "nest start",
     "start:debug": "nest start --debug --watch",
