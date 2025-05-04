@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -14,6 +16,7 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiHeader,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -91,11 +94,11 @@ export class StreamsController {
   @ApiForbiddenResponse({
     description: "User doesn't have permission to delete this stream",
   })
+  @ApiNoContentResponse({
+    description: "Stream deleted successfully",
+  })
   @ApiNotFoundResponse({
     description: "Handler or stream not found",
-  })
-  @ApiOkResponse({
-    description: "Stream deleted successfully",
   })
   @ApiOperation({
     description: "Deletes the specified stream from the handler",
@@ -112,6 +115,7 @@ export class StreamsController {
     name: "streamId",
   })
   @Delete(":streamId")
+  @HttpCode(HttpStatus.NO_CONTENT)
   public async deleteStream(
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
