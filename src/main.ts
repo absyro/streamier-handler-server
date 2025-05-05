@@ -35,11 +35,11 @@ async function bootstrap(): Promise<void> {
         All errors are returned in a consistent format with appropriate HTTP status codes.`,
       )
       .setVersion(packageJson.version)
-      .setTermsOfService("https://www.streamier.net/terms")
+      .setTermsOfService("https://www.streamier.net/terms-of-service")
       .setExternalDoc("official documentation", "https://docs.streamier.net")
       .setContact(
         "Streamier Support",
-        "https://www.streamier.net/contact",
+        "https://www.streamier.net/contact-us",
         "contact@streamier.net",
       )
       .build(),
