@@ -16,7 +16,7 @@ A robust NestJS-based server application for handling handlers and real-time com
 - Node.js (v18 or higher)
 - pnpm
 - TypeScript
-- PostgreSQL (or your preferred database)
+- PostgreSQL
 
 ## Installation
 
@@ -63,7 +63,7 @@ The server will be available at `http://localhost:3000`
 
 ## Documentation
 
-API documentation is available at `/api/docs` when running the server.
+API documentation is available at `/docs` when running the server.
 
 ## Contributing
 
