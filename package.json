@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.26",
-    "@eslint/compat": "^1.2.8",
+    "@eslint/compat": "^1.2.9",
     "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.0.0",
     "@stylistic/eslint-plugin-ts": "^4.2.0",
