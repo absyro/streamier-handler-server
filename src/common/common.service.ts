@@ -15,7 +15,7 @@ export class CommonService {
     }
 
     const result = await this.dataSource.query<{ user_id: string }[]>(
-      "SELECT user_id FROM sessions WHERE id = $1",
+      "SELECT user_id FROM user_sessions WHERE id = $1",
       [sessionId],
     );
 
