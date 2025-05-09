@@ -6,7 +6,6 @@
     "build": "nest build",
     "doc": "npx @compodoc/compodoc -p tsconfig.json -d docs",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
     "start": "nest start",
     "start:debug": "nest start --debug --watch",
     "start:dev": "nest start --watch",
