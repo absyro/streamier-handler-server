@@ -175,6 +175,12 @@ export class HandlersService {
       );
     }
 
+    if (isString(searchDto.userId)) {
+      queryBuilder.andWhere("handler.userId = :userId", {
+        userId: searchDto.userId,
+      });
+    }
+
     if (searchDto.tags && !isEmpty(searchDto.tags)) {
       queryBuilder.andWhere("handler.tags && :tags", { tags: searchDto.tags });
     }

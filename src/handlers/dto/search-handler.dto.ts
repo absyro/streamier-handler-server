@@ -138,4 +138,19 @@ export class SearchHandlerDto {
   @IsOptional()
   @IsString({ each: true })
   public tags?: string[];
+
+  /**
+   * Filter by specific user ID.
+   *
+   * Used to find handlers belonging to a specific user.
+   *
+   * @property {string} userId
+   */
+  @ApiProperty({
+    description: "Filter by specific user ID",
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  public userId?: string;
 }
