@@ -4,10 +4,12 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { isEmpty, isNumber, isString } from "radash";
 import randomatic from "randomatic";
 import { In, Repository } from "typeorm";
 
 import { CreateHandlerDto } from "./dto/create-handler.dto";
+import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
 
@@ -93,6 +95,40 @@ export class HandlersService {
     authToken: string,
   ): Promise<Handler | null> {
     return this.handlerRepository.findOne({ where: { authToken } });
+  }
+
+  public async search(searchDto: SearchHandlerDto): Promise<Handler[]> {
+    const queryBuilder = this.handlerRepository.createQueryBuilder("handler");
+
+    if (isString(searchDto.q)) {
+      queryBuilder.where(
+        "LOWER(handler.name) LIKE LOWER(:query) OR " +
+          "LOWER(handler.shortDescription) LIKE LOWER(:query) OR " +
+          "LOWER(handler.longDescription) LIKE LOWER(:query) OR " +
+          "LOWER(handler.tags) LIKE LOWER(:query)",
+        { query: `%${searchDto.q}%` },
+      );
+    }
+
+    if (searchDto.tags && !isEmpty(searchDto.tags)) {
+      queryBuilder.andWhere("handler.tags && :tags", { tags: searchDto.tags });
+    }
+
+    if (isNumber(searchDto.minTags)) {
+      queryBuilder.andWhere("array_length(handler.tags, 1) >= :minTags", {
+        minTags: searchDto.minTags,
+      });
+    }
+
+    if (isNumber(searchDto.maxTags)) {
+      queryBuilder.andWhere("array_length(handler.tags, 1) <= :maxTags", {
+        maxTags: searchDto.maxTags,
+      });
+    }
+
+    queryBuilder.skip(searchDto.offset ?? 0).take(searchDto.limit ?? 20);
+
+    return queryBuilder.getMany();
   }
 
   public async updateOne(

@@ -18,6 +18,8 @@
 
 - [ ] Include Sentry from NestJS
 - [ ] Include streamier logo in redoc
+- [ ] Fix redoc documentation for PUT methods - currently shows required fields instead of optional when extending create DTOs
+- [ ] Fix redoc documentation for Get handler details - make x-session-id header optional and auth token required
 
 ## 🧹 Cleanup
 

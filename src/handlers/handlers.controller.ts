@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -30,6 +31,7 @@ import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
+import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
 import { HandlersGateway } from "./handlers.gateway";
@@ -201,6 +203,26 @@ export class HandlersController {
     }
 
     await this.handlersService.deleteOne(id);
+  }
+
+  @ApiOkResponse({
+    description: "List of handlers matching the search criteria",
+    type: [Handler],
+  })
+  @ApiOperation({
+    description: dedent`
+    Searches for handlers based on various criteria including:
+    - Text search across name, descriptions, and tags
+    - Filter by specific tags
+    - Filter by minimum/maximum number of tags
+    - Pagination support with limit and offset`,
+    summary: "Search handlers with filters",
+  })
+  @Get("search")
+  public async search(
+    @Query() searchDto: SearchHandlerDto,
+  ): Promise<Handler[]> {
+    return this.handlersService.search(searchDto);
   }
 
   @ApiHeader({
