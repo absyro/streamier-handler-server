@@ -1,5 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, MaxLength } from "class-validator";
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsString,
+  MaxLength,
+} from "class-validator";
 
 export class CreateHandlerDto {
   @ApiProperty({
@@ -46,4 +52,19 @@ export class CreateHandlerDto {
   @IsString()
   @MaxLength(180)
   public shortDescription!: string;
+
+  @ApiProperty({
+    description: "Array of tags to categorize and filter the handler",
+    example: ["discord", "bot", "automation"],
+    maxItems: 10,
+    minItems: 1,
+    required: true,
+    type: [String],
+  })
+  @ArrayMaxSize(10)
+  @ArrayMinSize(1)
+  @IsArray()
+  @IsString({ each: true })
+  @MaxLength(30, { each: true })
+  public tags!: string[];
 }

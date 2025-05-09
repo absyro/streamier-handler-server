@@ -71,7 +71,6 @@ export class Handler {
     description: "Tags associated with the handler ",
     example: ["discord", "bot", "automation"],
     maxItems: 10,
-    maxLength: 30,
     name: "tags",
     type: [String],
   })

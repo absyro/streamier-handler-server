@@ -56,6 +56,8 @@ export class HandlersService {
 
     handler.iconId = createHandlerDto.iconId;
 
+    handler.tags = createHandlerDto.tags;
+
     handler.authToken = authToken;
 
     handler.userId = userId;
