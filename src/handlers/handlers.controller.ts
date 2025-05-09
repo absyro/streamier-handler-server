@@ -121,8 +121,8 @@ export class HandlersController {
 
     const sockets = await server.fetchSockets();
 
-    const authTokens = sockets.map(
-      (socket) => socket.handshake.auth.token as string,
+    const authTokens = sockets.map((socket) =>
+      String(socket.handshake.auth.token),
     );
 
     const handlers =
