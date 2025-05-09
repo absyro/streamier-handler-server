@@ -7,7 +7,28 @@ import {
   MaxLength,
 } from "class-validator";
 
+/**
+ * Data Transfer Object for creating a new handler.
+ *
+ * Defines the required fields and validation rules for creating a new handler.
+ * All fields are required and have specific length and format constraints.
+ *
+ * @class CreateHandlerDto
+ * @property {string} iconId - The ID of the handler icon from icons8.com
+ * @property {string} longDescription - Detailed description of handler
+ *   functionality
+ * @property {string} name - Display name of the handler
+ * @property {string} shortDescription - Brief description of handler purpose
+ * @property {string[]} tags - Array of tags for categorization
+ */
 export class CreateHandlerDto {
+  /**
+   * The ID of the handler icon from icons8.com.
+   *
+   * Must be a valid icon ID from icons8.com. Maximum length is 12 characters.
+   *
+   * @property {string} iconId
+   */
   @ApiProperty({
     description:
       "The ID of the handler icon from icons8.com. Must be a valid icon ID.",
@@ -19,6 +40,14 @@ export class CreateHandlerDto {
   @MaxLength(12)
   public iconId!: string;
 
+  /**
+   * Detailed description of the handler's functionality.
+   *
+   * Used for detailed documentation of the handler's functionality. Maximum
+   * length is 5000 characters.
+   *
+   * @property {string} longDescription
+   */
   @ApiProperty({
     description:
       "The long description of the handler. Used for detailed documentation of the handler's functionality.",
@@ -31,6 +60,13 @@ export class CreateHandlerDto {
   @MaxLength(5000)
   public longDescription!: string;
 
+  /**
+   * Display name of the handler.
+   *
+   * Should be descriptive but concise. Maximum length is 100 characters.
+   *
+   * @property {string} name
+   */
   @ApiProperty({
     description:
       "The display name of the handler. Should be descriptive but concise.",
@@ -42,6 +78,13 @@ export class CreateHandlerDto {
   @MaxLength(100)
   public name!: string;
 
+  /**
+   * Brief description of the handler's purpose.
+   *
+   * Used in listings and previews. Maximum length is 180 characters.
+   *
+   * @property {string} shortDescription
+   */
   @ApiProperty({
     description:
       "A brief description of the handler's purpose. Used in listings and previews.",
@@ -53,6 +96,14 @@ export class CreateHandlerDto {
   @MaxLength(180)
   public shortDescription!: string;
 
+  /**
+   * Array of tags to categorize and filter the handler.
+   *
+   * Used for categorization and filtering. Must contain between 1 and 10 tags.
+   * Each tag must be a string with maximum length of 30 characters.
+   *
+   * @property {string[]} tags
+   */
   @ApiProperty({
     description: "Array of tags to categorize and filter the handler",
     example: ["discord", "bot", "automation"],

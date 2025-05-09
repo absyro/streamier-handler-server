@@ -13,6 +13,19 @@ import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
 
+/**
+ * Service for managing stream handlers.
+ *
+ * Provides functionality for:
+ *
+ * - Creating new handlers
+ * - Updating existing handlers
+ * - Deleting handlers
+ * - Finding handlers by various criteria
+ * - Searching handlers with advanced filters
+ *
+ * @class HandlersService
+ */
 @Injectable()
 export class HandlersService {
   public constructor(
@@ -20,6 +33,14 @@ export class HandlersService {
     private readonly handlerRepository: Repository<Handler>,
   ) {}
 
+  /**
+   * Creates a new handler for a user.
+   *
+   * @param {string} userId - The ID of the user creating the handler
+   * @param {CreateHandlerDto} createHandlerDto - Data for creating the handler
+   * @returns {Promise<Handler>} The created handler
+   * @throws {BadRequestException} If user has reached maximum handlers limit
+   */
   public async createOne(
     userId: string,
     createHandlerDto: CreateHandlerDto,
@@ -67,6 +88,13 @@ export class HandlersService {
     return this.handlerRepository.save(handler);
   }
 
+  /**
+   * Deletes a handler by its ID.
+   *
+   * @param {string} id - The ID of the handler to delete
+   * @returns {Promise<void>}
+   * @throws {NotFoundException} If handler is not found
+   */
   public async deleteOne(id: string): Promise<void> {
     const result = await this.handlerRepository.delete({ id });
 
@@ -75,10 +103,22 @@ export class HandlersService {
     }
   }
 
+  /**
+   * Finds all handlers belonging to a user.
+   *
+   * @param {string} userId - The ID of the user
+   * @returns {Promise<Handler[]>} Array of handlers
+   */
   public async findAll(userId: string): Promise<Handler[]> {
     return this.handlerRepository.find({ where: { userId } });
   }
 
+  /**
+   * Finds handlers by their authentication tokens.
+   *
+   * @param {string[]} authTokens - Array of authentication tokens
+   * @returns {Promise<Handler[]>} Array of matching handlers
+   */
   public async findAllUsingAuthTokens(
     authTokens: string[],
   ): Promise<Handler[]> {
@@ -87,16 +127,41 @@ export class HandlersService {
     });
   }
 
+  /**
+   * Finds a handler by its ID.
+   *
+   * @param {string} id - The ID of the handler
+   * @returns {Promise<Handler | null>} The found handler or null
+   */
   public async findOne(id: string): Promise<Handler | null> {
     return this.handlerRepository.findOne({ where: { id } });
   }
 
+  /**
+   * Finds a handler by its authentication token.
+   *
+   * @param {string} authToken - The authentication token
+   * @returns {Promise<Handler | null>} The found handler or null
+   */
   public async findOneUsingAuthToken(
     authToken: string,
   ): Promise<Handler | null> {
     return this.handlerRepository.findOne({ where: { authToken } });
   }
 
+  /**
+   * Searches for handlers using various criteria.
+   *
+   * Supports searching by:
+   *
+   * - Text query (name, descriptions, tags)
+   * - Tags
+   * - Minimum/maximum number of tags
+   * - Pagination (offset/limit)
+   *
+   * @param {SearchHandlerDto} searchDto - Search criteria
+   * @returns {Promise<Handler[]>} Array of matching handlers
+   */
   public async search(searchDto: SearchHandlerDto): Promise<Handler[]> {
     const queryBuilder = this.handlerRepository.createQueryBuilder("handler");
 
@@ -131,6 +196,13 @@ export class HandlersService {
     return queryBuilder.getMany();
   }
 
+  /**
+   * Updates an existing handler.
+   *
+   * @param {string} id - The ID of the handler to update
+   * @param {UpdateHandlerDto} updateHandlerDto - Data to update
+   * @returns {Promise<Handler>} The updated handler
+   */
   public async updateOne(
     id: string,
     updateHandlerDto: UpdateHandlerDto,

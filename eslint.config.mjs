@@ -29,6 +29,7 @@ const eslintConfig = [
         },
       ],
       "id-length": "off",
+      "max-lines": "off",
       "max-lines-per-function": "off",
       "max-statements": "off",
       "new-cap": "off",

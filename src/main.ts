@@ -12,6 +12,20 @@ import packageJson from "../package.json";
 import { AppModule } from "./app.module";
 import { WsAdapter } from "./websocket/websocket.adapter";
 
+/**
+ * Bootstraps the NestJS application with all necessary configurations and
+ * middleware. This includes:
+ *
+ * - CORS support
+ * - API documentation (Swagger/Redoc)
+ * - Compression middleware
+ * - Global validation pipe
+ * - WebSocket adapter
+ *
+ * @returns {Promise<void>} A promise that resolves when the application is
+ *   successfully started
+ * @throws {Error} If the application fails to start
+ */
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,

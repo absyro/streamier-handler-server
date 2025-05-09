@@ -37,6 +37,20 @@ import { Handler } from "./entities/handler.entity";
 import { HandlersGateway } from "./handlers.gateway";
 import { HandlersService } from "./handlers.service";
 
+/**
+ * Controller for managing stream handlers.
+ *
+ * Provides REST API endpoints for:
+ *
+ * - Creating new handlers
+ * - Retrieving handler information
+ * - Updating handler configurations
+ * - Deleting handlers
+ * - Searching handlers with filters
+ * - Managing active handlers
+ *
+ * @class HandlersController
+ */
 @ApiBadRequestResponse({ description: "Invalid request parameters or body" })
 @ApiTags("Handlers")
 @ApiUnauthorizedResponse({ description: "Missing or invalid authentication" })
@@ -48,6 +62,14 @@ export class HandlersController {
     private readonly commonService: CommonService,
   ) {}
 
+  /**
+   * Creates a new handler for the authenticated user.
+   *
+   * @param {CreateHandlerDto} createHandlerDto - Handler configuration data
+   * @param {Request} request - Express request object
+   * @returns {Promise<Handler>} The created handler
+   * @throws {UnauthorizedException} If user is not authenticated
+   */
   @ApiCreatedResponse({
     description: "Handler successfully created",
     type: Handler,
@@ -80,6 +102,13 @@ export class HandlersController {
     return this.handlersService.createOne(userId, createHandlerDto);
   }
 
+  /**
+   * Retrieves all handlers belonging to the authenticated user.
+   *
+   * @param {Request} request - Express request object
+   * @returns {Promise<Handler[]>} Array of user's handlers
+   * @throws {UnauthorizedException} If user is not authenticated
+   */
   @ApiHeader({
     description: "Session ID for authentication",
     example: "1234567890",
@@ -106,6 +135,13 @@ export class HandlersController {
     return this.handlersService.findAll(userId);
   }
 
+  /**
+   * Retrieves a list of all currently active handlers. This endpoint is
+   * publicly accessible and does not require authentication.
+   *
+   * @returns {Promise<Omit<Handler, "authToken" | "updateTimestamp">[]>} Array
+   *   of active handlers
+   */
   @ApiOkResponse({
     description: "List of all active handlers",
     type: [Handler],
@@ -133,6 +169,16 @@ export class HandlersController {
     return handlers.map(({ authToken, ...handler }) => handler);
   }
 
+  /**
+   * Retrieves detailed information about a specific handler.
+   *
+   * @param {string} id - The ID of the handler to retrieve
+   * @param {Request} request - Express request object
+   * @returns {Promise<Omit<Handler, "authToken" | "updateTimestamp">>} Handler
+   *   details
+   * @throws {NotFoundException} If handler is not found
+   * @throws {UnauthorizedException} If user is not authenticated
+   */
   @ApiHeader({
     description: "Session ID for authentication",
     example: "1234567890",
@@ -172,6 +218,15 @@ export class HandlersController {
     return { ...handler, ...(handler.userId === userId && { authToken }) };
   }
 
+  /**
+   * Deletes a specific handler.
+   *
+   * @param {string} id - The ID of the handler to delete
+   * @param {Request} request - Express request object
+   * @returns {Promise<void>}
+   * @throws {NotFoundException} If handler is not found
+   * @throws {UnauthorizedException} If user is not authenticated
+   */
   @ApiHeader({
     description: "Session ID for authentication",
     example: "1234567890",
@@ -205,6 +260,12 @@ export class HandlersController {
     await this.handlersService.deleteOne(id);
   }
 
+  /**
+   * Searches for handlers based on various criteria.
+   *
+   * @param {SearchHandlerDto} searchDto - Search criteria
+   * @returns {Promise<Handler[]>} Array of matching handlers
+   */
   @ApiOkResponse({
     description: "List of handlers matching the search criteria",
     type: [Handler],
@@ -225,6 +286,16 @@ export class HandlersController {
     return this.handlersService.search(searchDto);
   }
 
+  /**
+   * Updates the configuration of a specific handler.
+   *
+   * @param {string} id - The ID of the handler to update
+   * @param {UpdateHandlerDto} updateHandlerDto - Updated handler configuration
+   * @param {Request} request - Express request object
+   * @returns {Promise<Handler>} The updated handler
+   * @throws {NotFoundException} If handler is not found
+   * @throws {UnauthorizedException} If user is not authenticated
+   */
   @ApiHeader({
     description: "Session ID for authentication",
     example: "1234567890",
