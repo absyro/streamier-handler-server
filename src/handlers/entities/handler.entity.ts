@@ -28,7 +28,6 @@ export class Handler {
   @ApiProperty({
     description: "Authentication token used for WebSocket connections",
     example: "abc123def456",
-    name: "auth_token",
     readOnly: true,
   })
   @Column({ length: 64, name: "auth_token", unique: true })
@@ -37,7 +36,6 @@ export class Handler {
   @ApiProperty({
     description: "Timestamp when the handler was created",
     example: "2024-04-01T12:00:00Z",
-    name: "created_at",
     readOnly: true,
   })
   @Column({ default: () => "CURRENT_TIMESTAMP", name: "created_at" })
@@ -47,7 +45,6 @@ export class Handler {
     description: "The ID of the handler icon from icons8.com",
     example: "000000",
     maxLength: 12,
-    name: "icon_id",
   })
   @Column({ length: 12, name: "icon_id" })
   public iconId!: string;
@@ -56,7 +53,6 @@ export class Handler {
     description: "Unique identifier for the handler",
     example: "h1234567",
     maxLength: 8,
-    name: "id",
   })
   @PrimaryColumn({ length: 8, name: "id" })
   public id!: string;
@@ -64,7 +60,6 @@ export class Handler {
   @ApiProperty({
     description: "Whether the handler is currently online and connected",
     example: false,
-    name: "is_online",
     readOnly: true,
   })
   @Column({ default: false, name: "is_online" })
@@ -75,7 +70,6 @@ export class Handler {
     example:
       "This handler is used for developing Discord bots. It allows you to create and manage Discord bots with ease.",
     maxLength: 5000,
-    name: "long_description",
   })
   @Column({ length: 5000, name: "long_description" })
   public longDescription!: string;
@@ -84,7 +78,6 @@ export class Handler {
     description: "Display name of the handler",
     example: "Discord (Bots)",
     maxLength: 100,
-    name: "name",
   })
   @Column({ length: 100, name: "name" })
   public name!: string;
@@ -93,7 +86,6 @@ export class Handler {
     description: "Brief description of the handler's purpose",
     example: "Create and manage Discord bots",
     maxLength: 180,
-    name: "short_description",
   })
   @Column({ length: 180, name: "short_description" })
   public shortDescription!: string;
@@ -102,7 +94,6 @@ export class Handler {
     description: "Tags associated with the handler ",
     example: ["discord", "bot", "automation"],
     maxItems: 10,
-    name: "tags",
     type: [String],
   })
   @Column({ name: "tags", type: "simple-array" })
@@ -111,7 +102,6 @@ export class Handler {
   @ApiProperty({
     description: "Timestamp when the handler was last updated",
     example: "2024-04-01T12:30:00Z",
-    name: "updated_at",
     readOnly: true,
   })
   @Column({ default: () => "CURRENT_TIMESTAMP", name: "updated_at" })
@@ -121,7 +111,6 @@ export class Handler {
     description: "ID of the user who owns this handler",
     example: "u1234567",
     maxLength: 8,
-    name: "user_id",
     readOnly: true,
   })
   @Column({ length: 8, name: "user_id" })
