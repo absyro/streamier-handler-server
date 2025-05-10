@@ -156,6 +156,7 @@ export class HandlersService {
    * - Text query (name, descriptions, tags)
    * - Tags
    * - Minimum/maximum number of tags
+   * - Online status
    * - Pagination (offset/limit)
    *
    * @param {SearchHandlerDto} searchDto - Search criteria
@@ -193,6 +194,12 @@ export class HandlersService {
     if (isNumber(searchDto.maxTags)) {
       queryBuilder.andWhere("array_length(handler.tags, 1) <= :maxTags", {
         maxTags: searchDto.maxTags,
+      });
+    }
+
+    if (typeof searchDto.isOnline === "boolean") {
+      queryBuilder.andWhere("handler.isOnline = :isOnline", {
+        isOnline: searchDto.isOnline,
       });
     }
 

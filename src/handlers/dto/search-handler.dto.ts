@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
   IsArray,
+  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
@@ -22,8 +23,25 @@ import {
  * @property {number} offset - Number of results to skip (for pagination)
  * @property {string} q - Search query string
  * @property {string[]} tags - Filter by specific tags
+ * @property {boolean} isOnline - Filter by online status
  */
 export class SearchHandlerDto {
+  /**
+   * Filter by online status.
+   *
+   * Used to find handlers that are either online or offline.
+   *
+   * @property {boolean} isOnline
+   */
+  @ApiProperty({
+    description: "Filter by online status",
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  @Type(() => Boolean)
+  public isOnline?: boolean;
+
   /**
    * Maximum number of results to return.
    *
