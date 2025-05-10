@@ -1,11 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import {
-  ArrayMaxSize,
-  ArrayMinSize,
-  IsArray,
-  IsString,
-  MaxLength,
-} from "class-validator";
+import { IsString, MaxLength } from "class-validator";
 
 /**
  * Data Transfer Object for creating a new handler.
