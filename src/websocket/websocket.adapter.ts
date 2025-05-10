@@ -43,7 +43,7 @@ export class WsAdapter extends IoAdapter {
         methods: ["GET", "POST"],
         origin: "*",
       },
-    }) as Server;
+    } satisfies Partial<ServerOptions>) as Server;
 
     server.use((_, next) => {
       next(new Error("unauthorized"));
