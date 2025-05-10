@@ -4,9 +4,12 @@ import {
   NotFoundException,
   NotImplementedException,
 } from "@nestjs/common";
-import { isObject, isString } from "radash";
+import { plainToInstance } from "class-transformer";
+import { validateSync } from "class-validator";
+import { isEmpty, isObject, isString } from "radash";
 
 import { HandlersGateway } from "../handlers/handlers.gateway";
+import { Stream } from "./classes/stream.class";
 
 /**
  * Service for managing data streams.
@@ -30,19 +33,36 @@ export class StreamsService {
    *
    * @param {string} handlerId - The ID of the handler to create the stream for
    * @param {string} userId - The ID of the user creating the stream
-   * @param {unknown} data - The initial data for the stream
+   * @param {Pick<Stream, "configuration" | "name">} streamParameters - The
+   *   parameters for the new stream
    * @returns The created stream data
    * @throws {NotFoundException} If handler is not found
-   * @throws {BadRequestException} If handler returns an error
+   * @throws {BadRequestException} If handler returns an error or data is
+   *   invalid
    * @throws {NotImplementedException} If handler returns invalid response
    *   format
    */
   public async createStream(
     handlerId: string,
     userId: string,
-    data: unknown,
-  ): Promise<object> {
-    return this._emitToHandler(handlerId, "create", userId, data);
+    streamParameters: Pick<Stream, "configuration" | "name">,
+  ): Promise<Stream> {
+    const response = await this._emitToHandler(
+      handlerId,
+      "create",
+      userId,
+      streamParameters,
+    );
+
+    const stream = plainToInstance(Stream, response);
+
+    const errors = validateSync(stream);
+
+    if (!isEmpty(errors)) {
+      throw new BadRequestException(errors);
+    }
+
+    return stream;
   }
 
   /**
@@ -80,8 +100,23 @@ export class StreamsService {
     handlerId: string,
     userId: string,
     streamId: string,
-  ): Promise<object> {
-    return this._emitToHandler(handlerId, "read", userId, streamId);
+  ): Promise<Stream> {
+    const response = await this._emitToHandler(
+      handlerId,
+      "read",
+      userId,
+      streamId,
+    );
+
+    const stream = plainToInstance(Stream, response);
+
+    const errors = validateSync(stream);
+
+    if (!isEmpty(errors)) {
+      throw new BadRequestException(errors);
+    }
+
+    return stream;
   }
 
   /**
@@ -93,7 +128,8 @@ export class StreamsService {
    * @param {unknown} changes - The changes to apply to the stream
    * @returns The updated stream data
    * @throws {NotFoundException} If handler is not found
-   * @throws {BadRequestException} If handler returns an error
+   * @throws {BadRequestException} If handler returns an error or changes are
+   *   invalid
    * @throws {NotImplementedException} If handler returns invalid response
    *   format
    */
@@ -102,8 +138,32 @@ export class StreamsService {
     userId: string,
     streamId: string,
     changes: unknown,
-  ): Promise<object> {
-    return this._emitToHandler(handlerId, "update", userId, streamId, changes);
+  ): Promise<Stream> {
+    const stream = plainToInstance(Stream, changes);
+
+    const errors = validateSync(stream, { skipMissingProperties: true });
+
+    if (!isEmpty(errors)) {
+      throw new BadRequestException(errors);
+    }
+
+    const response = await this._emitToHandler(
+      handlerId,
+      "update",
+      userId,
+      streamId,
+      stream,
+    );
+
+    const updatedStream = plainToInstance(Stream, response);
+
+    const updatedStreamErrors = validateSync(updatedStream);
+
+    if (!isEmpty(updatedStreamErrors)) {
+      throw new BadRequestException(updatedStreamErrors);
+    }
+
+    return updatedStream;
   }
 
   /**

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -24,10 +25,13 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { plainToInstance } from "class-transformer";
+import { isEmpty, validateSync } from "class-validator";
 import { Request } from "express";
 import { isString } from "radash";
 
 import { CommonService } from "../common/common.service";
+import { Stream } from "./classes/stream.class";
 import { StreamsService } from "./streams.service";
 
 /**
@@ -78,13 +82,7 @@ export class StreamsController {
    */
   @ApiCreatedResponse({
     description: "Stream created successfully",
-    schema: {
-      example: {
-        createdAt: "2023-01-01T00:00:00Z",
-        id: "stream-456",
-        status: "active",
-      },
-    },
+    type: Stream,
   })
   @ApiForbiddenResponse({
     description:
@@ -104,17 +102,29 @@ export class StreamsController {
   })
   @Post()
   public async createStream(
-    @Body() data: unknown,
+    @Body() body: unknown,
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<object> {
+  ): Promise<Stream> {
+    const streamParameters = plainToInstance(Stream, body);
+
+    const errors = validateSync(streamParameters);
+
+    if (!isEmpty(errors)) {
+      throw new BadRequestException(errors);
+    }
+
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 
-    return this.streamsService.createStream(handlerId, userId, data);
+    return this.streamsService.createStream(
+      handlerId,
+      userId,
+      streamParameters,
+    );
   }
 
   /**
@@ -185,16 +195,7 @@ export class StreamsController {
   })
   @ApiOkResponse({
     description: "Stream details retrieved successfully",
-    schema: {
-      example: {
-        configuration: {},
-        createdAt: "2023-01-01T00:00:00Z",
-        handlerId: "handler-123",
-        id: "stream-456",
-        status: "active",
-        updatedAt: "2023-01-01T01:00:00Z",
-      },
-    },
+    type: Stream,
   })
   @ApiOperation({
     description: "Retrieves details about the specified stream",
@@ -215,7 +216,7 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<object> {
+  ): Promise<Stream> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -230,7 +231,7 @@ export class StreamsController {
    *
    * @param {string} handlerId - The ID of the handler containing the stream
    * @param {string} streamId - The ID of the stream to update
-   * @param {unknown} changes - The changes to apply to the stream
+   * @param {Partial<Stream>} changes - The changes to apply to the stream
    * @param {Request} request - The HTTP request object
    * @returns The updated stream data
    * @throws {UnauthorizedException} If user is not authenticated
@@ -246,13 +247,7 @@ export class StreamsController {
   })
   @ApiOkResponse({
     description: "Stream updated successfully",
-    schema: {
-      example: {
-        id: "stream-456",
-        status: "updated",
-        updatedAt: "2023-01-01T02:00:00Z",
-      },
-    },
+    type: Stream,
   })
   @ApiOperation({
     description: "Updates configuration of the specified stream",
@@ -272,9 +267,9 @@ export class StreamsController {
   public async updateStream(
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
-    @Body() changes: unknown,
+    @Body() changes: Partial<Stream>,
     @Req() request: Request,
-  ): Promise<object> {
+  ): Promise<Stream> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
