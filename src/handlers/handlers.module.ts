@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, OnModuleInit } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { Handler } from "./entities/handler.entity";
@@ -28,4 +28,14 @@ import { HandlersService } from "./handlers.service";
   imports: [TypeOrmModule.forFeature([Handler])],
   providers: [HandlersService, HandlersGateway],
 })
-export class HandlersModule {}
+export class HandlersModule implements OnModuleInit {
+  public constructor(private readonly handlersService: HandlersService) {}
+
+  /**
+   * Lifecycle hook that is called once the module has been initialized. Sets
+   * all handlers to offline status when the server starts.
+   */
+  public async onModuleInit(): Promise<void> {
+    await this.handlersService.setAllHandlersOffline();
+  }
+}

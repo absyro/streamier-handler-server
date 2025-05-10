@@ -20,6 +20,8 @@ import { BeforeUpdate, Column, Entity, PrimaryColumn } from "typeorm";
  * @property {string[]} tags - Array of tags associated with the handler
  * @property {Date} updatedAt - Timestamp of last update
  * @property {string} userId - ID of the handler owner
+ * @property {boolean} isOnline - Whether the handler is currently online and
+ *   connected
  */
 @Entity({ name: "handlers" })
 export class Handler {
@@ -58,6 +60,15 @@ export class Handler {
   })
   @PrimaryColumn({ length: 8, name: "id" })
   public id!: string;
+
+  @ApiProperty({
+    description: "Whether the handler is currently online and connected",
+    example: false,
+    name: "is_online",
+    readOnly: true,
+  })
+  @Column({ default: false, name: "is_online" })
+  public isOnline!: boolean;
 
   @ApiProperty({
     description: "Detailed description of the handler's functionality.",

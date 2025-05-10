@@ -2,6 +2,7 @@ import type { DefaultEventsMap, Server, Socket } from "socket.io";
 
 import {
   OnGatewayConnection,
+  OnGatewayDisconnect,
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
@@ -19,11 +20,14 @@ import { HandlerSocketData } from "./interfaces/handler-socket-data.interface";
  * - Managing handler socket sessions
  * - Preventing duplicate connections
  * - Associating sockets with handlers
+ * - Tracking handler online/offline status
  *
  * @class HandlersGateway
  */
 @WebSocketGateway({ namespace: "handlers" })
-export class HandlersGateway implements OnGatewayConnection {
+export class HandlersGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   /**
    * Socket.IO server instance.
    *
@@ -51,6 +55,7 @@ export class HandlersGateway implements OnGatewayConnection {
    * 2. Checks for existing connections with the same token
    * 3. Validates the handler exists in the database
    * 4. Associates the socket with the handler
+   * 5. Sets the handler's online status to true
    *
    * If any validation fails, the connection is terminated.
    *
@@ -93,5 +98,27 @@ export class HandlersGateway implements OnGatewayConnection {
     }
 
     socket.data.id = handler.id;
+
+    await this.handlersService.setOnlineStatus(handler.id, true);
+  }
+
+  /**
+   * Handles WebSocket disconnections from handlers.
+   *
+   * When a handler disconnects:
+   *
+   * 1. Sets the handler's online status to false
+   *
+   * @param {Socket} socket - The disconnected socket instance
+   */
+  public async handleDisconnect(
+    socket: Socket<
+      DefaultEventsMap,
+      DefaultEventsMap,
+      DefaultEventsMap,
+      HandlerSocketData
+    >,
+  ): Promise<void> {
+    await this.handlersService.setOnlineStatus(socket.data.id, false);
   }
 }

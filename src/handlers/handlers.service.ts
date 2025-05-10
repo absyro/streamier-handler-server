@@ -202,6 +202,31 @@ export class HandlersService {
   }
 
   /**
+   * Sets all handlers to offline status.
+   *
+   * This method should be called when the server starts to ensure all handlers
+   * start in an offline state until they reconnect.
+   */
+  public async setAllHandlersOffline(): Promise<void> {
+    await this.handlerRepository.update({}, { isOnline: false });
+  }
+
+  /**
+   * Sets the online status of a handler.
+   *
+   * @param {string} id - The ID of the handler
+   * @param {boolean} isOnline - The new online status
+   * @throws {NotFoundException} If handler is not found
+   */
+  public async setOnlineStatus(id: string, isOnline: boolean): Promise<void> {
+    const result = await this.handlerRepository.update({ id }, { isOnline });
+
+    if (result.affected === 0) {
+      throw new NotFoundException("Handler not found");
+    }
+  }
+
+  /**
    * Updates an existing handler.
    *
    * @param {string} id - The ID of the handler to update
