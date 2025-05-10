@@ -10,6 +10,7 @@ import { isEmpty, isObject, isString } from "radash";
 
 import { HandlersGateway } from "../handlers/handlers.gateway";
 import { Stream } from "./classes/stream.class";
+import { UpdateStreamDto } from "./dto/update-stream.dto";
 
 /**
  * Service for managing data streams.
@@ -45,13 +46,13 @@ export class StreamsService {
   public async createStream(
     handlerId: string,
     userId: string,
-    streamParameters: Pick<Stream, "configuration" | "name">,
+    createStreamDto: Pick<Stream, "configuration" | "name">,
   ): Promise<Stream> {
     const response = await this._emitToHandler(
       handlerId,
       "create",
       userId,
-      streamParameters,
+      createStreamDto,
     );
 
     const stream = plainToInstance(Stream, response);
@@ -137,22 +138,14 @@ export class StreamsService {
     handlerId: string,
     userId: string,
     streamId: string,
-    changes: unknown,
+    updateStreamDto: UpdateStreamDto,
   ): Promise<Stream> {
-    const stream = plainToInstance(Stream, changes);
-
-    const errors = validateSync(stream, { skipMissingProperties: true });
-
-    if (!isEmpty(errors)) {
-      throw new BadRequestException(errors);
-    }
-
     const response = await this._emitToHandler(
       handlerId,
       "update",
       userId,
       streamId,
-      stream,
+      updateStreamDto,
     );
 
     const updatedStream = plainToInstance(Stream, response);

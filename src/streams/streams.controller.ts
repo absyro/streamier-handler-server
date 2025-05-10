@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -25,13 +24,13 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { plainToInstance } from "class-transformer";
-import { isEmpty, validateSync } from "class-validator";
 import { Request } from "express";
 import { isString } from "radash";
 
 import { CommonService } from "../common/common.service";
 import { Stream } from "./classes/stream.class";
+import { CreateStreamDto } from "./dto/create-stream.dto";
+import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
 /**
@@ -102,29 +101,17 @@ export class StreamsController {
   })
   @Post()
   public async createStream(
-    @Body() body: unknown,
+    @Body() createStreamDto: CreateStreamDto,
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
   ): Promise<Stream> {
-    const streamParameters = plainToInstance(Stream, body);
-
-    const errors = validateSync(streamParameters);
-
-    if (!isEmpty(errors)) {
-      throw new BadRequestException(errors);
-    }
-
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 
-    return this.streamsService.createStream(
-      handlerId,
-      userId,
-      streamParameters,
-    );
+    return this.streamsService.createStream(handlerId, userId, createStreamDto);
   }
 
   /**
@@ -267,7 +254,7 @@ export class StreamsController {
   public async updateStream(
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
-    @Body() changes: Partial<Stream>,
+    @Body() updateStreamDto: UpdateStreamDto,
     @Req() request: Request,
   ): Promise<Stream> {
     const userId = await this.commonService.getUserIdFromRequest(request);
@@ -280,7 +267,7 @@ export class StreamsController {
       handlerId,
       userId,
       streamId,
-      changes,
+      updateStreamDto,
     );
   }
 }
