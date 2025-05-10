@@ -70,7 +70,7 @@ export class StreamsController {
    * @param {unknown} data - The initial data for the stream
    * @param {string} handlerId - The ID of the handler to create the stream on
    * @param {Request} request - The HTTP request object
-   * @returns {Promise<object>} The created stream data
+   * @returns The created stream data
    * @throws {UnauthorizedException} If user is not authenticated
    * @throws {NotFoundException} If handler is not found
    * @throws {ForbiddenException} If user doesn't have permission
@@ -123,7 +123,6 @@ export class StreamsController {
    * @param {string} handlerId - The ID of the handler containing the stream
    * @param {string} streamId - The ID of the stream to delete
    * @param {Request} request - The HTTP request object
-   * @returns {Promise<void>}
    * @throws {UnauthorizedException} If user is not authenticated
    * @throws {NotFoundException} If handler or stream is not found
    * @throws {ForbiddenException} If user doesn't have permission
@@ -173,7 +172,7 @@ export class StreamsController {
    * @param {string} handlerId - The ID of the handler containing the stream
    * @param {string} streamId - The ID of the stream to read
    * @param {Request} request - The HTTP request object
-   * @returns {Promise<object>} The stream data
+   * @returns The stream data
    * @throws {UnauthorizedException} If user is not authenticated
    * @throws {NotFoundException} If handler or stream is not found
    * @throws {ForbiddenException} If user doesn't have permission
@@ -233,7 +232,7 @@ export class StreamsController {
    * @param {string} streamId - The ID of the stream to update
    * @param {unknown} changes - The changes to apply to the stream
    * @param {Request} request - The HTTP request object
-   * @returns {Promise<object>} The updated stream data
+   * @returns The updated stream data
    * @throws {UnauthorizedException} If user is not authenticated
    * @throws {NotFoundException} If handler or stream is not found
    * @throws {ForbiddenException} If user doesn't have permission

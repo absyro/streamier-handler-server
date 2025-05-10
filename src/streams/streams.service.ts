@@ -31,7 +31,7 @@ export class StreamsService {
    * @param {string} handlerId - The ID of the handler to create the stream for
    * @param {string} userId - The ID of the user creating the stream
    * @param {unknown} data - The initial data for the stream
-   * @returns {Promise<object>} The created stream data
+   * @returns The created stream data
    * @throws {NotFoundException} If handler is not found
    * @throws {BadRequestException} If handler returns an error
    * @throws {NotImplementedException} If handler returns invalid response
@@ -51,7 +51,6 @@ export class StreamsService {
    * @param {string} handlerId - The ID of the handler that owns the stream
    * @param {string} userId - The ID of the user deleting the stream
    * @param {string} streamId - The ID of the stream to delete
-   * @returns {Promise<void>}
    * @throws {NotFoundException} If handler is not found
    * @throws {BadRequestException} If handler returns an error
    * @throws {NotImplementedException} If handler returns invalid response
@@ -71,7 +70,7 @@ export class StreamsService {
    * @param {string} handlerId - The ID of the handler that owns the stream
    * @param {string} userId - The ID of the user reading the stream
    * @param {string} streamId - The ID of the stream to read
-   * @returns {Promise<object>} The stream data
+   * @returns The stream data
    * @throws {NotFoundException} If handler is not found
    * @throws {BadRequestException} If handler returns an error
    * @throws {NotImplementedException} If handler returns invalid response
@@ -92,7 +91,7 @@ export class StreamsService {
    * @param {string} userId - The ID of the user updating the stream
    * @param {string} streamId - The ID of the stream to update
    * @param {unknown} changes - The changes to apply to the stream
-   * @returns {Promise<object>} The updated stream data
+   * @returns The updated stream data
    * @throws {NotFoundException} If handler is not found
    * @throws {BadRequestException} If handler returns an error
    * @throws {NotImplementedException} If handler returns invalid response
@@ -114,7 +113,7 @@ export class StreamsService {
    * @param {string} handlerId - The ID of the handler to emit to
    * @param {string} event - The event name to emit
    * @param {...unknown} data - Additional data to send with the event
-   * @returns {Promise<T>} The handler's response
+   * @returns The handler's response
    * @throws {NotFoundException} If handler is not found
    * @throws {BadRequestException} If handler returns an error
    * @throws {NotImplementedException} If handler returns invalid response

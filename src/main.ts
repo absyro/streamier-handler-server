@@ -22,8 +22,7 @@ import { WsAdapter } from "./websocket/websocket.adapter";
  * - Global validation pipe
  * - WebSocket adapter
  *
- * @returns {Promise<void>} A promise that resolves when the application is
- *   successfully started
+ * @returns A promise that resolves when the application is successfully started
  * @throws {Error} If the application fails to start
  */
 async function bootstrap(): Promise<void> {

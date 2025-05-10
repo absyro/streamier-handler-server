@@ -55,7 +55,6 @@ export class HandlersGateway implements OnGatewayConnection {
    * If any validation fails, the connection is terminated.
    *
    * @param {Socket} socket - The connected socket instance
-   * @returns {Promise<void>}
    */
   public async handleConnection(
     socket: Socket<

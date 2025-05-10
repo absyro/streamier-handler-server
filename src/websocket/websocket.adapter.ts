@@ -31,7 +31,7 @@ export class WsAdapter extends IoAdapter {
    *
    * @param {number} port - The port number to listen on
    * @param {ServerOptions} [options] - Optional Socket.IO server configuration
-   * @returns {Server} The configured Socket.IO server instance
+   * @returns The configured Socket.IO server instance
    */
   public override createIOServer(
     port: number,

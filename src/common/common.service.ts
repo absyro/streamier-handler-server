@@ -29,8 +29,7 @@ export class CommonService {
    * - Session is not found in the database
    *
    * @param {Request} request - The HTTP request object
-   * @returns {Promise<null | string>} The user ID if authenticated, null
-   *   otherwise
+   * @returns The user ID if authenticated, null otherwise
    */
   public async getUserIdFromRequest(request: Request): Promise<null | string> {
     const sessionId = request.headers["x-session-id"];

@@ -69,7 +69,7 @@ export class HandlersController {
    *
    * @param {CreateHandlerDto} createHandlerDto - Handler configuration data
    * @param {Request} request - Express request object
-   * @returns {Promise<Handler>} The created handler
+   * @returns The created handler
    * @throws {UnauthorizedException} If user is not authenticated
    */
   @ApiCreatedResponse({
@@ -107,8 +107,7 @@ export class HandlersController {
   /**
    * Retrieves a list of all currently active handlers.
    *
-   * @returns {Promise<Omit<Handler, "authToken" | "updateTimestamp">[]>} Array
-   *   of active handlers
+   * @returns Array of active handlers
    */
   @ApiOkResponse({
     description: "List of all active handlers",
@@ -140,8 +139,7 @@ export class HandlersController {
    * Retrieves detailed information about a specific handler.
    *
    * @param {string} id - The ID of the handler to retrieve
-   * @returns {Promise<Omit<Handler, "authToken" | "updateTimestamp">>} Handler
-   *   details
+   * @returns Handler details
    * @throws {NotFoundException} If handler is not found
    */
   @ApiHeader({
@@ -186,7 +184,7 @@ export class HandlersController {
    *
    * @param {string} id - The ID of the handler
    * @param {Request} request - Express request object
-   * @returns {Promise<Pick<Handler, "authToken">>} The handler's auth token
+   * @returns The handler's auth token
    * @throws {NotFoundException} If handler is not found
    * @throws {UnauthorizedException} If user is not authenticated or not the
    *   owner
@@ -241,7 +239,6 @@ export class HandlersController {
    *
    * @param {string} id - The ID of the handler to delete
    * @param {Request} request - Express request object
-   * @returns {Promise<void>}
    * @throws {NotFoundException} If handler is not found
    * @throws {UnauthorizedException} If user is not authenticated
    */
@@ -282,7 +279,7 @@ export class HandlersController {
    * Searches for handlers based on various criteria.
    *
    * @param {SearchHandlerDto} searchDto - Search criteria
-   * @returns {Promise<Handler[]>} Array of matching handlers
+   * @returns Array of matching handlers
    */
   @ApiOkResponse({
     description: "List of handlers matching the search criteria",
@@ -310,7 +307,7 @@ export class HandlersController {
    * @param {string} id - The ID of the handler to update
    * @param {UpdateHandlerDto} updateHandlerDto - Updated handler configuration
    * @param {Request} request - Express request object
-   * @returns {Promise<Handler>} The updated handler
+   * @returns The updated handler
    * @throws {NotFoundException} If handler is not found
    * @throws {UnauthorizedException} If user is not authenticated
    */
