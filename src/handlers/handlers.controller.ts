@@ -36,7 +36,6 @@ import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
-import { HandlersGateway } from "./handlers.gateway";
 import { HandlersService } from "./handlers.service";
 
 /**
@@ -45,11 +44,11 @@ import { HandlersService } from "./handlers.service";
  * Provides REST API endpoints for:
  *
  * - Creating new handlers
- * - Retrieving handler information
- * - Updating handler configurations
+ * - Getting handlers
+ * - Getting handler authentication token
+ * - Getting handler details
  * - Deleting handlers
- * - Searching handlers with filters
- * - Managing active handlers
+ * - Updating handler configurations
  *
  * @class HandlersController
  */
@@ -60,7 +59,6 @@ import { HandlersService } from "./handlers.service";
 export class HandlersController {
   public constructor(
     private readonly handlersService: HandlersService,
-    private readonly handlersGateway: HandlersGateway,
     private readonly commonService: CommonService,
   ) {}
 
@@ -107,73 +105,6 @@ export class HandlersController {
     );
 
     return handler;
-  }
-
-  /**
-   * Retrieves a list of all currently active handlers.
-   *
-   * @returns Array of active handlers
-   */
-  @ApiOkResponse({
-    description: "List of all active handlers",
-    type: [OmitType(Handler, ["authToken"])],
-  })
-  @ApiOperation({
-    description: "Retrieves a list of all currently active handlers.",
-    summary: "Get active handlers",
-  })
-  @Get()
-  public async findAllActive(): Promise<
-    Omit<Handler, "authToken" | "updateTimestamp">[]
-  > {
-    const { server } = this.handlersGateway;
-
-    const sockets = await server.fetchSockets();
-
-    const authTokens = sockets.map((socket) =>
-      String(socket.handshake.auth.token),
-    );
-
-    const handlers =
-      await this.handlersService.findAllUsingAuthTokens(authTokens);
-
-    return handlers.map(({ authToken, ...handler }) => handler);
-  }
-
-  /**
-   * Retrieves detailed information about a specific handler.
-   *
-   * @param {string} id - The ID of the handler to retrieve
-   * @returns Handler details
-   * @throws {NotFoundException} If handler is not found
-   */
-  @ApiNotFoundResponse({ description: "Handler not found" })
-  @ApiOkResponse({
-    description: "Handler details",
-    type: OmitType(Handler, ["authToken"]),
-  })
-  @ApiOperation({
-    description: "Retrieves detailed information about a specific handler.",
-    summary: "Get handler details",
-  })
-  @ApiParam({
-    description: "The ID of the handler to retrieve",
-    example: "h1234567",
-    name: "id",
-  })
-  @Get(":id")
-  public async findOne(
-    @Param("id") id: string,
-  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
-    const handler = await this.handlersService.findOne(id);
-
-    if (!handler) {
-      throw new NotFoundException();
-    }
-
-    const { authToken, ...handlerDetails } = handler;
-
-    return handlerDetails;
   }
 
   /**
@@ -234,6 +165,70 @@ export class HandlersController {
   }
 
   /**
+   * Retrieves detailed information about a specific handler.
+   *
+   * @param {string} id - The ID of the handler to retrieve
+   * @returns Handler details
+   * @throws {NotFoundException} If handler is not found
+   */
+  @ApiNotFoundResponse({ description: "Handler not found" })
+  @ApiOkResponse({
+    description: "Handler details",
+    type: OmitType(Handler, ["authToken"]),
+  })
+  @ApiOperation({
+    description: "Retrieves detailed information about a specific handler.",
+    summary: "Get handler details",
+  })
+  @ApiParam({
+    description: "The ID of the handler to retrieve",
+    example: "h1234567",
+    name: "id",
+  })
+  @Get(":id")
+  public async getHandler(
+    @Param("id") id: string,
+  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
+    const handler = await this.handlersService.findOne(id);
+
+    if (!handler) {
+      throw new NotFoundException();
+    }
+
+    const { authToken, ...handlerDetails } = handler;
+
+    return handlerDetails;
+  }
+
+  /**
+   * Gets handlers based on various criteria.
+   *
+   * @param {SearchHandlerDto} searchDto - Search criteria
+   * @returns Array of matching handlers
+   */
+  @ApiOkResponse({
+    description: "List of handlers matching the search criteria",
+    type: [OmitType(Handler, ["authToken"])],
+  })
+  @ApiOperation({
+    description: dedent`
+    Gets handlers based on various criteria including:
+    - Text search across name, descriptions, and tags
+    - Filter by specific tags
+    - Filter by minimum/maximum number of tags
+    - Pagination support with limit and offset`,
+    summary: "Get handlers",
+  })
+  @Get()
+  public async getHandlers(
+    @Query() searchDto: SearchHandlerDto,
+  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">[]> {
+    const handlers = await this.handlersService.search(searchDto);
+
+    return handlers.map(({ authToken, ...handler }) => handler);
+  }
+
+  /**
    * Deletes a specific handler.
    *
    * @param {string} id - The ID of the handler to delete
@@ -272,34 +267,6 @@ export class HandlersController {
     }
 
     await this.handlersService.deleteOne(id);
-  }
-
-  /**
-   * Searches for handlers based on various criteria.
-   *
-   * @param {SearchHandlerDto} searchDto - Search criteria
-   * @returns Array of matching handlers
-   */
-  @ApiOkResponse({
-    description: "List of handlers matching the search criteria",
-    type: [OmitType(Handler, ["authToken"])],
-  })
-  @ApiOperation({
-    description: dedent`
-    Searches for handlers based on various criteria including:
-    - Text search across name, descriptions, and tags
-    - Filter by specific tags
-    - Filter by minimum/maximum number of tags
-    - Pagination support with limit and offset`,
-    summary: "Search handlers with filters",
-  })
-  @Get("search")
-  public async search(
-    @Query() searchDto: SearchHandlerDto,
-  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">[]> {
-    const handlers = await this.handlersService.search(searchDto);
-
-    return handlers.map(({ authToken, ...handler }) => handler);
   }
 
   /**
