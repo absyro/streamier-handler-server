@@ -74,7 +74,7 @@ export class HandlersController {
    */
   @ApiCreatedResponse({
     description: "Handler successfully created",
-    type: Handler,
+    type: OmitType(Handler, ["authToken"]),
   })
   @ApiHeader({
     description: "Session ID for authentication",
@@ -94,14 +94,19 @@ export class HandlersController {
   public async createOne(
     @Body() createHandlerDto: CreateHandlerDto,
     @Req() request: Request,
-  ): Promise<Handler> {
+  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 
-    return this.handlersService.createOne(userId, createHandlerDto);
+    const { authToken, ...handler } = await this.handlersService.createOne(
+      userId,
+      createHandlerDto,
+    );
+
+    return handler;
   }
 
   /**
@@ -111,7 +116,7 @@ export class HandlersController {
    */
   @ApiOkResponse({
     description: "List of all active handlers",
-    type: [Handler],
+    type: [OmitType(Handler, ["authToken"])],
   })
   @ApiOperation({
     description: "Retrieves a list of all currently active handlers.",
@@ -142,16 +147,10 @@ export class HandlersController {
    * @returns Handler details
    * @throws {NotFoundException} If handler is not found
    */
-  @ApiHeader({
-    description: "Session ID for authentication",
-    example: "1234567890",
-    name: "X-Session-Id",
-    required: true,
-  })
   @ApiNotFoundResponse({ description: "Handler not found" })
   @ApiOkResponse({
     description: "Handler details",
-    type: Handler,
+    type: OmitType(Handler, ["authToken"]),
   })
   @ApiOperation({
     description: "Retrieves detailed information about a specific handler.",
@@ -297,8 +296,10 @@ export class HandlersController {
   @Get("search")
   public async search(
     @Query() searchDto: SearchHandlerDto,
-  ): Promise<Handler[]> {
-    return this.handlersService.search(searchDto);
+  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">[]> {
+    const handlers = await this.handlersService.search(searchDto);
+
+    return handlers.map(({ authToken, ...handler }) => handler);
   }
 
   /**
@@ -320,7 +321,7 @@ export class HandlersController {
   @ApiNotFoundResponse({ description: "Handler not found" })
   @ApiOkResponse({
     description: "Handler successfully updated",
-    type: Handler,
+    type: OmitType(Handler, ["authToken"]),
   })
   @ApiOperation({
     description:
@@ -337,13 +338,18 @@ export class HandlersController {
     @Param("id") id: string,
     @Body() updateHandlerDto: UpdateHandlerDto,
     @Req() request: Request,
-  ): Promise<Handler> {
+  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException();
     }
 
-    return this.handlersService.updateOne(id, updateHandlerDto);
+    const { authToken, ...handler } = await this.handlersService.updateOne(
+      id,
+      updateHandlerDto,
+    );
+
+    return handler;
   }
 }
