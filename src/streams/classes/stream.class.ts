@@ -12,7 +12,7 @@ import {
 } from "class-validator";
 
 import { LogLevel } from "../enums/log-level.enum";
-import { LogEntry } from "./log-entry.class";
+import { Log } from "./log.class";
 import { Node } from "./node.class";
 
 export class Stream {
@@ -57,12 +57,12 @@ export class Stream {
       },
     ],
     required: true,
-    type: [LogEntry],
+    type: [Log],
   })
   @IsArray()
-  @Type(() => LogEntry)
+  @Type(() => Log)
   @ValidateNested({ each: true })
-  public logs!: LogEntry[];
+  public logs!: Log[];
 
   @ApiProperty({
     description: "The name of the stream",
