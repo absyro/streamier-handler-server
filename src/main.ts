@@ -39,11 +39,8 @@ async function bootstrap(): Promise<void> {
         dedent`
         This documentation includes all available API endpoints for the Streamier Handler Server.
 
-        ## Authentication
-        All endpoints except \`/api/handlers/active/list\` require authentication using the \`X-Session-Id\` header.
-
         ## Rate Limiting
-        The API is rate-limited to prevent abuse.
+        The API is rate-limited to 20 requests per minute to prevent abuse.
 
         ## Error Handling
         All errors are returned in a consistent format with appropriate HTTP status codes.`,

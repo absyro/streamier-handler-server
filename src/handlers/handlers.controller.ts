@@ -105,41 +105,7 @@ export class HandlersController {
   }
 
   /**
-   * Retrieves all handlers belonging to the authenticated user.
-   *
-   * @param {Request} request - Express request object
-   * @returns {Promise<Handler[]>} Array of user's handlers
-   * @throws {UnauthorizedException} If user is not authenticated
-   */
-  @ApiHeader({
-    description: "Session ID for authentication",
-    example: "1234567890",
-    name: "X-Session-Id",
-    required: true,
-  })
-  @ApiOkResponse({
-    description: "List of all handlers for the user",
-    type: [Handler],
-  })
-  @ApiOperation({
-    description:
-      "Retrieves a list of all handlers belonging to the authenticated user.",
-    summary: "Get user's handlers",
-  })
-  @Get()
-  public async findAll(@Req() request: Request): Promise<Handler[]> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
-
-    if (!isString(userId)) {
-      throw new UnauthorizedException();
-    }
-
-    return this.handlersService.findAll(userId);
-  }
-
-  /**
-   * Retrieves a list of all currently active handlers. This endpoint is
-   * publicly accessible and does not require authentication.
+   * Retrieves a list of all currently active handlers.
    *
    * @returns {Promise<Omit<Handler, "authToken" | "updateTimestamp">[]>} Array
    *   of active handlers
@@ -149,11 +115,10 @@ export class HandlersController {
     type: [Handler],
   })
   @ApiOperation({
-    description:
-      "Retrieves a list of all currently active handlers. This endpoint is publicly accessible and does not require authentication.",
+    description: "Retrieves a list of all currently active handlers.",
     summary: "Get active handlers",
   })
-  @Get("active/list")
+  @Get()
   public async findAllActive(): Promise<
     Omit<Handler, "authToken" | "updateTimestamp">[]
   > {
