@@ -24,6 +24,7 @@ import {
   ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
+  OmitType,
 } from "@nestjs/swagger";
 import { isString } from "class-validator";
 import { Request } from "express";
@@ -268,7 +269,7 @@ export class HandlersController {
    */
   @ApiOkResponse({
     description: "List of handlers matching the search criteria",
-    type: [Handler],
+    type: [OmitType(Handler, ["authToken"])],
   })
   @ApiOperation({
     description: dedent`

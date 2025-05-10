@@ -15,7 +15,6 @@
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^10.0.0",
-    "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/platform-socket.io": "^11.0.12",
     "@nestjs/swagger": "^11.1.0",
