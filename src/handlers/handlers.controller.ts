@@ -25,6 +25,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
   OmitType,
+  PickType,
 } from "@nestjs/swagger";
 import { isString } from "class-validator";
 import { Request } from "express";
@@ -174,11 +175,9 @@ export class HandlersController {
    * Retrieves detailed information about a specific handler.
    *
    * @param {string} id - The ID of the handler to retrieve
-   * @param {Request} request - Express request object
    * @returns {Promise<Omit<Handler, "authToken" | "updateTimestamp">>} Handler
    *   details
    * @throws {NotFoundException} If handler is not found
-   * @throws {UnauthorizedException} If user is not authenticated
    */
   @ApiHeader({
     description: "Session ID for authentication",
@@ -192,8 +191,7 @@ export class HandlersController {
     type: Handler,
   })
   @ApiOperation({
-    description:
-      "Retrieves detailed information about a specific handler. If the handler belongs to the authenticated user, the authentication token will be included in the response.",
+    description: "Retrieves detailed information about a specific handler.",
     summary: "Get handler details",
   })
   @ApiParam({
@@ -204,19 +202,73 @@ export class HandlersController {
   @Get(":id")
   public async findOne(
     @Param("id") id: string,
-    @Req() request: Request,
   ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
-    const h = await this.handlersService.findOne(id);
+    const handler = await this.handlersService.findOne(id);
 
-    if (!h) {
+    if (!handler) {
       throw new NotFoundException();
     }
 
-    const { authToken, ...handler } = h;
+    const { authToken, ...handlerDetails } = handler;
 
+    return handlerDetails;
+  }
+
+  /**
+   * Retrieves the authentication token for a specific handler. This endpoint
+   * requires authentication and only returns the token if the handler belongs
+   * to the authenticated user.
+   *
+   * @param {string} id - The ID of the handler
+   * @param {Request} request - Express request object
+   * @returns {Promise<Pick<Handler, "authToken">>} The handler's auth token
+   * @throws {NotFoundException} If handler is not found
+   * @throws {UnauthorizedException} If user is not authenticated or not the
+   *   owner
+   */
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "1234567890",
+    name: "X-Session-Id",
+    required: true,
+  })
+  @ApiNotFoundResponse({ description: "Handler not found" })
+  @ApiOkResponse({
+    description: "Handler authentication token",
+    type: PickType(Handler, ["authToken"]),
+  })
+  @ApiOperation({
+    description:
+      "Retrieves the authentication token for a specific handler. Only handlers belonging to the authenticated user can be accessed.",
+    summary: "Get handler auth token",
+  })
+  @ApiParam({
+    description: "The ID of the handler",
+    example: "h1234567",
+    name: "id",
+  })
+  @Get(":id/auth-token")
+  public async getAuthToken(
+    @Param("id") id: string,
+    @Req() request: Request,
+  ): Promise<Pick<Handler, "authToken">> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    return { ...handler, ...(handler.userId === userId && { authToken }) };
+    if (!isString(userId)) {
+      throw new UnauthorizedException();
+    }
+
+    const handler = await this.handlersService.findOne(id);
+
+    if (!handler) {
+      throw new NotFoundException();
+    }
+
+    if (handler.userId !== userId) {
+      throw new UnauthorizedException();
+    }
+
+    return { authToken: handler.authToken };
   }
 
   /**
