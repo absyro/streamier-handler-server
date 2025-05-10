@@ -177,9 +177,9 @@ export class HandlersService {
     }
 
     if (isString(searchDto.isOnline)) {
-      queryBuilder.andWhere("handler.isOnline = :isOnline", {
-        isOnline: Boolean(searchDto.isOnline),
-      });
+      const isOnline = searchDto.isOnline === "true";
+
+      queryBuilder.andWhere("handler.isOnline = :isOnline", { isOnline });
     }
 
     const offset = isString(searchDto.offset)
