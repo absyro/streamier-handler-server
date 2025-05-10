@@ -17,7 +17,6 @@ import { BeforeUpdate, Column, Entity, PrimaryColumn } from "typeorm";
  *   functionality
  * @property {string} name - Display name of the handler
  * @property {string} shortDescription - Brief description of handler purpose
- * @property {string[]} tags - Array of tags associated with the handler
  * @property {Date} updatedAt - Timestamp of last update
  * @property {string} userId - ID of the handler owner
  * @property {boolean} isOnline - Whether the handler is currently online and
@@ -89,15 +88,6 @@ export class Handler {
   })
   @Column({ length: 180, name: "short_description" })
   public shortDescription!: string;
-
-  @ApiProperty({
-    description: "Tags associated with the handler ",
-    example: ["discord", "bot", "automation"],
-    maxItems: 10,
-    type: [String],
-  })
-  @Column({ name: "tags", type: "simple-array" })
-  public tags!: string[];
 
   @ApiProperty({
     description: "Timestamp when the handler was last updated",

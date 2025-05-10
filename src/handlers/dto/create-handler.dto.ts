@@ -19,7 +19,6 @@ import {
  *   functionality
  * @property {string} name - Display name of the handler
  * @property {string} shortDescription - Brief description of handler purpose
- * @property {string[]} tags - Array of tags for categorization
  */
 export class CreateHandlerDto {
   /**
@@ -95,27 +94,4 @@ export class CreateHandlerDto {
   @IsString()
   @MaxLength(180)
   public shortDescription!: string;
-
-  /**
-   * Array of tags to categorize and filter the handler.
-   *
-   * Used for categorization and filtering. Must contain between 1 and 10 tags.
-   * Each tag must be a string with maximum length of 30 characters.
-   *
-   * @property {string[]} tags
-   */
-  @ApiProperty({
-    description: "Array of tags to categorize and filter the handler",
-    example: ["discord", "bot", "automation"],
-    maxItems: 10,
-    minItems: 1,
-    required: true,
-    type: [String],
-  })
-  @ArrayMaxSize(10)
-  @ArrayMinSize(1)
-  @IsArray()
-  @IsString({ each: true })
-  @MaxLength(30, { each: true })
-  public tags!: string[];
 }

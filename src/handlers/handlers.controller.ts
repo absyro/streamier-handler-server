@@ -213,9 +213,8 @@ export class HandlersController {
   @ApiOperation({
     description: dedent`
     Gets handlers based on various criteria including:
-    - Text search across name, descriptions, and tags
-    - Filter by specific tags
-    - Filter by minimum/maximum number of tags
+    - Text search across name and descriptions
+    - Filter by online status
     - Pagination support with limit and offset`,
     summary: "Get handlers",
   })

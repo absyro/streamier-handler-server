@@ -1,14 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import {
-  IsArray,
-  IsBoolean,
-  IsInt,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from "class-validator";
+import { IsOptional, IsString, Matches } from "class-validator";
 
 /**
  * Data Transfer Object for searching handlers.
@@ -17,13 +8,10 @@ import {
  * are optional and have specific validation rules.
  *
  * @class SearchHandlerDto
- * @property {number} limit - Maximum number of results to return
- * @property {number} maxTags - Maximum number of tags a handler should have
- * @property {number} minTags - Minimum number of tags a handler should have
- * @property {number} offset - Number of results to skip (for pagination)
+ * @property {string} limit - Maximum number of results to return
+ * @property {string} offset - Number of results to skip (for pagination)
  * @property {string} q - Search query string
- * @property {string[]} tags - Filter by specific tags
- * @property {boolean} isOnline - Filter by online status
+ * @property {string} isOnline - Filter by online status
  */
 export class SearchHandlerDto {
   /**
@@ -31,131 +19,73 @@ export class SearchHandlerDto {
    *
    * Used to find handlers that are either online or offline.
    *
-   * @property {boolean} isOnline
+   * @property {string} isOnline
    */
   @ApiProperty({
     description: "Filter by online status",
     required: false,
   })
-  @IsBoolean()
   @IsOptional()
-  @Type(() => Boolean)
-  public isOnline?: boolean;
+  @IsString()
+  @Matches(/^(?<bool>true|false)$/u, {
+    message: "isOnline must be 'true' or 'false'",
+  })
+  public isOnline?: string;
 
   /**
    * Maximum number of results to return.
    *
    * Defaults to 20. Must be between 1 and 100.
    *
-   * @property {number} limit
+   * @property {string} limit
    */
   @ApiProperty({
-    default: 20,
+    default: "20",
     description: "Maximum number of results to return",
-    maximum: 100,
-    minimum: 1,
     required: false,
   })
-  @IsInt()
   @IsOptional()
-  @Max(100)
-  @Min(1)
-  @Type(() => Number)
-  public limit?: number = 20;
-
-  /**
-   * Maximum number of tags a handler should have.
-   *
-   * Must be greater than or equal to 1. Used to filter handlers with too many
-   * tags.
-   *
-   * @property {number} maxTags
-   */
-  @ApiProperty({
-    description: "Maximum number of tags a handler should have",
-    maximum: 10,
-    minimum: 1,
-    required: false,
+  @IsString()
+  @Matches(/^(?<limit>[1-9]|[1-9][0-9]|100)$/u, {
+    message: "limit must be a number between 1 and 100",
   })
-  @IsInt()
-  @IsOptional()
-  @Min(1)
-  @Type(() => Number)
-  public maxTags?: number;
-
-  /**
-   * Minimum number of tags a handler should have.
-   *
-   * Must be greater than or equal to 1. Used to filter handlers with too few
-   * tags.
-   *
-   * @property {number} minTags
-   */
-  @ApiProperty({
-    description: "Minimum number of tags a handler should have",
-    maximum: 10,
-    minimum: 1,
-    required: false,
-  })
-  @IsInt()
-  @IsOptional()
-  @Min(1)
-  @Type(() => Number)
-  public minTags?: number;
+  public limit?: string = "20";
 
   /**
    * Number of results to skip.
    *
-   * Used for pagination. Defaults to 0. Must be greater than or equal to 0.
+   * Used for pagination. Defaults to 0. Must be greater than or equal to 0 and
+   * less than or equal to 1000.
    *
-   * @property {number} offset
+   * @property {string} offset
    */
   @ApiProperty({
-    default: 0,
-    description: "Number of results to skip",
-    minimum: 0,
+    default: "0",
+    description: "Number of results to skip (max 1000)",
     required: false,
   })
-  @IsInt()
   @IsOptional()
-  @Min(0)
-  @Type(() => Number)
-  public offset?: number = 0;
+  @IsString()
+  @Matches(/^(?<offset>[0-9]|[1-9][0-9]{1,2}|1000)$/u, {
+    message: "offset must be a non-negative number between 0 and 1000",
+  })
+  public offset?: string = "0";
 
   /**
    * Search query string.
    *
-   * Used to search across handler name, description, and tags. Case-insensitive
-   * partial matching.
+   * Used to search across handler parameters. Case-insensitive partial
+   * matching.
    *
    * @property {string} q
    */
   @ApiProperty({
-    description:
-      "Search query string to match against name, description, and tags",
+    description: "Search query string to match against handler parameters",
     required: false,
   })
   @IsOptional()
   @IsString()
   public q?: string;
-
-  /**
-   * Filter by specific tags.
-   *
-   * Array of tags to filter handlers. Handlers must have all specified tags to
-   * match.
-   *
-   * @property {string[]} tags
-   */
-  @ApiProperty({
-    description: "Filter by specific tags",
-    required: false,
-    type: [String],
-  })
-  @IsArray()
-  @IsOptional()
-  @IsString({ each: true })
-  public tags?: string[];
 
   /**
    * Filter by specific user ID.

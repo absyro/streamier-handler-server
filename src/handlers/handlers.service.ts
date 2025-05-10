@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { isEmpty, isNumber, isString } from "radash";
+import { isString } from "radash";
 import randomatic from "randomatic";
 import { In, Repository } from "typeorm";
 
@@ -79,8 +79,6 @@ export class HandlersService {
 
     handler.iconId = createHandlerDto.iconId;
 
-    handler.tags = createHandlerDto.tags;
-
     handler.authToken = authToken;
 
     handler.userId = userId;
@@ -153,9 +151,7 @@ export class HandlersService {
    *
    * Supports searching by:
    *
-   * - Text query (name, descriptions, tags)
-   * - Tags
-   * - Minimum/maximum number of tags
+   * - Text query (name, shortDescription, longDescription)
    * - Online status
    * - Pagination (offset/limit)
    *
@@ -169,8 +165,7 @@ export class HandlersService {
       queryBuilder.where(
         "LOWER(handler.name) LIKE LOWER(:query) OR " +
           "LOWER(handler.shortDescription) LIKE LOWER(:query) OR " +
-          "LOWER(handler.longDescription) LIKE LOWER(:query) OR " +
-          "LOWER(handler.tags) LIKE LOWER(:query)",
+          "LOWER(handler.longDescription) LIKE LOWER(:query)",
         { query: `%${searchDto.q}%` },
       );
     }
@@ -181,29 +176,21 @@ export class HandlersService {
       });
     }
 
-    if (searchDto.tags && !isEmpty(searchDto.tags)) {
-      queryBuilder.andWhere("handler.tags && :tags", { tags: searchDto.tags });
-    }
-
-    if (isNumber(searchDto.minTags)) {
-      queryBuilder.andWhere("array_length(handler.tags, 1) >= :minTags", {
-        minTags: searchDto.minTags,
-      });
-    }
-
-    if (isNumber(searchDto.maxTags)) {
-      queryBuilder.andWhere("array_length(handler.tags, 1) <= :maxTags", {
-        maxTags: searchDto.maxTags,
-      });
-    }
-
-    if (typeof searchDto.isOnline === "boolean") {
+    if (isString(searchDto.isOnline)) {
       queryBuilder.andWhere("handler.isOnline = :isOnline", {
-        isOnline: searchDto.isOnline,
+        isOnline: Boolean(searchDto.isOnline),
       });
     }
 
-    queryBuilder.skip(searchDto.offset ?? 0).take(searchDto.limit ?? 20);
+    const offset = isString(searchDto.offset)
+      ? parseInt(searchDto.offset, 10)
+      : 0;
+
+    const limit = isString(searchDto.limit)
+      ? parseInt(searchDto.limit, 10)
+      : 20;
+
+    queryBuilder.skip(offset).take(limit);
 
     return queryBuilder.getMany();
   }
