@@ -53,7 +53,7 @@ import { StreamsService } from "./streams.service";
 })
 @ApiHeader({
   description: "Session ID for authentication",
-  example: "1234567890",
+  example: "s123456789",
   name: "X-Session-Id",
   required: true,
 })
@@ -97,7 +97,7 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the handler to create the stream on",
-    example: "handler-123",
+    example: "h1234567",
     name: "handlerId",
   })
   @Post()
@@ -152,7 +152,7 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the handler containing the stream",
-    example: "handler-123",
+    example: "h1234567",
     name: "handlerId",
   })
   @ApiParam({
@@ -203,7 +203,7 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the handler containing the stream",
-    example: "handler-123",
+    example: "h1234567",
     name: "handlerId",
   })
   @ApiParam({
@@ -255,7 +255,7 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the handler containing the stream",
-    example: "handler-123",
+    example: "h1234567",
     name: "handlerId",
   })
   @ApiParam({

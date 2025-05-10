@@ -76,7 +76,7 @@ export class HandlersController {
   })
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "1234567890",
+    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -121,7 +121,7 @@ export class HandlersController {
    */
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "1234567890",
+    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -237,7 +237,7 @@ export class HandlersController {
    */
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "1234567890",
+    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -280,7 +280,7 @@ export class HandlersController {
    */
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "1234567890",
+    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
