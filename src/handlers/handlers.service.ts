@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -29,8 +29,8 @@ export class HandlersService {
     const maxHandlersPerUser = 10;
 
     if (count >= maxHandlersPerUser) {
-      throw new BadRequestException(
-        `Maximum number of handlers (${maxHandlersPerUser}) reached`,
+      throw new ForbiddenException(
+        `You have reached the maximum limit of ${maxHandlersPerUser} handlers per user`,
       );
     }
 
