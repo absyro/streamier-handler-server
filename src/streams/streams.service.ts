@@ -3,10 +3,12 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { validateSync } from "class-validator";
 import { isEmpty, isObject, isString } from "radash";
+import { HandlersService } from "src/handlers/handlers.service";
 
 import { HandlersGateway } from "../handlers/handlers.gateway";
 import { Stream } from "./classes/stream.class";
@@ -14,7 +16,10 @@ import { UpdateStreamDto } from "./dto/update-stream.dto";
 
 @Injectable()
 export class StreamsService {
-  public constructor(private readonly handlersGateway: HandlersGateway) {}
+  public constructor(
+    private readonly handlersGateway: HandlersGateway,
+    private readonly handlersService: HandlersService,
+  ) {}
 
   public async createStream(
     handlerId: string,
@@ -98,6 +103,12 @@ export class StreamsService {
     event: string,
     ...data: unknown[]
   ): Promise<object> {
+    const doesHandlerExist = await this.handlersService.exists(handlerId);
+
+    if (!doesHandlerExist) {
+      throw new NotFoundException("Handler not found");
+    }
+
     const { server } = this.handlersGateway;
 
     const sockets = await server.fetchSockets();
@@ -107,7 +118,7 @@ export class StreamsService {
     );
 
     if (!socket) {
-      throw new NotFoundException();
+      throw new ServiceUnavailableException("Handler is offline");
     }
 
     return new Promise((resolve, reject) => {

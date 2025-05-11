@@ -21,6 +21,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
@@ -56,7 +57,70 @@ import { StreamsService } from "./streams.service";
     type: "object",
   },
 })
+@ApiNotFoundResponse({
+  description: "Handler not found",
+  schema: {
+    properties: {
+      error: {
+        enum: [ReasonPhrases.NOT_FOUND],
+        type: "string",
+      },
+      message: {
+        example: "Handler not found",
+        type: "string",
+      },
+      statusCode: {
+        enum: [HttpStatus.NOT_FOUND],
+        type: "number",
+      },
+    },
+    required: ["error", "message", "statusCode"],
+    type: "object",
+  },
+})
+@ApiServiceUnavailableResponse({
+  description: "Handler is offline",
+  schema: {
+    properties: {
+      error: {
+        enum: [ReasonPhrases.SERVICE_UNAVAILABLE],
+        type: "string",
+      },
+      message: {
+        example: "Handler is offline",
+        type: "string",
+      },
+      statusCode: {
+        enum: [HttpStatus.SERVICE_UNAVAILABLE],
+        type: "number",
+      },
+    },
+    required: ["error", "message", "statusCode"],
+    type: "object",
+  },
+})
 @ApiTags("Streams")
+@ApiUnauthorizedResponse({
+  description: "Missing or invalid authentication",
+  schema: {
+    properties: {
+      error: {
+        enum: [ReasonPhrases.UNAUTHORIZED],
+        type: "string",
+      },
+      message: {
+        example: "Missing or invalid authentication",
+        type: "string",
+      },
+      statusCode: {
+        enum: [HttpStatus.UNAUTHORIZED],
+        type: "number",
+      },
+    },
+    required: ["error", "message", "statusCode"],
+    type: "object",
+  },
+})
 @Controller("api/handlers/:handlerId/streams")
 export class StreamsController {
   public constructor(
@@ -106,23 +170,6 @@ export class StreamsController {
     name: "X-Session-Id",
     required: true,
   })
-  @ApiNotFoundResponse({
-    description: "Handler not found",
-    schema: {
-      properties: {
-        message: {
-          enum: [ReasonPhrases.NOT_FOUND],
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.NOT_FOUND],
-          type: "number",
-        },
-      },
-      required: ["message", "statusCode"],
-      type: "object",
-    },
-  })
   @ApiOperation({
     description: dedent`
     Creates a new stream associated with the specified handler.
@@ -134,27 +181,6 @@ export class StreamsController {
     description: "ID of the handler to create the stream on",
     example: "h1234567",
     name: "handlerId",
-  })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
   })
   @Post()
   public async createStream(
@@ -180,23 +206,6 @@ export class StreamsController {
   @ApiNoContentResponse({
     description: "Stream successfully deleted",
   })
-  @ApiNotFoundResponse({
-    description: "Handler not found",
-    schema: {
-      properties: {
-        message: {
-          enum: [ReasonPhrases.NOT_FOUND],
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.NOT_FOUND],
-          type: "number",
-        },
-      },
-      required: ["message", "statusCode"],
-      type: "object",
-    },
-  })
   @ApiOperation({
     description: dedent`
     Deletes the specified stream from the handler.
@@ -213,27 +222,6 @@ export class StreamsController {
     description: "ID of the stream to delete",
     example: "stream-456",
     name: "streamId",
-  })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
   })
   @Delete(":streamId")
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -257,23 +245,6 @@ export class StreamsController {
     name: "X-Session-Id",
     required: true,
   })
-  @ApiNotFoundResponse({
-    description: "Handler not found",
-    schema: {
-      properties: {
-        message: {
-          enum: [ReasonPhrases.NOT_FOUND],
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.NOT_FOUND],
-          type: "number",
-        },
-      },
-      required: ["message", "statusCode"],
-      type: "object",
-    },
-  })
   @ApiOkResponse({
     description: "Stream details retrieved successfully",
     type: Stream,
@@ -294,27 +265,6 @@ export class StreamsController {
     description: "ID of the stream to retrieve",
     example: "stream-456",
     name: "streamId",
-  })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
   })
   @Get(":streamId")
   public async readStream(
@@ -369,23 +319,6 @@ export class StreamsController {
     name: "X-Session-Id",
     required: true,
   })
-  @ApiNotFoundResponse({
-    description: "Handler not found",
-    schema: {
-      properties: {
-        message: {
-          enum: [ReasonPhrases.NOT_FOUND],
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.NOT_FOUND],
-          type: "number",
-        },
-      },
-      required: ["message", "statusCode"],
-      type: "object",
-    },
-  })
   @ApiOkResponse({
     description: "Stream successfully updated",
     type: Stream,
@@ -406,27 +339,6 @@ export class StreamsController {
     description: "ID of the stream to update",
     example: "stream-456",
     name: "streamId",
-  })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
   })
   @Put(":streamId")
   public async updateStream(

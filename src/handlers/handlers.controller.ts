@@ -88,8 +88,13 @@ export class HandlersController {
     description: "User has reached the maximum limit of handlers",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.FORBIDDEN],
+          type: "string",
+        },
+        message: {
+          example:
+            "You have reached the maximum limit of 124 handlers per user",
           type: "string",
         },
         statusCode: {
@@ -97,7 +102,7 @@ export class HandlersController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -165,8 +170,12 @@ export class HandlersController {
     description: "Handler not found",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        message: {
+          example: "Handler not found",
           type: "string",
         },
         statusCode: {
@@ -174,7 +183,7 @@ export class HandlersController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -227,7 +236,7 @@ export class HandlersController {
     const handler = await this.handlersService.findOne(handlerId);
 
     if (!handler) {
-      throw new NotFoundException();
+      throw new NotFoundException("Handler not found");
     }
 
     if (handler.userId !== userId) {
@@ -241,8 +250,12 @@ export class HandlersController {
     description: "Handler not found",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        message: {
+          example: "Handler not found",
           type: "string",
         },
         statusCode: {
@@ -250,7 +263,7 @@ export class HandlersController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -274,7 +287,7 @@ export class HandlersController {
     const handler = await this.handlersService.findOne(handlerId);
 
     if (!handler) {
-      throw new NotFoundException();
+      throw new NotFoundException("Handler not found");
     }
 
     const { authToken, ...handlerDetails } = handler;
@@ -346,8 +359,12 @@ export class HandlersController {
     description: "Handler not found",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        message: {
+          example: "Handler not found",
           type: "string",
         },
         statusCode: {
@@ -355,7 +372,7 @@ export class HandlersController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -447,8 +464,12 @@ export class HandlersController {
     description: "Handler not found",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        message: {
+          example: "Handler not found",
           type: "string",
         },
         statusCode: {
@@ -456,7 +477,7 @@ export class HandlersController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })

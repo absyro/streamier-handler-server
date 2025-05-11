@@ -26,7 +26,7 @@ export class HandlersService {
   ): Promise<Handler> {
     const count = await this.handlerRepository.count({ where: { userId } });
 
-    const maxHandlersPerUser = 10;
+    const maxHandlersPerUser = 124;
 
     if (count >= maxHandlersPerUser) {
       throw new ForbiddenException(
@@ -69,8 +69,16 @@ export class HandlersService {
     const result = await this.handlerRepository.delete({ id: handlerId });
 
     if (result.affected === 0) {
-      throw new NotFoundException();
+      throw new NotFoundException("Handler not found");
     }
+  }
+
+  public async exists(handlerId: string): Promise<boolean> {
+    const count = await this.handlerRepository.count({
+      where: { id: handlerId },
+    });
+
+    return count > 0;
   }
 
   public async findAll(userId: string): Promise<Handler[]> {
@@ -146,7 +154,7 @@ export class HandlersService {
     );
 
     if (result.affected === 0) {
-      throw new NotFoundException();
+      throw new NotFoundException("Handler not found");
     }
   }
 
@@ -155,6 +163,10 @@ export class HandlersService {
     updateHandlerDto: UpdateHandlerDto,
   ): Promise<Handler> {
     const existing = await this.findOne(handlerId);
+
+    if (!existing) {
+      throw new NotFoundException("Handler not found");
+    }
 
     const updated = { ...existing, ...updateHandlerDto };
 
