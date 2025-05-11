@@ -403,11 +403,13 @@ export class StreamsController {
       throw new UnauthorizedException();
     }
 
-    return this.streamsService.updateStream(
+    await this.streamsService.updateStream(
       handlerId,
       userId,
       streamId,
       updateStreamDto,
     );
+
+    return this.streamsService.readStream(handlerId, userId, streamId);
   }
 }

@@ -28,12 +28,16 @@ export class StreamsService {
       createStreamDto,
     );
 
-    const stream = plainToInstance(Stream, response);
+    if (!("stream" in response) || !isObject(response.stream)) {
+      throw new BadGatewayException();
+    }
+
+    const stream = plainToInstance(Stream, response.stream);
 
     const errors = validateSync(stream);
 
     if (!isEmpty(errors)) {
-      throw new BadGatewayException(errors);
+      throw new BadGatewayException("Received stream from handler is invalid");
     }
 
     return stream;
@@ -59,12 +63,16 @@ export class StreamsService {
       streamId,
     );
 
-    const stream = plainToInstance(Stream, response);
+    if (!("stream" in response) || !isObject(response.stream)) {
+      throw new BadGatewayException();
+    }
+
+    const stream = plainToInstance(Stream, response.stream);
 
     const errors = validateSync(stream);
 
     if (!isEmpty(errors)) {
-      throw new BadGatewayException(errors);
+      throw new BadGatewayException("Received stream from handler is invalid");
     }
 
     return stream;
@@ -75,24 +83,14 @@ export class StreamsService {
     userId: string,
     streamId: string,
     updateStreamDto: UpdateStreamDto,
-  ): Promise<Stream> {
-    const response = await this._emitToHandler(
+  ): Promise<void> {
+    await this._emitToHandler(
       handlerId,
       "update",
       userId,
       streamId,
       updateStreamDto,
     );
-
-    const updatedStream = plainToInstance(Stream, response);
-
-    const updatedStreamErrors = validateSync(updatedStream);
-
-    if (!isEmpty(updatedStreamErrors)) {
-      throw new BadGatewayException(updatedStreamErrors);
-    }
-
-    return updatedStream;
   }
 
   private async _emitToHandler(
