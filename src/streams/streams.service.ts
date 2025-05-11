@@ -1,4 +1,5 @@
 import {
+  BadGatewayException,
   BadRequestException,
   Injectable,
   NotFoundException,
@@ -33,7 +34,7 @@ export class StreamsService {
     const errors = validateSync(stream);
 
     if (!isEmpty(errors)) {
-      throw new BadRequestException(errors);
+      throw new BadGatewayException(errors);
     }
 
     return stream;
@@ -44,7 +45,7 @@ export class StreamsService {
     userId: string,
     streamId: string,
   ): Promise<void> {
-    return this._emitToHandler(handlerId, "delete", userId, streamId);
+    await this._emitToHandler(handlerId, "delete", userId, streamId);
   }
 
   public async readStream(
@@ -64,7 +65,7 @@ export class StreamsService {
     const errors = validateSync(stream);
 
     if (!isEmpty(errors)) {
-      throw new BadRequestException(errors);
+      throw new BadGatewayException(errors);
     }
 
     return stream;
@@ -89,7 +90,7 @@ export class StreamsService {
     const updatedStreamErrors = validateSync(updatedStream);
 
     if (!isEmpty(updatedStreamErrors)) {
-      throw new BadRequestException(updatedStreamErrors);
+      throw new BadGatewayException(updatedStreamErrors);
     }
 
     return updatedStream;

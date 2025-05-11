@@ -24,6 +24,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "compression": "^1.8.0",
+    "http-status-codes": "^2.3.0",
     "joi": "^17.13.3",
     "nestjs-redoc": "^2.2.2",
     "radash": "^12.1.0",

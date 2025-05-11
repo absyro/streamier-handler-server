@@ -16,6 +16,7 @@ import {
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiHeader,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -29,6 +30,7 @@ import {
 } from "@nestjs/swagger";
 import { isString } from "class-validator";
 import { Request } from "express";
+import { ReasonPhrases } from "http-status-codes";
 import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
@@ -38,9 +40,7 @@ import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
 import { HandlersService } from "./handlers.service";
 
-@ApiBadRequestResponse({ description: "Invalid request parameters or body" })
 @ApiTags("Handlers")
-@ApiUnauthorizedResponse({ description: "Missing or invalid authentication" })
 @Controller("api/handlers")
 export class HandlersController {
   public constructor(
@@ -48,9 +48,58 @@ export class HandlersController {
     private readonly commonService: CommonService,
   ) {}
 
+  @ApiBadRequestResponse({
+    description: "Request body parameters are invalid",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.BAD_REQUEST],
+          type: "string",
+        },
+        message: {
+          oneOf: [
+            {
+              example: "X must be a string",
+              type: "string",
+            },
+            {
+              items: {
+                example: "X must be a string",
+                type: "string",
+              },
+              type: "array",
+            },
+          ],
+        },
+        statusCode: {
+          enum: [HttpStatus.BAD_REQUEST],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
+  })
   @ApiCreatedResponse({
     description: "Handler successfully created",
     type: OmitType(Handler, ["authToken"]),
+  })
+  @ApiForbiddenResponse({
+    description: "User has reached the maximum limit of handlers",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.FORBIDDEN],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.FORBIDDEN],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
   })
   @ApiHeader({
     description: "Session ID for authentication",
@@ -65,6 +114,23 @@ export class HandlersController {
     The handler will be associated with the authenticated user and will be assigned a unique ID and authentication token.
     The authentication token can be used to establish WebSocket connections to the handler.`,
     summary: "Create a new handler",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
   })
   @Post()
   public async createOne(
@@ -91,7 +157,23 @@ export class HandlersController {
     name: "X-Session-Id",
     required: true,
   })
-  @ApiNotFoundResponse({ description: "Handler not found" })
+  @ApiNotFoundResponse({
+    description: "Handler not found",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.NOT_FOUND],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
+  })
   @ApiOkResponse({
     description: "Handler authentication token",
     type: PickType(Handler, ["authToken"]),
@@ -104,11 +186,28 @@ export class HandlersController {
   @ApiParam({
     description: "The ID of the handler",
     example: "h1234567",
-    name: "id",
+    name: "handlerId",
   })
-  @Get(":id/auth-token")
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
+  })
+  @Get(":handlerId/auth-token")
   public async getAuthToken(
-    @Param("id") id: string,
+    @Param("handlerId") handlerId: string,
     @Req() request: Request,
   ): Promise<Pick<Handler, "authToken">> {
     const userId = await this.commonService.getUserIdFromRequest(request);
@@ -117,7 +216,7 @@ export class HandlersController {
       throw new UnauthorizedException();
     }
 
-    const handler = await this.handlersService.findOne(id);
+    const handler = await this.handlersService.findOne(handlerId);
 
     if (!handler) {
       throw new NotFoundException();
@@ -130,7 +229,23 @@ export class HandlersController {
     return { authToken: handler.authToken };
   }
 
-  @ApiNotFoundResponse({ description: "Handler not found" })
+  @ApiNotFoundResponse({
+    description: "Handler not found",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.NOT_FOUND],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
+  })
   @ApiOkResponse({
     description: "Handler details",
     type: OmitType(Handler, ["authToken"]),
@@ -142,13 +257,13 @@ export class HandlersController {
   @ApiParam({
     description: "The ID of the handler to retrieve",
     example: "h1234567",
-    name: "id",
+    name: "handlerId",
   })
-  @Get(":id")
+  @Get(":handlerId")
   public async getHandler(
-    @Param("id") id: string,
+    @Param("handlerId") handlerId: string,
   ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
-    const handler = await this.handlersService.findOne(id);
+    const handler = await this.handlersService.findOne(handlerId);
 
     if (!handler) {
       throw new NotFoundException();
@@ -159,6 +274,38 @@ export class HandlersController {
     return handlerDetails;
   }
 
+  @ApiBadRequestResponse({
+    description: "Request query parameters are invalid",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.BAD_REQUEST],
+          type: "string",
+        },
+        message: {
+          oneOf: [
+            {
+              example: "X must be a string",
+              type: "string",
+            },
+            {
+              items: {
+                example: "X must be a string",
+                type: "string",
+              },
+              type: "array",
+            },
+          ],
+        },
+        statusCode: {
+          enum: [HttpStatus.BAD_REQUEST],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
+  })
   @ApiOkResponse({
     description: "List of handlers matching the search criteria",
     type: [OmitType(Handler, ["authToken"])],
@@ -187,7 +334,23 @@ export class HandlersController {
     required: true,
   })
   @ApiNoContentResponse({ description: "Handler successfully deleted" })
-  @ApiNotFoundResponse({ description: "Handler not found" })
+  @ApiNotFoundResponse({
+    description: "Handler not found",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.NOT_FOUND],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
+  })
   @ApiOperation({
     description:
       "Deletes a specific handler. Only handlers belonging to the authenticated user can be deleted.",
@@ -196,12 +359,29 @@ export class HandlersController {
   @ApiParam({
     description: "The ID of the handler to delete",
     example: "h1234567",
-    name: "id",
+    name: "handlerId",
   })
-  @Delete(":id")
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
+  })
+  @Delete(":handlerId")
   @HttpCode(HttpStatus.NO_CONTENT)
   public async remove(
-    @Param("id") id: string,
+    @Param("handlerId") handlerId: string,
     @Req() request: Request,
   ): Promise<void> {
     const userId = await this.commonService.getUserIdFromRequest(request);
@@ -210,16 +390,64 @@ export class HandlersController {
       throw new UnauthorizedException();
     }
 
-    await this.handlersService.deleteOne(id);
+    await this.handlersService.deleteOne(handlerId);
   }
 
+  @ApiBadRequestResponse({
+    description: "Request body parameters are invalid",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.BAD_REQUEST],
+          type: "string",
+        },
+        message: {
+          oneOf: [
+            {
+              example: "X must be a string",
+              type: "string",
+            },
+            {
+              items: {
+                example: "X must be a string",
+                type: "string",
+              },
+              type: "array",
+            },
+          ],
+        },
+        statusCode: {
+          enum: [HttpStatus.BAD_REQUEST],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
+  })
   @ApiHeader({
     description: "Session ID for authentication",
     example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
-  @ApiNotFoundResponse({ description: "Handler not found" })
+  @ApiNotFoundResponse({
+    description: "Handler not found",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.NOT_FOUND],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
+  })
   @ApiOkResponse({
     description: "Handler successfully updated",
     type: OmitType(Handler, ["authToken"]),
@@ -232,11 +460,28 @@ export class HandlersController {
   @ApiParam({
     description: "The ID of the handler to update",
     example: "h1234567",
-    name: "id",
+    name: "handlerId",
   })
-  @Put(":id")
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
+  })
+  @Put(":handlerId")
   public async update(
-    @Param("id") id: string,
+    @Param("handlerId") handlerId: string,
     @Body() updateHandlerDto: UpdateHandlerDto,
     @Req() request: Request,
   ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
@@ -247,7 +492,7 @@ export class HandlersController {
     }
 
     const { authToken, ...handler } = await this.handlersService.updateOne(
-      id,
+      handlerId,
       updateHandlerDto,
     );
 

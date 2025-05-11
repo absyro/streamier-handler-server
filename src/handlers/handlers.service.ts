@@ -36,19 +36,19 @@ export class HandlersService {
 
     const handler = new Handler();
 
-    let id: string;
+    let handlerId: string;
 
     let authToken: string;
 
     do {
-      id = randomatic("a0", 8);
-    } while (await this.handlerRepository.exists({ where: { id } }));
+      handlerId = randomatic("a0", 8);
+    } while (await this.handlerRepository.exists({ where: { id: handlerId } }));
 
     do {
       authToken = randomatic("Aa0", 64);
     } while (await this.handlerRepository.exists({ where: { authToken } }));
 
-    handler.id = id;
+    handler.id = handlerId;
 
     handler.name = createHandlerDto.name;
 
@@ -65,8 +65,8 @@ export class HandlersService {
     return this.handlerRepository.save(handler);
   }
 
-  public async deleteOne(id: string): Promise<void> {
-    const result = await this.handlerRepository.delete({ id });
+  public async deleteOne(handlerId: string): Promise<void> {
+    const result = await this.handlerRepository.delete({ id: handlerId });
 
     if (result.affected === 0) {
       throw new NotFoundException("Handler not found");
@@ -85,8 +85,8 @@ export class HandlersService {
     });
   }
 
-  public async findOne(id: string): Promise<Handler | null> {
-    return this.handlerRepository.findOne({ where: { id } });
+  public async findOne(handlerId: string): Promise<Handler | null> {
+    return this.handlerRepository.findOne({ where: { id: handlerId } });
   }
 
   public async findOneUsingAuthToken(
@@ -136,8 +136,14 @@ export class HandlersService {
     await this.handlerRepository.update({}, { isOnline: false });
   }
 
-  public async setOnlineStatus(id: string, isOnline: boolean): Promise<void> {
-    const result = await this.handlerRepository.update({ id }, { isOnline });
+  public async setOnlineStatus(
+    handlerId: string,
+    isOnline: boolean,
+  ): Promise<void> {
+    const result = await this.handlerRepository.update(
+      { id: handlerId },
+      { isOnline },
+    );
 
     if (result.affected === 0) {
       throw new NotFoundException("Handler not found");
@@ -145,10 +151,10 @@ export class HandlersService {
   }
 
   public async updateOne(
-    id: string,
+    handlerId: string,
     updateHandlerDto: UpdateHandlerDto,
   ): Promise<Handler> {
-    const existing = await this.findOne(id);
+    const existing = await this.findOne(handlerId);
 
     const updated = { ...existing, ...updateHandlerDto };
 

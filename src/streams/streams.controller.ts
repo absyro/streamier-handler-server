@@ -14,7 +14,6 @@ import {
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiHeader,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -25,7 +24,9 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { Request } from "express";
+import { ReasonPhrases } from "http-status-codes";
 import { isString } from "radash";
+import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
 import { Stream } from "./classes/stream.class";
@@ -33,45 +34,101 @@ import { CreateStreamDto } from "./dto/create-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
-@ApiBadRequestResponse({
-  description: "Invalid request parameters or body",
-})
-@ApiHeader({
-  description: "Session ID for authentication",
-  example: "s123456789",
-  name: "X-Session-Id",
-  required: true,
-})
 @ApiTags("Streams")
-@ApiUnauthorizedResponse({
-  description: "Missing or invalid authentication",
-})
-@Controller("api/streams/:handlerId")
+@Controller("api/handlers/:handlerId/streams")
 export class StreamsController {
   public constructor(
     private readonly streamsService: StreamsService,
     private readonly commonService: CommonService,
   ) {}
 
+  @ApiBadRequestResponse({
+    description: "Request body parameters are invalid",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.BAD_REQUEST],
+          type: "string",
+        },
+        message: {
+          oneOf: [
+            {
+              example: "X must be a string",
+              type: "string",
+            },
+            {
+              items: {
+                example: "X must be a string",
+                type: "string",
+              },
+              type: "array",
+            },
+          ],
+        },
+        statusCode: {
+          enum: [HttpStatus.BAD_REQUEST],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
+  })
   @ApiCreatedResponse({
-    description: "Stream created successfully",
+    description: "Stream successfully created",
     type: Stream,
   })
-  @ApiForbiddenResponse({
-    description:
-      "User doesn't have permission to create streams on this handler",
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
   })
   @ApiNotFoundResponse({
     description: "Handler not found",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.NOT_FOUND],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
   })
   @ApiOperation({
-    description: "Creates a new stream associated with the specified handler",
+    description: dedent`
+    Creates a new stream associated with the specified handler.
+
+    The stream will be configured according to the provided parameters and will be associated with the authenticated user.`,
     summary: "Create a new stream",
   })
   @ApiParam({
     description: "ID of the handler to create the stream on",
     example: "h1234567",
     name: "handlerId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
   })
   @Post()
   public async createStream(
@@ -88,17 +145,37 @@ export class StreamsController {
     return this.streamsService.createStream(handlerId, userId, createStreamDto);
   }
 
-  @ApiForbiddenResponse({
-    description: "User doesn't have permission to delete this stream",
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
   })
   @ApiNoContentResponse({
-    description: "Stream deleted successfully",
+    description: "Stream successfully deleted",
   })
   @ApiNotFoundResponse({
-    description: "Handler or stream not found",
+    description: "Handler not found",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.NOT_FOUND],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
   })
   @ApiOperation({
-    description: "Deletes the specified stream from the handler",
+    description: dedent`
+    Deletes the specified stream from the handler.
+
+    This operation is permanent and cannot be undone. All associated data will be removed.`,
     summary: "Delete a stream",
   })
   @ApiParam({
@@ -110,6 +187,23 @@ export class StreamsController {
     description: "ID of the stream to delete",
     example: "stream-456",
     name: "streamId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
   })
   @Delete(":streamId")
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -127,18 +221,38 @@ export class StreamsController {
     return this.streamsService.deleteStream(handlerId, userId, streamId);
   }
 
-  @ApiForbiddenResponse({
-    description: "User doesn't have permission to view this stream",
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
   })
   @ApiNotFoundResponse({
-    description: "Handler or stream not found",
+    description: "Handler not found",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.NOT_FOUND],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
   })
   @ApiOkResponse({
     description: "Stream details retrieved successfully",
     type: Stream,
   })
   @ApiOperation({
-    description: "Retrieves details about the specified stream",
+    description: dedent`
+    Retrieves detailed information about a specific stream.
+
+    The response includes all configuration and current status of the stream.`,
     summary: "Get stream details",
   })
   @ApiParam({
@@ -150,6 +264,23 @@ export class StreamsController {
     description: "ID of the stream to retrieve",
     example: "stream-456",
     name: "streamId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
   })
   @Get(":streamId")
   public async readStream(
@@ -166,18 +297,70 @@ export class StreamsController {
     return this.streamsService.readStream(handlerId, userId, streamId);
   }
 
-  @ApiForbiddenResponse({
-    description: "User doesn't have permission to update this stream",
+  @ApiBadRequestResponse({
+    description: "Request body parameters are invalid",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.BAD_REQUEST],
+          type: "string",
+        },
+        message: {
+          oneOf: [
+            {
+              example: "X must be a string",
+              type: "string",
+            },
+            {
+              items: {
+                example: "X must be a string",
+                type: "string",
+              },
+              type: "array",
+            },
+          ],
+        },
+        statusCode: {
+          enum: [HttpStatus.BAD_REQUEST],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
+  })
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
   })
   @ApiNotFoundResponse({
-    description: "Handler or stream not found",
+    description: "Handler not found",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.NOT_FOUND],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.NOT_FOUND],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
   })
   @ApiOkResponse({
-    description: "Stream updated successfully",
+    description: "Stream successfully updated",
     type: Stream,
   })
   @ApiOperation({
-    description: "Updates configuration of the specified stream",
+    description: dedent`
+    Updates the configuration of a specific stream.
+
+    Only the provided fields will be updated, leaving other configuration unchanged.`,
     summary: "Update a stream",
   })
   @ApiParam({
@@ -189,6 +372,23 @@ export class StreamsController {
     description: "ID of the stream to update",
     example: "stream-456",
     name: "streamId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        message: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["message", "statusCode"],
+      type: "object",
+    },
   })
   @Put(":streamId")
   public async updateStream(
