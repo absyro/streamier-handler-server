@@ -3,7 +3,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  NotImplementedException,
 } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { validateSync } from "class-validator";
@@ -96,11 +95,11 @@ export class StreamsService {
     return updatedStream;
   }
 
-  private async _emitToHandler<T>(
+  private async _emitToHandler(
     handlerId: string,
     event: string,
     ...data: unknown[]
-  ): Promise<T> {
+  ): Promise<object> {
     const { server } = this.handlersGateway;
 
     const sockets = await server.fetchSockets();
@@ -115,24 +114,43 @@ export class StreamsService {
 
     return new Promise((resolve, reject) => {
       socket.emit(`stream:${event}`, ...data, (response: unknown) => {
-        if (
-          !isObject(response) ||
-          !("success" in response) ||
-          typeof response.success !== "boolean" ||
-          ("error" in response && !isString(response.error))
-        ) {
+        if (!isObject(response)) {
+          reject(new BadGatewayException());
+
+          return;
+        }
+
+        if (!("success" in response) || typeof response.success !== "boolean") {
           reject(new BadGatewayException());
 
           return;
         }
 
         if ("error" in response) {
+          if (!isString(response.error)) {
+            reject(new BadGatewayException());
+
+            return;
+          }
+
+          if (response.success) {
+            reject(new BadGatewayException());
+
+            return;
+          }
+
           reject(new BadRequestException(response.error));
 
           return;
         }
 
-        resolve(response as T);
+        if (!response.success) {
+          reject(new BadGatewayException());
+
+          return;
+        }
+
+        resolve(response);
       });
     });
   }
