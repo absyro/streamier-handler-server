@@ -110,7 +110,7 @@ export class StreamsService {
     );
 
     if (!socket) {
-      throw new NotFoundException("Handler not found");
+      throw new NotFoundException();
     }
 
     return new Promise((resolve, reject) => {
@@ -121,7 +121,7 @@ export class StreamsService {
           typeof response.success !== "boolean" ||
           ("error" in response && !isString(response.error))
         ) {
-          reject(new NotImplementedException("Invalid response format"));
+          reject(new BadGatewayException());
 
           return;
         }

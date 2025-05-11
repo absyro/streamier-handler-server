@@ -69,7 +69,7 @@ export class HandlersService {
     const result = await this.handlerRepository.delete({ id: handlerId });
 
     if (result.affected === 0) {
-      throw new NotFoundException("Handler not found");
+      throw new NotFoundException();
     }
   }
 
@@ -146,7 +146,7 @@ export class HandlersService {
     );
 
     if (result.affected === 0) {
-      throw new NotFoundException("Handler not found");
+      throw new NotFoundException();
     }
   }
 
