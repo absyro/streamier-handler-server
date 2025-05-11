@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, MaxLength } from "class-validator";
+import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 
 export class CreateHandlerDto {
   @ApiProperty({
@@ -9,6 +9,7 @@ export class CreateHandlerDto {
     maxLength: 12,
     required: true,
   })
+  @IsNotEmpty()
   @IsString()
   @MaxLength(12)
   public iconId!: string;
@@ -21,6 +22,7 @@ export class CreateHandlerDto {
     maxLength: 5000,
     required: true,
   })
+  @IsNotEmpty()
   @IsString()
   @MaxLength(5000)
   public longDescription!: string;
@@ -32,6 +34,7 @@ export class CreateHandlerDto {
     maxLength: 100,
     required: true,
   })
+  @IsNotEmpty()
   @IsString()
   @MaxLength(100)
   public name!: string;
@@ -43,6 +46,7 @@ export class CreateHandlerDto {
     maxLength: 180,
     required: true,
   })
+  @IsNotEmpty()
   @IsString()
   @MaxLength(180)
   public shortDescription!: string;
