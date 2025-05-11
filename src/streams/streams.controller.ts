@@ -33,20 +33,6 @@ import { CreateStreamDto } from "./dto/create-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
-/**
- * Controller for managing data streams.
- *
- * Provides REST endpoints for:
- *
- * - Creating new streams
- * - Reading stream data
- * - Updating stream data
- * - Deleting streams
- *
- * All endpoints require authentication via X-Session-Id header.
- *
- * @class StreamsController
- */
 @ApiBadRequestResponse({
   description: "Invalid request parameters or body",
 })
@@ -67,18 +53,6 @@ export class StreamsController {
     private readonly commonService: CommonService,
   ) {}
 
-  /**
-   * Creates a new stream for a handler.
-   *
-   * @param {unknown} data - The initial data for the stream
-   * @param {string} handlerId - The ID of the handler to create the stream on
-   * @param {Request} request - The HTTP request object
-   * @returns The created stream data
-   * @throws {UnauthorizedException} If user is not authenticated
-   * @throws {NotFoundException} If handler is not found
-   * @throws {ForbiddenException} If user doesn't have permission
-   * @throws {BadRequestException} If request is invalid
-   */
   @ApiCreatedResponse({
     description: "Stream created successfully",
     type: Stream,
@@ -114,16 +88,6 @@ export class StreamsController {
     return this.streamsService.createStream(handlerId, userId, createStreamDto);
   }
 
-  /**
-   * Deletes a stream.
-   *
-   * @param {string} handlerId - The ID of the handler containing the stream
-   * @param {string} streamId - The ID of the stream to delete
-   * @param {Request} request - The HTTP request object
-   * @throws {UnauthorizedException} If user is not authenticated
-   * @throws {NotFoundException} If handler or stream is not found
-   * @throws {ForbiddenException} If user doesn't have permission
-   */
   @ApiForbiddenResponse({
     description: "User doesn't have permission to delete this stream",
   })
@@ -163,17 +127,6 @@ export class StreamsController {
     return this.streamsService.deleteStream(handlerId, userId, streamId);
   }
 
-  /**
-   * Reads data from a stream.
-   *
-   * @param {string} handlerId - The ID of the handler containing the stream
-   * @param {string} streamId - The ID of the stream to read
-   * @param {Request} request - The HTTP request object
-   * @returns The stream data
-   * @throws {UnauthorizedException} If user is not authenticated
-   * @throws {NotFoundException} If handler or stream is not found
-   * @throws {ForbiddenException} If user doesn't have permission
-   */
   @ApiForbiddenResponse({
     description: "User doesn't have permission to view this stream",
   })
@@ -213,19 +166,6 @@ export class StreamsController {
     return this.streamsService.readStream(handlerId, userId, streamId);
   }
 
-  /**
-   * Updates data in a stream.
-   *
-   * @param {string} handlerId - The ID of the handler containing the stream
-   * @param {string} streamId - The ID of the stream to update
-   * @param {Partial<Stream>} changes - The changes to apply to the stream
-   * @param {Request} request - The HTTP request object
-   * @returns The updated stream data
-   * @throws {UnauthorizedException} If user is not authenticated
-   * @throws {NotFoundException} If handler or stream is not found
-   * @throws {ForbiddenException} If user doesn't have permission
-   * @throws {BadRequestException} If request is invalid
-   */
   @ApiForbiddenResponse({
     description: "User doesn't have permission to update this stream",
   })

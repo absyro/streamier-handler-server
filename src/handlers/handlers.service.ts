@@ -13,19 +13,6 @@ import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
 
-/**
- * Service for managing stream handlers.
- *
- * Provides functionality for:
- *
- * - Creating new handlers
- * - Updating existing handlers
- * - Deleting handlers
- * - Finding handlers by various criteria
- * - Searching handlers with advanced filters
- *
- * @class HandlersService
- */
 @Injectable()
 export class HandlersService {
   public constructor(
@@ -33,14 +20,6 @@ export class HandlersService {
     private readonly handlerRepository: Repository<Handler>,
   ) {}
 
-  /**
-   * Creates a new handler for a user.
-   *
-   * @param {string} userId - The ID of the user creating the handler
-   * @param {CreateHandlerDto} createHandlerDto - Data for creating the handler
-   * @returns The created handler
-   * @throws {BadRequestException} If user has reached maximum handlers limit
-   */
   public async createOne(
     userId: string,
     createHandlerDto: CreateHandlerDto,
@@ -86,12 +65,6 @@ export class HandlersService {
     return this.handlerRepository.save(handler);
   }
 
-  /**
-   * Deletes a handler by its ID.
-   *
-   * @param {string} id - The ID of the handler to delete
-   * @throws {NotFoundException} If handler is not found
-   */
   public async deleteOne(id: string): Promise<void> {
     const result = await this.handlerRepository.delete({ id });
 
@@ -100,22 +73,10 @@ export class HandlersService {
     }
   }
 
-  /**
-   * Finds all handlers belonging to a user.
-   *
-   * @param {string} userId - The ID of the user
-   * @returns Array of handlers
-   */
   public async findAll(userId: string): Promise<Handler[]> {
     return this.handlerRepository.find({ where: { userId } });
   }
 
-  /**
-   * Finds handlers by their authentication tokens.
-   *
-   * @param {string[]} authTokens - Array of authentication tokens
-   * @returns Array of matching handlers
-   */
   public async findAllUsingAuthTokens(
     authTokens: string[],
   ): Promise<Handler[]> {
@@ -124,40 +85,16 @@ export class HandlersService {
     });
   }
 
-  /**
-   * Finds a handler by its ID.
-   *
-   * @param {string} id - The ID of the handler
-   * @returns The found handler or null
-   */
   public async findOne(id: string): Promise<Handler | null> {
     return this.handlerRepository.findOne({ where: { id } });
   }
 
-  /**
-   * Finds a handler by its authentication token.
-   *
-   * @param {string} authToken - The authentication token
-   * @returns The found handler or null
-   */
   public async findOneUsingAuthToken(
     authToken: string,
   ): Promise<Handler | null> {
     return this.handlerRepository.findOne({ where: { authToken } });
   }
 
-  /**
-   * Searches for handlers using various criteria.
-   *
-   * Supports searching by:
-   *
-   * - Text query (name, shortDescription, longDescription)
-   * - Online status
-   * - Pagination (offset/limit)
-   *
-   * @param {SearchHandlerDto} searchDto - Search criteria
-   * @returns Array of matching handlers
-   */
   public async search(searchDto: SearchHandlerDto): Promise<Handler[]> {
     const queryBuilder = this.handlerRepository.createQueryBuilder("handler");
 
@@ -195,23 +132,10 @@ export class HandlersService {
     return queryBuilder.getMany();
   }
 
-  /**
-   * Sets all handlers to offline status.
-   *
-   * This method should be called when the server starts to ensure all handlers
-   * start in an offline state until they reconnect.
-   */
   public async setAllHandlersOffline(): Promise<void> {
     await this.handlerRepository.update({}, { isOnline: false });
   }
 
-  /**
-   * Sets the online status of a handler.
-   *
-   * @param {string} id - The ID of the handler
-   * @param {boolean} isOnline - The new online status
-   * @throws {NotFoundException} If handler is not found
-   */
   public async setOnlineStatus(id: string, isOnline: boolean): Promise<void> {
     const result = await this.handlerRepository.update({ id }, { isOnline });
 
@@ -220,13 +144,6 @@ export class HandlersService {
     }
   }
 
-  /**
-   * Updates an existing handler.
-   *
-   * @param {string} id - The ID of the handler to update
-   * @param {UpdateHandlerDto} updateHandlerDto - Data to update
-   * @returns The updated handler
-   */
   public async updateOne(
     id: string,
     updateHandlerDto: UpdateHandlerDto,

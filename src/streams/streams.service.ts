@@ -12,37 +12,10 @@ import { HandlersGateway } from "../handlers/handlers.gateway";
 import { Stream } from "./classes/stream.class";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 
-/**
- * Service for managing data streams.
- *
- * Provides functionality for:
- *
- * - Creating new streams
- * - Reading stream data
- * - Updating stream data
- * - Deleting streams
- * - Real-time communication with handlers
- *
- * @class StreamsService
- */
 @Injectable()
 export class StreamsService {
   public constructor(private readonly handlersGateway: HandlersGateway) {}
 
-  /**
-   * Creates a new stream for a handler.
-   *
-   * @param {string} handlerId - The ID of the handler to create the stream for
-   * @param {string} userId - The ID of the user creating the stream
-   * @param {Pick<Stream, "configuration" | "name">} streamParameters - The
-   *   parameters for the new stream
-   * @returns The created stream data
-   * @throws {NotFoundException} If handler is not found
-   * @throws {BadRequestException} If handler returns an error or data is
-   *   invalid
-   * @throws {NotImplementedException} If handler returns invalid response
-   *   format
-   */
   public async createStream(
     handlerId: string,
     userId: string,
@@ -66,17 +39,6 @@ export class StreamsService {
     return stream;
   }
 
-  /**
-   * Deletes a stream.
-   *
-   * @param {string} handlerId - The ID of the handler that owns the stream
-   * @param {string} userId - The ID of the user deleting the stream
-   * @param {string} streamId - The ID of the stream to delete
-   * @throws {NotFoundException} If handler is not found
-   * @throws {BadRequestException} If handler returns an error
-   * @throws {NotImplementedException} If handler returns invalid response
-   *   format
-   */
   public async deleteStream(
     handlerId: string,
     userId: string,
@@ -85,18 +47,6 @@ export class StreamsService {
     return this._emitToHandler(handlerId, "delete", userId, streamId);
   }
 
-  /**
-   * Reads data from a stream.
-   *
-   * @param {string} handlerId - The ID of the handler that owns the stream
-   * @param {string} userId - The ID of the user reading the stream
-   * @param {string} streamId - The ID of the stream to read
-   * @returns The stream data
-   * @throws {NotFoundException} If handler is not found
-   * @throws {BadRequestException} If handler returns an error
-   * @throws {NotImplementedException} If handler returns invalid response
-   *   format
-   */
   public async readStream(
     handlerId: string,
     userId: string,
@@ -120,20 +70,6 @@ export class StreamsService {
     return stream;
   }
 
-  /**
-   * Updates data in a stream.
-   *
-   * @param {string} handlerId - The ID of the handler that owns the stream
-   * @param {string} userId - The ID of the user updating the stream
-   * @param {string} streamId - The ID of the stream to update
-   * @param {unknown} changes - The changes to apply to the stream
-   * @returns The updated stream data
-   * @throws {NotFoundException} If handler is not found
-   * @throws {BadRequestException} If handler returns an error or changes are
-   *   invalid
-   * @throws {NotImplementedException} If handler returns invalid response
-   *   format
-   */
   public async updateStream(
     handlerId: string,
     userId: string,
@@ -159,19 +95,6 @@ export class StreamsService {
     return updatedStream;
   }
 
-  /**
-   * Emits an event to a handler and waits for the response.
-   *
-   * @private
-   * @param {string} handlerId - The ID of the handler to emit to
-   * @param {string} event - The event name to emit
-   * @param {...unknown} data - Additional data to send with the event
-   * @returns The handler's response
-   * @throws {NotFoundException} If handler is not found
-   * @throws {BadRequestException} If handler returns an error
-   * @throws {NotImplementedException} If handler returns invalid response
-   *   format
-   */
   private async _emitToHandler<T>(
     handlerId: string,
     event: string,

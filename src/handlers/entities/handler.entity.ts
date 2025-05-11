@@ -1,27 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { BeforeUpdate, Column, Entity, PrimaryColumn } from "typeorm";
 
-/**
- * Entity class representing a stream handler.
- *
- * Represents a handler that processes and manages streams in the system. Each
- * handler is associated with a user and has various metadata and configuration
- * options.
- *
- * @class Handler
- * @property {string} authToken - Authentication token for WebSocket connections
- * @property {Date} createdAt - Timestamp of handler creation
- * @property {string} iconId - ID of the handler's icon from icons8.com
- * @property {string} id - Unique identifier for the handler
- * @property {string} longDescription - Detailed description of handler
- *   functionality
- * @property {string} name - Display name of the handler
- * @property {string} shortDescription - Brief description of handler purpose
- * @property {Date} updatedAt - Timestamp of last update
- * @property {string} userId - ID of the handler owner
- * @property {boolean} isOnline - Whether the handler is currently online and
- *   connected
- */
 @Entity({ name: "handlers" })
 export class Handler {
   @ApiProperty({
@@ -106,10 +85,6 @@ export class Handler {
   @Column({ length: 8, name: "user_id" })
   public userId!: string;
 
-  /**
-   * Updates the timestamp when the handler is modified. This method is
-   * automatically called before any update operation.
-   */
   @BeforeUpdate()
   public updateTimestamp(): void {
     this.updatedAt = new Date();
