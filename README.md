@@ -58,7 +58,6 @@ The server will be available at `http://localhost:3000`
 - `pnpm start:prod` - Start the application in production mode
 - `pnpm build` - Build the application
 - `pnpm lint` - Run ESLint
-- `pnpm lint:fix` - Fix ESLint issues
 - `pnpm doc` - Generate documentation
 
 ## Documentation
