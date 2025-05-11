@@ -44,19 +44,8 @@ import { StreamsService } from "./streams.service";
         type: "string",
       },
       message: {
-        oneOf: [
-          {
-            example: "Received stream from handler is invalid",
-            type: "string",
-          },
-          {
-            items: {
-              example: "Received stream from handler is invalid",
-              type: "string",
-            },
-            type: "array",
-          },
-        ],
+        example: "Received stream from handler is invalid",
+        type: "string",
       },
       statusCode: {
         enum: [HttpStatus.BAD_GATEWAY],
@@ -150,8 +139,12 @@ export class StreamsController {
     description: "Missing or invalid authentication",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -159,7 +152,7 @@ export class StreamsController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -172,7 +165,7 @@ export class StreamsController {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Missing or invalid authentication");
     }
 
     return this.streamsService.createStream(handlerId, userId, createStreamDto);
@@ -225,8 +218,12 @@ export class StreamsController {
     description: "Missing or invalid authentication",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -234,7 +231,7 @@ export class StreamsController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -248,7 +245,7 @@ export class StreamsController {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Missing or invalid authentication");
     }
 
     return this.streamsService.deleteStream(handlerId, userId, streamId);
@@ -302,8 +299,12 @@ export class StreamsController {
     description: "Missing or invalid authentication",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -311,7 +312,7 @@ export class StreamsController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -324,7 +325,7 @@ export class StreamsController {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Missing or invalid authentication");
     }
 
     return this.streamsService.readStream(handlerId, userId, streamId);
@@ -410,8 +411,12 @@ export class StreamsController {
     description: "Missing or invalid authentication",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -419,7 +424,7 @@ export class StreamsController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -433,7 +438,7 @@ export class StreamsController {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Missing or invalid authentication");
     }
 
     await this.streamsService.updateStream(

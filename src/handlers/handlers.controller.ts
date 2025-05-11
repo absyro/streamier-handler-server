@@ -119,8 +119,12 @@ export class HandlersController {
     description: "Missing or invalid authentication",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -128,7 +132,7 @@ export class HandlersController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -140,7 +144,7 @@ export class HandlersController {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Missing or invalid authentication");
     }
 
     const { authToken, ...handler } = await this.handlersService.createOne(
@@ -192,8 +196,12 @@ export class HandlersController {
     description: "Missing or invalid authentication",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -201,7 +209,7 @@ export class HandlersController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -213,7 +221,7 @@ export class HandlersController {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Missing or invalid authentication");
     }
 
     const handler = await this.handlersService.findOne(handlerId);
@@ -223,7 +231,7 @@ export class HandlersController {
     }
 
     if (handler.userId !== userId) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Missing or invalid authentication");
     }
 
     return { authToken: handler.authToken };
@@ -365,8 +373,12 @@ export class HandlersController {
     description: "Missing or invalid authentication",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -374,7 +386,7 @@ export class HandlersController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -387,7 +399,7 @@ export class HandlersController {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Missing or invalid authentication");
     }
 
     await this.handlersService.deleteOne(handlerId);
@@ -466,8 +478,12 @@ export class HandlersController {
     description: "Missing or invalid authentication",
     schema: {
       properties: {
-        message: {
+        error: {
           enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -475,7 +491,7 @@ export class HandlersController {
           type: "number",
         },
       },
-      required: ["message", "statusCode"],
+      required: ["error", "message", "statusCode"],
       type: "object",
     },
   })
@@ -488,7 +504,7 @@ export class HandlersController {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Missing or invalid authentication");
     }
 
     const { authToken, ...handler } = await this.handlersService.updateOne(
