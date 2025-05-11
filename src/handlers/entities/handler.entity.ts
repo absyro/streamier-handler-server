@@ -13,7 +13,7 @@ export class Handler {
 
   @ApiProperty({
     description: "Timestamp when the handler was created",
-    example: "2024-04-01T12:00:00Z",
+    example: new Date().toISOString(),
     readOnly: true,
   })
   @Column({ default: () => "CURRENT_TIMESTAMP", name: "created_at" })
@@ -70,7 +70,7 @@ export class Handler {
 
   @ApiProperty({
     description: "Timestamp when the handler was last updated",
-    example: "2024-04-01T12:30:00Z",
+    example: new Date().toISOString(),
     readOnly: true,
   })
   @Column({ default: () => "CURRENT_TIMESTAMP", name: "updated_at" })
