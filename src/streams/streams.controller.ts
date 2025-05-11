@@ -12,6 +12,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import {
+  ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiHeader,
@@ -34,6 +35,38 @@ import { CreateStreamDto } from "./dto/create-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
+@ApiBadGatewayResponse({
+  description: "Received data from handler is invalid",
+  schema: {
+    properties: {
+      error: {
+        enum: [ReasonPhrases.BAD_GATEWAY],
+        type: "string",
+      },
+      message: {
+        oneOf: [
+          {
+            example: "Received stream from handler is invalid",
+            type: "string",
+          },
+          {
+            items: {
+              example: "Received stream from handler is invalid",
+              type: "string",
+            },
+            type: "array",
+          },
+        ],
+      },
+      statusCode: {
+        enum: [HttpStatus.BAD_GATEWAY],
+        type: "number",
+      },
+    },
+    required: ["error", "message", "statusCode"],
+    type: "object",
+  },
+})
 @ApiTags("Streams")
 @Controller("api/handlers/:handlerId/streams")
 export class StreamsController {

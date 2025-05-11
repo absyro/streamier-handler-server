@@ -29,7 +29,7 @@ export class StreamsService {
     );
 
     if (!("stream" in response) || !isObject(response.stream)) {
-      throw new BadGatewayException();
+      throw new BadGatewayException("Received stream from handler is invalid");
     }
 
     const stream = plainToInstance(Stream, response.stream);
@@ -64,7 +64,7 @@ export class StreamsService {
     );
 
     if (!("stream" in response) || !isObject(response.stream)) {
-      throw new BadGatewayException();
+      throw new BadGatewayException("Received stream from handler is invalid");
     }
 
     const stream = plainToInstance(Stream, response.stream);
@@ -113,26 +113,42 @@ export class StreamsService {
     return new Promise((resolve, reject) => {
       socket.emit(`stream:${event}`, ...data, (response: unknown) => {
         if (!isObject(response)) {
-          reject(new BadGatewayException());
+          reject(
+            new BadGatewayException(
+              "Received response from handler is invalid",
+            ),
+          );
 
           return;
         }
 
         if (!("success" in response) || typeof response.success !== "boolean") {
-          reject(new BadGatewayException());
+          reject(
+            new BadGatewayException(
+              "Received response from handler is invalid",
+            ),
+          );
 
           return;
         }
 
         if ("error" in response) {
           if (!isString(response.error)) {
-            reject(new BadGatewayException());
+            reject(
+              new BadGatewayException(
+                "Received response from handler is invalid",
+              ),
+            );
 
             return;
           }
 
           if (response.success) {
-            reject(new BadGatewayException());
+            reject(
+              new BadGatewayException(
+                "Received response from handler is invalid",
+              ),
+            );
 
             return;
           }
@@ -143,7 +159,11 @@ export class StreamsService {
         }
 
         if (!response.success) {
-          reject(new BadGatewayException());
+          reject(
+            new BadGatewayException(
+              "Received response from handler is invalid",
+            ),
+          );
 
           return;
         }
