@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "nest build",
-    "doc": "npx @compodoc/compodoc -p tsconfig.json -d docs",
+    "doc": "npx @compodoc/compodoc -p tsconfig.json",
     "lint": "eslint src/**/*.ts",
     "start": "nest start",
     "start:debug": "nest start --debug --watch",
