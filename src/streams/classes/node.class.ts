@@ -39,7 +39,7 @@ export class Node {
   @ApiProperty({
     description: "The outputs of the node",
     example: {
-      "some-output": [1, 2, 3],
+      someOutput: [1, 2, 3],
     },
     required: true,
   })

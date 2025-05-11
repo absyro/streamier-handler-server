@@ -19,7 +19,7 @@ export class Stream {
   @ApiProperty({
     description: "The configuration of the stream",
     example: {
-      "some-key": "some-value",
+      someKey: "someValue",
     },
     required: true,
   })
@@ -85,7 +85,7 @@ export class Stream {
         id: 1,
         name: "Some Node",
         outputs: {
-          "some-output": [1, 2, 3],
+          someOutput: [1, 2, 3],
         },
       },
     ],
@@ -123,7 +123,7 @@ export class Stream {
   @ApiProperty({
     description: "The variables of the stream",
     example: {
-      "some-variable": "some-value",
+      someVariable: "someValue",
     },
     required: true,
   })
