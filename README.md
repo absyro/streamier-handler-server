@@ -2,15 +2,6 @@
 
 A robust NestJS-based server application for handling handlers and real-time communication through WebSockets.
 
-## Features
-
-- WebSocket support for bidirectional communication
-- TypeORM integration for database operations
-- Swagger/OpenAPI documentation
-- Rate limiting and throttling
-- Environment-based configuration
-- Comprehensive TypeScript support
-
 ## Prerequisites
 
 - Node.js (v18 or higher)
