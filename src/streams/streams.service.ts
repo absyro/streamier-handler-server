@@ -7,11 +7,12 @@ import {
 } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { validateSync } from "class-validator";
-import { isEmpty, isObject, isString } from "radash";
+import { isArray, isEmpty, isObject, isString } from "radash";
 import { HandlersService } from "src/handlers/handlers.service";
 
 import { HandlersGateway } from "../handlers/handlers.gateway";
 import { Stream } from "./classes/stream.class";
+import { ListStreamsDto } from "./dto/list-streams.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 
 @Injectable()
@@ -54,6 +55,39 @@ export class StreamsService {
     streamId: string,
   ): Promise<void> {
     await this._emitToHandler(handlerId, "delete", userId, streamId);
+  }
+
+  public async getAllStreamsForUser(
+    handlerId: string,
+    userId: string,
+    listStreamsDto: ListStreamsDto,
+  ): Promise<Partial<Stream>[]> {
+    const response = await this._emitToHandler(
+      handlerId,
+      "list",
+      userId,
+      listStreamsDto,
+    );
+
+    if (!("streams" in response) || !isArray(response.streams)) {
+      throw new BadGatewayException("Received streams from handler is invalid");
+    }
+
+    const streams = response.streams.map((stream: unknown) => {
+      const instance = plainToInstance(Stream, stream);
+
+      const errors = validateSync(instance);
+
+      if (!isEmpty(errors)) {
+        throw new BadGatewayException(
+          "Received streams from handler are invalid",
+        );
+      }
+
+      return instance;
+    });
+
+    return streams;
   }
 
   public async readStream(

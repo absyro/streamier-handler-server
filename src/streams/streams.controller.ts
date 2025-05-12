@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -24,6 +25,7 @@ import {
   ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse,
+  PartialType,
 } from "@nestjs/swagger";
 import { Request } from "express";
 import { ReasonPhrases } from "http-status-codes";
@@ -33,6 +35,7 @@ import { dedent } from "ts-dedent";
 import { CommonService } from "../common/common.service";
 import { Stream } from "./classes/stream.class";
 import { CreateStreamDto } from "./dto/create-stream.dto";
+import { ListStreamsDto } from "./dto/list-streams.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
@@ -57,6 +60,12 @@ import { StreamsService } from "./streams.service";
     type: "object",
   },
 })
+@ApiHeader({
+  description: "Session ID for authentication",
+  example: "s123456789",
+  name: "X-Session-Id",
+  required: true,
+})
 @ApiNotFoundResponse({
   description: "Handler not found",
   schema: {
@@ -77,6 +86,11 @@ import { StreamsService } from "./streams.service";
     required: ["error", "message", "statusCode"],
     type: "object",
   },
+})
+@ApiParam({
+  description: "ID of the target handler",
+  example: "h1234567",
+  name: "handlerId",
 })
 @ApiServiceUnavailableResponse({
   description: "Handler is offline",
@@ -164,23 +178,12 @@ export class StreamsController {
     description: "Stream successfully created",
     type: Stream,
   })
-  @ApiHeader({
-    description: "Session ID for authentication",
-    example: "s123456789",
-    name: "X-Session-Id",
-    required: true,
-  })
   @ApiOperation({
     description: dedent`
     Creates a new stream associated with the specified handler.
 
     The stream will be configured according to the provided parameters and will be associated with the authenticated user.`,
     summary: "Create a new stream",
-  })
-  @ApiParam({
-    description: "ID of the handler to create the stream on",
-    example: "h1234567",
-    name: "handlerId",
   })
   @Post()
   public async createStream(
@@ -197,12 +200,6 @@ export class StreamsController {
     return this.streamsService.createStream(handlerId, userId, createStreamDto);
   }
 
-  @ApiHeader({
-    description: "Session ID for authentication",
-    example: "s123456789",
-    name: "X-Session-Id",
-    required: true,
-  })
   @ApiNoContentResponse({
     description: "Stream successfully deleted",
   })
@@ -212,11 +209,6 @@ export class StreamsController {
 
     This operation is permanent and cannot be undone. All associated data will be removed.`,
     summary: "Delete a stream",
-  })
-  @ApiParam({
-    description: "ID of the handler containing the stream",
-    example: "h1234567",
-    name: "handlerId",
   })
   @ApiParam({
     description: "ID of the stream to delete",
@@ -239,12 +231,34 @@ export class StreamsController {
     return this.streamsService.deleteStream(handlerId, userId, streamId);
   }
 
-  @ApiHeader({
-    description: "Session ID for authentication",
-    example: "s123456789",
-    name: "X-Session-Id",
-    required: true,
+  @ApiOkResponse({
+    description: "List of streams for the user",
+    type: [PartialType(Stream)],
   })
+  @ApiOperation({
+    description:
+      "Retrieves all streams associated with the authenticated user for the specified handler.",
+    summary: "List all streams for a user",
+  })
+  @Get()
+  public async listStreams(
+    @Param("handlerId") handlerId: string,
+    @Req() request: Request,
+    @Query() listStreamsDto: ListStreamsDto,
+  ): Promise<Partial<Stream>[]> {
+    const userId = await this.commonService.getUserIdFromRequest(request);
+
+    if (!isString(userId)) {
+      throw new UnauthorizedException("Missing or invalid authentication");
+    }
+
+    return this.streamsService.getAllStreamsForUser(
+      handlerId,
+      userId,
+      listStreamsDto,
+    );
+  }
+
   @ApiOkResponse({
     description: "Stream details retrieved successfully",
     type: Stream,
@@ -255,11 +269,6 @@ export class StreamsController {
 
     The response includes all configuration and current status of the stream.`,
     summary: "Get stream details",
-  })
-  @ApiParam({
-    description: "ID of the handler containing the stream",
-    example: "h1234567",
-    name: "handlerId",
   })
   @ApiParam({
     description: "ID of the stream to retrieve",
@@ -313,12 +322,6 @@ export class StreamsController {
       type: "object",
     },
   })
-  @ApiHeader({
-    description: "Session ID for authentication",
-    example: "s123456789",
-    name: "X-Session-Id",
-    required: true,
-  })
   @ApiOkResponse({
     description: "Stream successfully updated",
     type: Stream,
@@ -329,11 +332,6 @@ export class StreamsController {
 
     Only the provided fields will be updated, leaving other configuration unchanged.`,
     summary: "Update a stream",
-  })
-  @ApiParam({
-    description: "ID of the handler containing the stream",
-    example: "h1234567",
-    name: "handlerId",
   })
   @ApiParam({
     description: "ID of the stream to update",
