@@ -85,7 +85,7 @@ export class Stream {
         data: {
           message: "Hello, world!",
         },
-        id: 1,
+        id: "node-1",
         name: "Some Node",
         outputs: {
           someOutput: [1, 2, 3],

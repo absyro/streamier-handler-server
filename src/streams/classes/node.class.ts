@@ -1,12 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsObject,
-  IsPositive,
-  IsString,
-  MaxLength,
-} from "class-validator";
+import { IsNotEmpty, IsObject, IsString, MaxLength } from "class-validator";
 
 export class Node {
   @ApiProperty({
@@ -21,12 +14,14 @@ export class Node {
 
   @ApiProperty({
     description: "The ID of the node",
-    example: 1,
+    example: "node-1",
+    maxLength: 64,
     required: true,
   })
-  @IsNumber()
-  @IsPositive()
-  public id!: number;
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(64)
+  public id!: string;
 
   @ApiProperty({
     description: "The name of the node",
