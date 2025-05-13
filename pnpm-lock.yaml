@@ -44,6 +44,9 @@ importers:
       compression:
         specifier: ^1.8.0
         version: 1.8.0
+      express-partial-response:
+        specifier: ^1.0.4
+        version: 1.0.4
       http-status-codes:
         specifier: ^2.3.0
         version: 2.3.0
@@ -2289,6 +2292,10 @@ packages:
     resolution: {integrity: sha512-r9pzDc94ZNJ7FVvtsxLfPybmN0eFAUnR61oimNPRpD0D7nkLcezrkpZzoXS5TI75wYHRbflPLTU39B62pwB4DA==}
     engines: {node: '>=v10.24.1'}
 
+  express-partial-response@1.0.4:
+    resolution: {integrity: sha512-aN/aoQ5FbwCaF412iTYfC7Xnz+kicOLHAiyBk55d3lHiKdOhyYelBTThgzdwgF11KAynwQvuM7hu93Bke9hcgQ==}
+    engines: {node: '>=10'}
+
   express@4.21.2:
     resolution: {integrity: sha512-28HqgMZAmih1Czt9ny7qr6ek2qddF4FclbMzwhCREB6OFfH+rXAnuNCwo1/wFvrtbgsQDb4kSbX9de9lFbrXnA==}
     engines: {node: '>= 0.10.0'}
@@ -2877,6 +2884,11 @@ packages:
 
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
+
+  json-mask@1.0.4:
+    resolution: {integrity: sha512-ZnNhI8x2DeU57jGSa82w5JS3wJp0N6kqrKfg2OWcTJC1tInggqkjn0W63fCcafus3+f86bvsbla0PvRowPJbZg==}
+    engines: {node: '>=8.0.0'}
+    hasBin: true
 
   json-parse-even-better-errors@2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
@@ -6962,6 +6974,10 @@ snapshots:
       graceful-fs: 4.2.11
       handlebars: 4.7.8
 
+  express-partial-response@1.0.4:
+    dependencies:
+      json-mask: 1.0.4
+
   express@4.21.2:
     dependencies:
       accepts: 1.3.8
@@ -7633,6 +7649,8 @@ snapshots:
   jsesc@3.1.0: {}
 
   json-buffer@3.0.1: {}
+
+  json-mask@1.0.4: {}
 
   json-parse-even-better-errors@2.3.1: {}
 

@@ -5,6 +5,7 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import compression from "compression";
+import partialResponse from "express-partial-response";
 import { RedocModule } from "nestjs-redoc";
 import { dedent } from "ts-dedent";
 
@@ -45,6 +46,8 @@ async function bootstrap(): Promise<void> {
   const redocOptions: RedocOptions = {};
 
   await RedocModule.setup("/docs", app, document, redocOptions);
+
+  app.use(partialResponse());
 
   app.use(compression());
 

@@ -8,7 +8,6 @@ import {
   Param,
   Post,
   Put,
-  Query,
   Req,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -22,6 +21,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -35,7 +35,6 @@ import { dedent } from "ts-dedent";
 import { CommonService } from "../common/common.service";
 import { Stream } from "./classes/stream.class";
 import { CreateStreamDto } from "./dto/create-stream.dto";
-import { ListStreamsDto } from "./dto/list-streams.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
@@ -91,6 +90,18 @@ import { StreamsService } from "./streams.service";
   description: "ID of the target handler",
   example: "h1234567",
   name: "handlerId",
+})
+@ApiQuery({
+  description: dedent`
+  The fields to include in the response.
+
+  Uses json-mask to select the fields to include in the response.
+
+  See https://github.com/nemtsov/json-mask for more information.
+
+  If not provided, all fields will be included.`,
+  name: "fields",
+  required: false,
 })
 @ApiServiceUnavailableResponse({
   description: "Handler is offline",
@@ -244,19 +255,14 @@ export class StreamsController {
   public async listStreams(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-    @Query() listStreamsDto: ListStreamsDto,
-  ): Promise<Partial<Stream>[]> {
+  ): Promise<Stream[]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    return this.streamsService.getAllStreamsForUser(
-      handlerId,
-      userId,
-      listStreamsDto,
-    );
+    return this.streamsService.getAllStreamsForUser(handlerId, userId);
   }
 
   @ApiOkResponse({
@@ -287,7 +293,13 @@ export class StreamsController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    return this.streamsService.readStream(handlerId, userId, streamId);
+    const stream = await this.streamsService.readStream(
+      handlerId,
+      userId,
+      streamId,
+    );
+
+    return stream;
   }
 
   @ApiBadRequestResponse({

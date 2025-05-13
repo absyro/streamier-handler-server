@@ -23,6 +23,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
   OmitType,
@@ -40,6 +41,18 @@ import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
 import { HandlersService } from "./handlers.service";
 
+@ApiQuery({
+  description: dedent`
+  The fields to include in the response.
+
+  Uses json-mask to select the fields to include in the response.
+
+  See https://github.com/nemtsov/json-mask for more information.
+
+  If not provided, all fields will be included.`,
+  name: "fields",
+  required: false,
+})
 @ApiTags("Handlers")
 @Controller("api/handlers")
 export class HandlersController {

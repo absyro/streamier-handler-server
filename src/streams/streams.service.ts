@@ -12,7 +12,6 @@ import { HandlersService } from "src/handlers/handlers.service";
 
 import { HandlersGateway } from "../handlers/handlers.gateway";
 import { Stream } from "./classes/stream.class";
-import { ListStreamsDto } from "./dto/list-streams.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 
 @Injectable()
@@ -60,14 +59,8 @@ export class StreamsService {
   public async getAllStreamsForUser(
     handlerId: string,
     userId: string,
-    listStreamsDto: ListStreamsDto,
-  ): Promise<Partial<Stream>[]> {
-    const response = await this._emitToHandler(
-      handlerId,
-      "list",
-      userId,
-      listStreamsDto,
-    );
+  ): Promise<Stream[]> {
+    const response = await this._emitToHandler(handlerId, "list", userId);
 
     if (!("streams" in response) || !isArray(response.streams)) {
       throw new BadGatewayException("Received streams from handler is invalid");
