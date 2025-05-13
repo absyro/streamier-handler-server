@@ -17,14 +17,14 @@ import { Handler } from "./entities/handler.entity";
 export class HandlersService {
   public constructor(
     @InjectRepository(Handler)
-    private readonly handlerRepository: Repository<Handler>,
+    private readonly handlersRepository: Repository<Handler>,
   ) {}
 
   public async createOne(
     userId: string,
     createHandlerDto: CreateHandlerDto,
   ): Promise<Handler> {
-    const count = await this.handlerRepository.count({ where: { userId } });
+    const count = await this.handlersRepository.count({ where: { userId } });
 
     const maxHandlersPerUser = 124;
 
@@ -42,11 +42,13 @@ export class HandlersService {
 
     do {
       handlerId = randomatic("a0", 8);
-    } while (await this.handlerRepository.exists({ where: { id: handlerId } }));
+    } while (
+      await this.handlersRepository.exists({ where: { id: handlerId } })
+    );
 
     do {
       authToken = randomatic("Aa0", 64);
-    } while (await this.handlerRepository.exists({ where: { authToken } }));
+    } while (await this.handlersRepository.exists({ where: { authToken } }));
 
     handler.id = handlerId;
 
@@ -62,11 +64,11 @@ export class HandlersService {
 
     handler.userId = userId;
 
-    return this.handlerRepository.save(handler);
+    return this.handlersRepository.save(handler);
   }
 
   public async deleteOne(handlerId: string): Promise<void> {
-    const result = await this.handlerRepository.delete({ id: handlerId });
+    const result = await this.handlersRepository.delete({ id: handlerId });
 
     if (result.affected === 0) {
       throw new NotFoundException("Handler not found");
@@ -74,7 +76,7 @@ export class HandlersService {
   }
 
   public async exists(handlerId: string): Promise<boolean> {
-    const count = await this.handlerRepository.count({
+    const count = await this.handlersRepository.count({
       where: { id: handlerId },
     });
 
@@ -82,29 +84,29 @@ export class HandlersService {
   }
 
   public async findAll(userId: string): Promise<Handler[]> {
-    return this.handlerRepository.find({ where: { userId } });
+    return this.handlersRepository.find({ where: { userId } });
   }
 
   public async findAllUsingAuthTokens(
     authTokens: string[],
   ): Promise<Handler[]> {
-    return this.handlerRepository.find({
+    return this.handlersRepository.find({
       where: { authToken: In(authTokens) },
     });
   }
 
   public async findOne(handlerId: string): Promise<Handler | null> {
-    return this.handlerRepository.findOne({ where: { id: handlerId } });
+    return this.handlersRepository.findOne({ where: { id: handlerId } });
   }
 
   public async findOneUsingAuthToken(
     authToken: string,
   ): Promise<Handler | null> {
-    return this.handlerRepository.findOne({ where: { authToken } });
+    return this.handlersRepository.findOne({ where: { authToken } });
   }
 
   public async search(searchDto: SearchHandlerDto): Promise<Handler[]> {
-    const queryBuilder = this.handlerRepository.createQueryBuilder("handler");
+    const queryBuilder = this.handlersRepository.createQueryBuilder("handler");
 
     if (isString(searchDto.q)) {
       queryBuilder.where(
@@ -137,18 +139,20 @@ export class HandlersService {
 
     queryBuilder.skip(offset).take(limit);
 
-    return queryBuilder.getMany();
+    const handlers = await queryBuilder.getMany();
+
+    return handlers;
   }
 
   public async setAllHandlersOffline(): Promise<void> {
-    await this.handlerRepository.update({}, { isOnline: false });
+    await this.handlersRepository.update({}, { isOnline: false });
   }
 
   public async setOnlineStatus(
     handlerId: string,
     isOnline: boolean,
   ): Promise<void> {
-    const result = await this.handlerRepository.update(
+    const result = await this.handlersRepository.update(
       { id: handlerId },
       { isOnline },
     );
@@ -170,6 +174,6 @@ export class HandlersService {
 
     const updated = { ...existing, ...updateHandlerDto };
 
-    return this.handlerRepository.save(updated);
+    return this.handlersRepository.save(updated);
   }
 }
