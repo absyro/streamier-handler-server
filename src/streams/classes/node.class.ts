@@ -5,6 +5,7 @@ import {
   IsObject,
   IsPositive,
   IsString,
+  MaxLength,
 } from "class-validator";
 
 export class Node {
@@ -30,10 +31,12 @@ export class Node {
   @ApiProperty({
     description: "The name of the node",
     example: "Some Node",
+    maxLength: 256,
     required: true,
   })
   @IsNotEmpty()
   @IsString()
+  @MaxLength(256)
   public name!: string;
 
   @ApiProperty({

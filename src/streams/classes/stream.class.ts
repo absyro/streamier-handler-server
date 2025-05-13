@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
+  ArrayMaxSize,
   IsArray,
   IsBoolean,
   IsNotEmpty,
@@ -56,9 +57,11 @@ export class Stream {
         timestamp: "2021-01-01T00:00:00.000Z",
       },
     ],
+    maxItems: 128,
     required: true,
     type: [Log],
   })
+  @ArrayMaxSize(128)
   @IsArray()
   @Type(() => Log)
   @ValidateNested({ each: true })
@@ -89,9 +92,11 @@ export class Stream {
         },
       },
     ],
+    maxItems: 1024,
     required: true,
     type: [Node],
   })
+  @ArrayMaxSize(1024)
   @IsArray()
   @Type(() => Node)
   @ValidateNested({ each: true })

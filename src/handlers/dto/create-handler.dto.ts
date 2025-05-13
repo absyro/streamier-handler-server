@@ -31,12 +31,12 @@ export class CreateHandlerDto {
     description:
       "The display name of the handler. Should be descriptive but concise.",
     example: "Discord (Bots)",
-    maxLength: 100,
+    maxLength: 64,
     required: true,
   })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(100)
+  @MaxLength(64)
   public name!: string;
 
   @ApiProperty({
