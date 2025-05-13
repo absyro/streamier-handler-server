@@ -106,8 +106,7 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example:
-            "You have reached the maximum limit of 124 handlers per user",
+          example: "You have reached the maximum limit of N handlers per user",
           type: "string",
         },
         statusCode: {
