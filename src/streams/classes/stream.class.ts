@@ -57,11 +57,11 @@ export class Stream {
         timestamp: "2021-01-01T00:00:00.000Z",
       },
     ],
-    maxItems: 128,
+    maxItems: 100,
     required: true,
     type: [Log],
   })
-  @ArrayMaxSize(128)
+  @ArrayMaxSize(100)
   @IsArray()
   @Type(() => Log)
   @ValidateNested({ each: true })
@@ -70,12 +70,12 @@ export class Stream {
   @ApiProperty({
     description: "The name of the stream",
     example: "My Stream",
-    maxLength: 128,
+    maxLength: 100,
     required: true,
   })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(128)
+  @MaxLength(100)
   public name!: string;
 
   @ApiProperty({
@@ -92,11 +92,11 @@ export class Stream {
         },
       },
     ],
-    maxItems: 1024,
+    maxItems: 1000,
     required: true,
     type: [Node],
   })
-  @ArrayMaxSize(1024)
+  @ArrayMaxSize(1000)
   @IsArray()
   @Type(() => Node)
   @ValidateNested({ each: true })
@@ -105,12 +105,12 @@ export class Stream {
   @ApiProperty({
     description: "The signature of the stream",
     example: "abc123def456",
-    maxLength: 512,
+    maxLength: 500,
     required: true,
   })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(512)
+  @MaxLength(500)
   public signature!: string;
 
   @ApiProperty({

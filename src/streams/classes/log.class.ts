@@ -35,12 +35,12 @@ export class Log {
   @ApiProperty({
     description: "The message of the log",
     example: "This is a log message",
-    maxLength: 1024,
+    maxLength: 1000,
     required: true,
   })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(1024)
+  @MaxLength(1000)
   public message!: string;
 
   @ApiProperty({

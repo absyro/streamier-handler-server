@@ -55,9 +55,9 @@ export class Handler {
   @ApiProperty({
     description: "Display name of the handler",
     example: "Discord (Bots)",
-    maxLength: 64,
+    maxLength: 100,
   })
-  @Column({ length: 64, name: "name" })
+  @Column({ length: 100, name: "name" })
   public name!: string;
 
   @ApiProperty({

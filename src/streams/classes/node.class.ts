@@ -15,23 +15,23 @@ export class Node {
   @ApiProperty({
     description: "The ID of the node",
     example: "node-1",
-    maxLength: 64,
+    maxLength: 25,
     required: true,
   })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(64)
+  @MaxLength(25)
   public id!: string;
 
   @ApiProperty({
     description: "The name of the node",
     example: "Some Node",
-    maxLength: 256,
+    maxLength: 250,
     required: true,
   })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(256)
+  @MaxLength(250)
   public name!: string;
 
   @ApiProperty({

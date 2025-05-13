@@ -26,7 +26,7 @@ export class HandlersService {
   ): Promise<Handler> {
     const count = await this.handlersRepository.count({ where: { userId } });
 
-    const maxHandlersPerUser = 64;
+    const maxHandlersPerUser = 100;
 
     if (count >= maxHandlersPerUser) {
       throw new ForbiddenException(

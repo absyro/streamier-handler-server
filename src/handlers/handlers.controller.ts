@@ -98,7 +98,7 @@ export class HandlersController {
     type: OmitType(Handler, ["authToken"]),
   })
   @ApiForbiddenResponse({
-    description: "User has reached the maximum limit of handlers",
+    description: "User has reached the maximum limit of handlers (100)",
     schema: {
       properties: {
         error: {
@@ -106,7 +106,8 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example: "You have reached the maximum limit of N handlers per user",
+          example:
+            "You have reached the maximum limit of 100 handlers per user",
           type: "string",
         },
         statusCode: {
