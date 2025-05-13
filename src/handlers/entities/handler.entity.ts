@@ -69,6 +69,16 @@ export class Handler {
   public shortDescription!: string;
 
   @ApiProperty({
+    description: "Terms of using this handler",
+    example:
+      "By using this handler, you agree to follow our community guidelines and terms of service.",
+    maxLength: 5000,
+    required: false,
+  })
+  @Column({ length: 5000, name: "terms", nullable: true })
+  public terms?: string;
+
+  @ApiProperty({
     description: "Timestamp when the handler was last updated",
     example: new Date().toISOString(),
     readOnly: true,

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, MaxLength } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 
 export class CreateHandlerDto {
   @ApiProperty({
@@ -50,4 +50,16 @@ export class CreateHandlerDto {
   @IsString()
   @MaxLength(180)
   public shortDescription!: string;
+
+  @ApiProperty({
+    description: "Terms of using this handler",
+    example:
+      "By using this handler, you agree to follow our community guidelines and terms of service.",
+    maxLength: 5000,
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  public terms?: string;
 }
