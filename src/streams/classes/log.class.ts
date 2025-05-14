@@ -2,7 +2,6 @@ import { ApiProperty } from "@nestjs/swagger";
 import {
   IsEnum,
   IsISO8601,
-  IsNotEmpty,
   IsString,
   Length,
   MaxLength,
@@ -18,7 +17,6 @@ export class Log {
     minLength: 8,
     required: true,
   })
-  @IsNotEmpty()
   @IsString()
   @Length(8, 8)
   public id!: string;
@@ -38,7 +36,6 @@ export class Log {
     maxLength: 1000,
     required: true,
   })
-  @IsNotEmpty()
   @IsString()
   @MaxLength(1000)
   public message!: string;
@@ -50,7 +47,6 @@ export class Log {
     type: Date,
   })
   @IsISO8601()
-  @IsNotEmpty()
   @IsString()
   public timestamp!: string;
 }

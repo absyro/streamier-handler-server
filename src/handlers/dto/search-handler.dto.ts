@@ -1,12 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsOptional, IsString, Matches } from "class-validator";
+import { IsOptional, IsString, Matches } from "class-validator";
 
 export class SearchHandlerDto {
   @ApiProperty({
     description: "Filter by online status",
     required: false,
   })
-  @IsNotEmpty()
   @IsOptional()
   @IsString()
   @Matches(/^(?<bool>true|false)$/u, {
@@ -19,7 +18,6 @@ export class SearchHandlerDto {
     description: "Maximum number of results to return",
     required: false,
   })
-  @IsNotEmpty()
   @IsOptional()
   @IsString()
   @Matches(/^(?<limit>[1-9]|[1-9][0-9]|100)$/u, {
@@ -32,7 +30,6 @@ export class SearchHandlerDto {
     description: "Number of results to skip (max 1000)",
     required: false,
   })
-  @IsNotEmpty()
   @IsOptional()
   @IsString()
   @Matches(/^(?<offset>[0-9]|[1-9][0-9]{1,2}|1000)$/u, {
@@ -44,7 +41,6 @@ export class SearchHandlerDto {
     description: "Search query string to match against handler parameters",
     required: false,
   })
-  @IsNotEmpty()
   @IsOptional()
   @IsString()
   public q?: string;
@@ -53,7 +49,6 @@ export class SearchHandlerDto {
     description: "Filter by specific user ID",
     required: false,
   })
-  @IsNotEmpty()
   @IsOptional()
   @IsString()
   public userId?: string;

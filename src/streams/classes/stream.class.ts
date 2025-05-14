@@ -4,7 +4,6 @@ import {
   ArrayMaxSize,
   IsArray,
   IsBoolean,
-  IsNotEmpty,
   IsObject,
   IsString,
   Length,
@@ -34,7 +33,6 @@ export class Stream {
     minLength: 8,
     required: true,
   })
-  @IsNotEmpty()
   @IsString()
   @Length(8, 8)
   public id!: string;
@@ -73,7 +71,6 @@ export class Stream {
     maxLength: 100,
     required: true,
   })
-  @IsNotEmpty()
   @IsString()
   @MaxLength(100)
   public name!: string;
@@ -108,7 +105,6 @@ export class Stream {
     maxLength: 500,
     required: true,
   })
-  @IsNotEmpty()
   @IsString()
   @MaxLength(500)
   public signature!: string;
@@ -120,7 +116,6 @@ export class Stream {
     minLength: 8,
     required: true,
   })
-  @IsNotEmpty()
   @IsString()
   @Length(8, 8)
   public userId!: string;
