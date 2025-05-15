@@ -1,13 +1,18 @@
 import {
+  BadGatewayException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { isString } from "radash";
+import { plainToInstance } from "class-transformer";
+import { validateSync } from "class-validator";
+import { isArray, isEmpty, isString } from "radash";
 import randomatic from "randomatic";
 import { In, Repository } from "typeorm";
 
+import { CommonService } from "../common/common.service";
+import { Component } from "./classes/component.class";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
@@ -18,6 +23,7 @@ export class HandlersService {
   public constructor(
     @InjectRepository(Handler)
     private readonly handlersRepository: Repository<Handler>,
+    private readonly commonService: CommonService,
   ) {}
 
   public async createOne(
@@ -93,6 +99,32 @@ export class HandlersService {
     return this.handlersRepository.find({
       where: { authToken: In(authTokens) },
     });
+  }
+
+  public async findHandlerComponents(handlerId: string): Promise<Component[]> {
+    const response = await this.commonService.emitToHandler(handlerId, "read");
+
+    if (!("components" in response) || !isArray(response.components)) {
+      throw new BadGatewayException(
+        "Received components from handler are invalid",
+      );
+    }
+
+    const components = response.components.map((component: unknown) => {
+      const instance = plainToInstance(Component, component);
+
+      const errors = validateSync(instance);
+
+      if (!isEmpty(errors)) {
+        throw new BadGatewayException(
+          "Received components from handler are invalid",
+        );
+      }
+
+      return instance;
+    });
+
+    return components;
   }
 
   public async findOne(handlerId: string): Promise<Handler | null> {
