@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { isString } from "radash";
@@ -91,6 +92,33 @@ export class HandlersService {
     authToken: string,
   ): Promise<Handler | null> {
     return this.handlersRepository.findOne({ where: { authToken } });
+  }
+
+  public async regenerateAuthToken(
+    handlerId: string,
+    userId: string,
+  ): Promise<Handler> {
+    const handler = await this.findOne(handlerId);
+
+    if (!handler) {
+      throw new NotFoundException("Handler not found");
+    }
+
+    if (handler.userId !== userId) {
+      throw new UnauthorizedException(
+        "You do not have permission to modify this handler",
+      );
+    }
+
+    let authToken: string;
+
+    do {
+      authToken = randomatic("Aa0", 64);
+    } while (await this.handlersRepository.exists({ where: { authToken } }));
+
+    handler.authToken = authToken;
+
+    return this.handlersRepository.save(handler);
   }
 
   public async search(searchDto: SearchHandlerDto): Promise<Handler[]> {

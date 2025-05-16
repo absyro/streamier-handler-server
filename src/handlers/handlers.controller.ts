@@ -7,6 +7,7 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -95,7 +96,7 @@ export class HandlersController {
   })
   @ApiCreatedResponse({
     description: "Handler successfully created",
-    type: PublicHandlerResponse,
+    type: Handler,
   })
   @ApiForbiddenResponse({
     description: "User has reached the maximum limit of handlers (100)",
@@ -158,19 +159,14 @@ export class HandlersController {
   public async createHandler(
     @Body() createHandlerDto: CreateHandlerDto,
     @Req() request: Request,
-  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
+  ): Promise<Handler> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const { authToken, ...handler } = await this.handlersService.createOne(
-      userId,
-      createHandlerDto,
-    );
-
-    return handler;
+    return this.handlersService.createOne(userId, createHandlerDto);
   }
 
   @ApiHeader({
@@ -377,16 +373,16 @@ export class HandlersController {
     },
   })
   @ApiOkResponse({
-    description: "Handler authentication token",
+    description: "Auth token successfully regenerated",
     type: HandlerAuthTokenResponse,
   })
   @ApiOperation({
     description:
-      "Retrieves the authentication token for a specific handler. Only handlers belonging to the authenticated user can be accessed.",
-    summary: "Read handler auth token",
+      "Regenerates the authentication token for a specific handler. Only handlers belonging to the authenticated user can be modified.",
+    summary: "Regenerate auth token",
   })
   @ApiParam({
-    description: "The ID of the handler",
+    description: "The ID of the handler to regenerate token for",
     example: "h1234567",
     name: "handlerId",
   })
@@ -411,8 +407,8 @@ export class HandlersController {
       type: "object",
     },
   })
-  @Get(":handlerId/auth-token")
-  public async readHandlerAuthToken(
+  @Patch(":handlerId/auth-token")
+  public async regenerateAuthToken(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
   ): Promise<Pick<Handler, "authToken">> {
@@ -422,15 +418,10 @@ export class HandlersController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const handler = await this.handlersService.findOne(handlerId);
-
-    if (!handler) {
-      throw new NotFoundException("Handler not found");
-    }
-
-    if (handler.userId !== userId) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
+    const handler = await this.handlersService.regenerateAuthToken(
+      handlerId,
+      userId,
+    );
 
     return { authToken: handler.authToken };
   }
