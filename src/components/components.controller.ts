@@ -1,7 +1,6 @@
 import { Controller, Get, HttpStatus, Param } from "@nestjs/common";
 import {
   ApiBadGatewayResponse,
-  ApiHeader,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -36,12 +35,6 @@ import { ComponentsService } from "./components.service";
     required: ["error", "message", "statusCode"],
     type: "object",
   },
-})
-@ApiHeader({
-  description: "Session ID for authentication",
-  example: "s123456789",
-  name: "X-Session-Id",
-  required: true,
 })
 @ApiNotFoundResponse({
   description: "Handler not found",
