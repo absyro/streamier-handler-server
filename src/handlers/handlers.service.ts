@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { isString } from "radash";
 import randomatic from "randomatic";
-import { In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";
