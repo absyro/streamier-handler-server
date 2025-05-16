@@ -316,16 +316,9 @@ export class StreamsController {
   @ApiOkResponse({
     description: "Stream configuration retrieved successfully",
     schema: {
-      properties: {
-        configuration: {
-          description: "The configuration of the stream",
-          example: {
-            someKey: "someValue",
-          },
-          type: "object",
-        },
+      example: {
+        someKey: "someValue",
       },
-      required: ["configuration"],
       type: "object",
     },
   })
@@ -341,20 +334,20 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<{ configuration: Stream["configuration"] }> {
+  ): Promise<Stream["configuration"]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const stream = await this.streamsService.readStream(
+    const { configuration } = await this.streamsService.readStream(
       handlerId,
       userId,
       streamId,
     );
 
-    return { configuration: stream.configuration };
+    return configuration;
   }
 
   @ApiBadRequestResponse({
