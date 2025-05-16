@@ -332,7 +332,7 @@ export class StreamsController {
     description: dedent`
     Retrieves the configuration of a specific stream.
 
-    This endpoint provides a secure way to access stream configurations separately from other stream data.`,
+    This endpoint provides a secure way to access stream configuration separately from other stream data.`,
     summary: "Read stream configuration",
   })
   @Get(":streamId/configuration")
