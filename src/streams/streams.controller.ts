@@ -25,7 +25,6 @@ import {
   ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse,
-  PartialType,
 } from "@nestjs/swagger";
 import { Request } from "express";
 import { ReasonPhrases } from "http-status-codes";
@@ -244,7 +243,7 @@ export class StreamsController {
 
   @ApiOkResponse({
     description: "List of streams for the user",
-    type: [PartialType(Stream)],
+    type: [Stream],
   })
   @ApiOperation({
     description:
