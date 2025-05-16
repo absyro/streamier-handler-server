@@ -27,7 +27,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
   OmitType,
-  PickType,
 } from "@nestjs/swagger";
 import { isString } from "class-validator";
 import { Request } from "express";
@@ -325,7 +324,7 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "Handler authentication token",
-    type: PickType(Handler, ["authToken"]),
+    type: String,
   })
   @ApiOperation({
     description:
@@ -362,7 +361,7 @@ export class HandlersController {
   public async readHandlerAuthToken(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<Pick<Handler, "authToken">> {
+  ): Promise<Handler["authToken"]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -379,7 +378,7 @@ export class HandlersController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    return { authToken: handler.authToken };
+    return handler.authToken;
   }
 
   @ApiBadRequestResponse({
