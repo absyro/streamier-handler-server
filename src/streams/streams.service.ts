@@ -18,7 +18,7 @@ export class StreamsService {
   ): Promise<Stream> {
     const response = await this.commonService.emitToHandler(
       handlerId,
-      "create",
+      "streams:create",
       userId,
       createStreamDto,
     );
@@ -45,19 +45,19 @@ export class StreamsService {
   ): Promise<void> {
     await this.commonService.emitToHandler(
       handlerId,
-      "delete",
+      "streams:delete",
       userId,
       streamId,
     );
   }
 
-  public async getAllStreamsForUser(
+  public async listUserStreams(
     handlerId: string,
     userId: string,
   ): Promise<Stream[]> {
     const response = await this.commonService.emitToHandler(
       handlerId,
-      "list",
+      "streams:list",
       userId,
     );
 
@@ -91,7 +91,7 @@ export class StreamsService {
   ): Promise<Stream> {
     const response = await this.commonService.emitToHandler(
       handlerId,
-      "read",
+      "streams:read",
       userId,
       streamId,
     );
@@ -119,7 +119,7 @@ export class StreamsService {
   ): Promise<void> {
     await this.commonService.emitToHandler(
       handlerId,
-      "update",
+      "streams:update",
       userId,
       streamId,
       updateStreamDto,

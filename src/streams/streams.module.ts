@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 
-import { HandlersGateway } from "../handlers/handlers.gateway";
 import { HandlersModule } from "../handlers/handlers.module";
 import { StreamsController } from "./streams.controller";
 import { StreamsService } from "./streams.service";
@@ -9,6 +8,6 @@ import { StreamsService } from "./streams.service";
   controllers: [StreamsController],
   exports: [StreamsService],
   imports: [HandlersModule],
-  providers: [StreamsService, HandlersModule, HandlersGateway],
+  providers: [StreamsService],
 })
 export class StreamsModule {}

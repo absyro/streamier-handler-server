@@ -194,7 +194,7 @@ export class StreamsController {
     Creates a new stream associated with the specified handler.
 
     The stream will be configured according to the provided parameters and will be associated with the authenticated user.`,
-    summary: "Create a new stream",
+    summary: "Create stream",
   })
   @Post()
   public async createStream(
@@ -219,7 +219,7 @@ export class StreamsController {
     Deletes the specified stream from the handler.
 
     This operation is permanent and cannot be undone. All associated data will be removed.`,
-    summary: "Delete a stream",
+    summary: "Delete stream",
   })
   @ApiParam({
     description: "ID of the stream to delete",
@@ -249,10 +249,10 @@ export class StreamsController {
   @ApiOperation({
     description:
       "Retrieves all streams associated with the authenticated user for the specified handler.",
-    summary: "List all streams for a user",
+    summary: "List user streams",
   })
   @Get()
-  public async listStreams(
+  public async listUserStreams(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
   ): Promise<Stream[]> {
@@ -262,7 +262,7 @@ export class StreamsController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    return this.streamsService.getAllStreamsForUser(handlerId, userId);
+    return this.streamsService.listUserStreams(handlerId, userId);
   }
 
   @ApiOkResponse({
@@ -274,7 +274,7 @@ export class StreamsController {
     Retrieves detailed information about a specific stream.
 
     The response includes all configuration and current status of the stream.`,
-    summary: "Get stream details",
+    summary: "Read stream",
   })
   @ApiParam({
     description: "ID of the stream to retrieve",
@@ -343,7 +343,7 @@ export class StreamsController {
     Updates the configuration of a specific stream.
 
     Only the provided fields will be updated, leaving other configuration unchanged.`,
-    summary: "Update a stream",
+    summary: "Update stream",
   })
   @ApiParam({
     description: "ID of the stream to update",

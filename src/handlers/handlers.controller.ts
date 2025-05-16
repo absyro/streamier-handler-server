@@ -14,7 +14,6 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import {
-  ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -25,7 +24,6 @@ import {
   ApiOperation,
   ApiParam,
   ApiQuery,
-  ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse,
   OmitType,
@@ -37,7 +35,6 @@ import { ReasonPhrases } from "http-status-codes";
 import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
-import { Component } from "./classes/component.class";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
@@ -309,92 +306,6 @@ export class HandlersController {
     const { authToken, ...handlerDetails } = handler;
 
     return handlerDetails;
-  }
-
-  @ApiBadGatewayResponse({
-    description: "Received data from handler is invalid",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.BAD_GATEWAY],
-          type: "string",
-        },
-        message: {
-          example: "Received data from handler is invalid",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.BAD_GATEWAY],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
-  @ApiNotFoundResponse({
-    description: "Handler not found",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.NOT_FOUND],
-          type: "string",
-        },
-        message: {
-          example: "Handler not found",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.NOT_FOUND],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
-  @ApiOkResponse({
-    description: "Successfully retrieved handler components",
-    type: [Component],
-  })
-  @ApiOperation({
-    description: "Retrieves all components associated with a given handler ID.",
-    summary: "Get components for a specific handler",
-  })
-  @ApiParam({
-    description: "The ID of the handler whose components are to be retrieved.",
-    example: "h1234567",
-    name: "handlerId",
-  })
-  @ApiServiceUnavailableResponse({
-    description: "Handler is offline",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.SERVICE_UNAVAILABLE],
-          type: "string",
-        },
-        message: {
-          example: "Handler is offline",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.SERVICE_UNAVAILABLE],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
-  @Get(":handlerId/components")
-  public async getHandlerComponents(
-    @Param("handlerId") handlerId: string,
-  ): Promise<Component[]> {
-    const components =
-      await this.handlersService.findHandlerComponents(handlerId);
-
-    return components;
   }
 
   @ApiBadRequestResponse({

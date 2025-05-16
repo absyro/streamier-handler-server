@@ -44,7 +44,7 @@ export class CommonService {
     }
 
     return new Promise((resolve, reject) => {
-      socket.emit(`stream:${event}`, ...data, (response: unknown) => {
+      socket.emit(event, ...data, (response: unknown) => {
         if (!isObject(response)) {
           reject(
             new BadGatewayException(
