@@ -26,8 +26,6 @@ import {
   ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
-  OmitType,
-  PickType,
 } from "@nestjs/swagger";
 import { isString } from "class-validator";
 import { Request } from "express";
@@ -40,6 +38,8 @@ import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
 import { HandlersService } from "./handlers.service";
+import { HandlerAuthTokenResponse } from "./responses/handler-auth-token.response";
+import { PublicHandlerResponse } from "./responses/public-handler.response";
 
 @ApiQuery({
   description: dedent`
@@ -95,7 +95,7 @@ export class HandlersController {
   })
   @ApiCreatedResponse({
     description: "Handler successfully created",
-    type: OmitType(Handler, ["authToken"]),
+    type: PublicHandlerResponse,
   })
   @ApiForbiddenResponse({
     description: "User has reached the maximum limit of handlers (100)",
@@ -281,7 +281,7 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "List of handlers matching the search criteria",
-    type: [OmitType(Handler, ["authToken"])],
+    type: [PublicHandlerResponse],
   })
   @ApiOperation({
     description: dedent`
@@ -323,7 +323,7 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "Handler information",
-    type: OmitType(Handler, ["authToken"]),
+    type: PublicHandlerResponse,
   })
   @ApiOperation({
     description: "Retrieves information about a specific handler.",
@@ -378,7 +378,7 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "Handler authentication token",
-    type: PickType(Handler, ["authToken"]),
+    type: HandlerAuthTokenResponse,
   })
   @ApiOperation({
     description:
@@ -496,7 +496,7 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "Handler successfully updated",
-    type: OmitType(Handler, ["authToken"]),
+    type: PublicHandlerResponse,
   })
   @ApiOperation({
     description:

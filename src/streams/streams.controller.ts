@@ -25,8 +25,6 @@ import {
   ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse,
-  OmitType,
-  PickType,
 } from "@nestjs/swagger";
 import { Request } from "express";
 import { ReasonPhrases } from "http-status-codes";
@@ -37,6 +35,11 @@ import { CommonService } from "../common/common.service";
 import { Stream } from "./classes/stream.class";
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
+import { PublicStreamResponse } from "./responses/public-stream.response";
+import { StreamConfigurationResponse } from "./responses/stream-configuration.response";
+import { StreamLogsResponse } from "./responses/stream-logs.response";
+import { StreamSignatureResponse } from "./responses/stream-signature.response";
+import { StreamVariablesResponse } from "./responses/stream-variables.response";
 import { StreamsService } from "./streams.service";
 
 @ApiBadGatewayResponse({
@@ -188,7 +191,7 @@ export class StreamsController {
   })
   @ApiCreatedResponse({
     description: "Stream successfully created",
-    type: OmitType(Stream, ["configuration", "logs", "signature", "variables"]),
+    type: PublicStreamResponse,
   })
   @ApiOperation({
     description: dedent`
@@ -254,9 +257,7 @@ export class StreamsController {
 
   @ApiOkResponse({
     description: "List of streams for the user",
-    type: [
-      OmitType(Stream, ["configuration", "logs", "signature", "variables"]),
-    ],
+    type: [PublicStreamResponse],
   })
   @ApiOperation({
     description:
@@ -288,7 +289,7 @@ export class StreamsController {
 
   @ApiOkResponse({
     description: "Stream information retrieved successfully",
-    type: OmitType(Stream, ["configuration", "logs", "signature", "variables"]),
+    type: PublicStreamResponse,
   })
   @ApiOperation({
     description: dedent`
@@ -324,7 +325,7 @@ export class StreamsController {
 
   @ApiOkResponse({
     description: "Stream configuration retrieved successfully",
-    type: PickType(Stream, ["configuration"]),
+    type: StreamConfigurationResponse,
   })
   @ApiOperation({
     description: dedent`
@@ -356,7 +357,7 @@ export class StreamsController {
 
   @ApiOkResponse({
     description: "Stream logs retrieved successfully",
-    type: [PickType(Stream, ["logs"])],
+    type: StreamLogsResponse,
   })
   @ApiOperation({
     description: dedent`
@@ -388,7 +389,7 @@ export class StreamsController {
 
   @ApiOkResponse({
     description: "Stream signature retrieved successfully",
-    type: PickType(Stream, ["signature"]),
+    type: StreamSignatureResponse,
   })
   @ApiOperation({
     description: dedent`
@@ -420,7 +421,7 @@ export class StreamsController {
 
   @ApiOkResponse({
     description: "Stream variables retrieved successfully",
-    type: PickType(Stream, ["variables"]),
+    type: StreamVariablesResponse,
   })
   @ApiOperation({
     description: dedent`
@@ -484,7 +485,7 @@ export class StreamsController {
   })
   @ApiOkResponse({
     description: "Stream successfully updated",
-    type: OmitType(Stream, ["configuration", "logs", "signature", "variables"]),
+    type: PublicStreamResponse,
   })
   @ApiOperation({
     description: dedent`
