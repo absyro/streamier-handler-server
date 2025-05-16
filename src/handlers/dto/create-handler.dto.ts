@@ -4,7 +4,7 @@ import { IsOptional, IsString, MaxLength } from "class-validator";
 export class CreateHandlerDto {
   @ApiProperty({
     description:
-      "The ID of the handler icon from icons8.com. Must be a valid icon ID.",
+      "The ID of the handler icon from https://icons8.com. Must be a valid icon ID.",
     example: "000000",
     maxLength: 12,
   })

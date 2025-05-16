@@ -106,6 +106,7 @@ import { StreamsService } from "./streams.service";
   If not provided, all fields will be included.`,
   name: "fields",
   required: false,
+  type: "string",
 })
 @ApiServiceUnavailableResponse({
   description: "Handler is offline",

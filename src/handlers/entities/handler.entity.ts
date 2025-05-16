@@ -20,7 +20,7 @@ export class Handler {
   public createdAt!: Date;
 
   @ApiProperty({
-    description: "The ID of the handler icon from icons8.com",
+    description: "The ID of the handler icon from https://icons8.com",
     example: "000000",
     maxLength: 12,
   })

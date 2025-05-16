@@ -53,6 +53,7 @@ import { PublicHandlerResponse } from "./responses/public-handler.response";
   If not provided, all fields will be included.`,
   name: "fields",
   required: false,
+  type: "string",
 })
 @ApiTags("Handlers")
 @Controller("api/handlers")
@@ -240,6 +241,18 @@ export class HandlersController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
+    const handler = await this.handlersService.findOne(handlerId);
+
+    if (!handler) {
+      throw new NotFoundException("Handler not found");
+    }
+
+    if (handler.userId !== userId) {
+      throw new UnauthorizedException(
+        "You are not allowed to delete this handler",
+      );
+    }
+
     await this.handlersService.deleteOne(handlerId);
   }
 
@@ -418,12 +431,24 @@ export class HandlersController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const handler = await this.handlersService.regenerateAuthToken(
+    const handler = await this.handlersService.findOne(handlerId);
+
+    if (!handler) {
+      throw new NotFoundException("Handler not found");
+    }
+
+    if (handler.userId !== userId) {
+      throw new UnauthorizedException(
+        "You are not allowed to regenerate the authentication token for this handler",
+      );
+    }
+
+    const regeneratedHandler = await this.handlersService.regenerateAuthToken(
       handlerId,
       userId,
     );
 
-    return { authToken: handler.authToken };
+    return { authToken: regeneratedHandler.authToken };
   }
 
   @ApiBadRequestResponse({
@@ -532,11 +557,23 @@ export class HandlersController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const { authToken, ...handler } = await this.handlersService.updateOne(
+    const handler = await this.handlersService.findOne(handlerId);
+
+    if (!handler) {
+      throw new NotFoundException("Handler not found");
+    }
+
+    if (handler.userId !== userId) {
+      throw new UnauthorizedException(
+        "You are not allowed to update this handler",
+      );
+    }
+
+    const updatedHandler = await this.handlersService.updateOne(
       handlerId,
       updateHandlerDto,
     );
 
-    return handler;
+    return updatedHandler;
   }
 }

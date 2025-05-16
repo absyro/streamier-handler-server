@@ -73,6 +73,7 @@ import { ComponentsService } from "./components.service";
   If not provided, all fields will be included.`,
   name: "fields",
   required: false,
+  type: "string",
 })
 @ApiServiceUnavailableResponse({
   description: "Handler is offline",

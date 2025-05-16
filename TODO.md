@@ -19,3 +19,4 @@
 - [ ] Include Sentry from NestJS
 - [ ] Include streamier logo in redoc
 - [ ] Implement icons8 API for handler icon validations
+- [ ] Refactor duplicated logic to follow DRY principles
