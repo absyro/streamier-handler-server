@@ -246,6 +246,59 @@ export class HandlersController {
     await this.handlersService.deleteOne(handlerId);
   }
 
+  @ApiBadRequestResponse({
+    description: "Request query parameters are invalid",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.BAD_REQUEST],
+          type: "string",
+        },
+        message: {
+          oneOf: [
+            {
+              example: "X must be between 1 and 100",
+              type: "string",
+            },
+            {
+              items: {
+                example: "X must be between 1 and 100",
+                type: "string",
+              },
+              type: "array",
+            },
+          ],
+        },
+        statusCode: {
+          enum: [HttpStatus.BAD_REQUEST],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
+  })
+  @ApiOkResponse({
+    description: "List of handlers matching the search criteria",
+    type: [OmitType(Handler, ["authToken"])],
+  })
+  @ApiOperation({
+    description: dedent`
+    Gets handlers based on various criteria including:
+    - Text search across name and descriptions
+    - Filter by online status
+    - Pagination support with limit and offset`,
+    summary: "List handlers",
+  })
+  @Get()
+  public async listHandlers(
+    @Query() searchDto: SearchHandlerDto,
+  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">[]> {
+    const handlers = await this.handlersService.search(searchDto);
+
+    return handlers.map(({ authToken, ...handler }) => handler);
+  }
+
   @ApiNotFoundResponse({
     description: "Handler not found",
     schema: {
@@ -268,11 +321,11 @@ export class HandlersController {
     },
   })
   @ApiOkResponse({
-    description: "Handler details",
+    description: "Handler information",
     type: OmitType(Handler, ["authToken"]),
   })
   @ApiOperation({
-    description: "Retrieves detailed information about a specific handler.",
+    description: "Retrieves information about a specific handler.",
     summary: "Read handler",
   })
   @ApiParam({
@@ -290,9 +343,9 @@ export class HandlersController {
       throw new NotFoundException("Handler not found");
     }
 
-    const { authToken, ...handlerDetails } = handler;
+    const { authToken, ...handlerWithoutAuthToken } = handler;
 
-    return handlerDetails;
+    return handlerWithoutAuthToken;
   }
 
   @ApiHeader({
@@ -379,59 +432,6 @@ export class HandlersController {
     }
 
     return handler.authToken;
-  }
-
-  @ApiBadRequestResponse({
-    description: "Request query parameters are invalid",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.BAD_REQUEST],
-          type: "string",
-        },
-        message: {
-          oneOf: [
-            {
-              example: "X must be a string",
-              type: "string",
-            },
-            {
-              items: {
-                example: "X must be a string",
-                type: "string",
-              },
-              type: "array",
-            },
-          ],
-        },
-        statusCode: {
-          enum: [HttpStatus.BAD_REQUEST],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
-  @ApiOkResponse({
-    description: "List of handlers matching the search criteria",
-    type: [OmitType(Handler, ["authToken"])],
-  })
-  @ApiOperation({
-    description: dedent`
-    Gets handlers based on various criteria including:
-    - Text search across name and descriptions
-    - Filter by online status
-    - Pagination support with limit and offset`,
-    summary: "Read handlers",
-  })
-  @Get()
-  public async readHandlers(
-    @Query() searchDto: SearchHandlerDto,
-  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">[]> {
-    const handlers = await this.handlersService.search(searchDto);
-
-    return handlers.map(({ authToken, ...handler }) => handler);
   }
 
   @ApiBadRequestResponse({

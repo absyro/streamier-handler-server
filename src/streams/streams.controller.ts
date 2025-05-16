@@ -25,6 +25,7 @@ import {
   ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse,
+  OmitType,
 } from "@nestjs/swagger";
 import { Request } from "express";
 import { ReasonPhrases } from "http-status-codes";
@@ -186,7 +187,7 @@ export class StreamsController {
   })
   @ApiCreatedResponse({
     description: "Stream successfully created",
-    type: Stream,
+    type: OmitType(Stream, ["configuration"]),
   })
   @ApiOperation({
     description: dedent`
@@ -200,14 +201,20 @@ export class StreamsController {
     @Body() createStreamDto: CreateStreamDto,
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<Stream> {
+  ): Promise<Omit<Stream, "configuration">> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    return this.streamsService.createStream(handlerId, userId, createStreamDto);
+    const { configuration, ...stream } = await this.streamsService.createStream(
+      handlerId,
+      userId,
+      createStreamDto,
+    );
+
+    return stream;
   }
 
   @ApiNoContentResponse({
@@ -243,7 +250,7 @@ export class StreamsController {
 
   @ApiOkResponse({
     description: "List of streams for the user",
-    type: [Stream],
+    type: [OmitType(Stream, ["configuration"])],
   })
   @ApiOperation({
     description:
@@ -254,23 +261,28 @@ export class StreamsController {
   public async listUserStreams(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<Stream[]> {
+  ): Promise<Omit<Stream, "configuration">[]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    return this.streamsService.listUserStreams(handlerId, userId);
+    const streams = await this.streamsService.listUserStreams(
+      handlerId,
+      userId,
+    );
+
+    return streams.map(({ configuration, ...stream }) => stream);
   }
 
   @ApiOkResponse({
-    description: "Stream details retrieved successfully",
-    type: Stream,
+    description: "Stream information retrieved successfully",
+    type: OmitType(Stream, ["configuration"]),
   })
   @ApiOperation({
     description: dedent`
-    Retrieves detailed information about a specific stream.
+    Retrieves information about a specific stream.
 
     The response includes all configuration and current status of the stream.`,
     summary: "Read stream",
@@ -285,7 +297,51 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<Stream> {
+  ): Promise<Omit<Stream, "configuration">> {
+    const userId = await this.commonService.getUserIdFromRequest(request);
+
+    if (!isString(userId)) {
+      throw new UnauthorizedException("Missing or invalid authentication");
+    }
+
+    const { configuration, ...stream } = await this.streamsService.readStream(
+      handlerId,
+      userId,
+      streamId,
+    );
+
+    return stream;
+  }
+
+  @ApiOkResponse({
+    description: "Stream configuration retrieved successfully",
+    schema: {
+      properties: {
+        configuration: {
+          description: "The configuration of the stream",
+          example: {
+            someKey: "someValue",
+          },
+          type: "object",
+        },
+      },
+      required: ["configuration"],
+      type: "object",
+    },
+  })
+  @ApiOperation({
+    description: dedent`
+    Retrieves the configuration of a specific stream.
+
+    This endpoint provides a secure way to access stream configurations separately from other stream data.`,
+    summary: "Read stream configuration",
+  })
+  @Get(":streamId/configuration")
+  public async readStreamConfiguration(
+    @Param("handlerId") handlerId: string,
+    @Param("streamId") streamId: string,
+    @Req() request: Request,
+  ): Promise<{ configuration: Stream["configuration"] }> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -298,7 +354,7 @@ export class StreamsController {
       streamId,
     );
 
-    return stream;
+    return { configuration: stream.configuration };
   }
 
   @ApiBadRequestResponse({
@@ -335,7 +391,7 @@ export class StreamsController {
   })
   @ApiOkResponse({
     description: "Stream successfully updated",
-    type: Stream,
+    type: OmitType(Stream, ["configuration"]),
   })
   @ApiOperation({
     description: dedent`
@@ -355,7 +411,7 @@ export class StreamsController {
     @Param("streamId") streamId: string,
     @Body() updateStreamDto: UpdateStreamDto,
     @Req() request: Request,
-  ): Promise<Stream> {
+  ): Promise<Omit<Stream, "configuration">> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -369,6 +425,12 @@ export class StreamsController {
       updateStreamDto,
     );
 
-    return this.streamsService.readStream(handlerId, userId, streamId);
+    const { configuration, ...stream } = await this.streamsService.readStream(
+      handlerId,
+      userId,
+      streamId,
+    );
+
+    return stream;
   }
 }
