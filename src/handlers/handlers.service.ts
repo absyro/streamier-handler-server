@@ -133,7 +133,11 @@ export class HandlersService {
   }
 
   public async setAllHandlersOffline(): Promise<void> {
-    await this.handlersRepository.update({}, { isOnline: false });
+    await this.handlersRepository
+      .createQueryBuilder()
+      .update()
+      .set({ isOnline: false })
+      .execute();
   }
 
   public async setOnlineStatus(
