@@ -26,6 +26,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
   OmitType,
+  PickType,
 } from "@nestjs/swagger";
 import { Request } from "express";
 import { ReasonPhrases } from "http-status-codes";
@@ -187,7 +188,7 @@ export class StreamsController {
   })
   @ApiCreatedResponse({
     description: "Stream successfully created",
-    type: OmitType(Stream, ["configuration"]),
+    type: OmitType(Stream, ["configuration", "logs", "signature", "variables"]),
   })
   @ApiOperation({
     description: dedent`
@@ -201,18 +202,21 @@ export class StreamsController {
     @Body() createStreamDto: CreateStreamDto,
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<Omit<Stream, "configuration">> {
+  ): Promise<
+    Omit<Stream, "configuration" | "logs" | "signature" | "variables">
+  > {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const { configuration, ...stream } = await this.streamsService.createStream(
-      handlerId,
-      userId,
-      createStreamDto,
-    );
+    const { configuration, logs, signature, variables, ...stream } =
+      await this.streamsService.createStream(
+        handlerId,
+        userId,
+        createStreamDto,
+      );
 
     return stream;
   }
@@ -250,7 +254,9 @@ export class StreamsController {
 
   @ApiOkResponse({
     description: "List of streams for the user",
-    type: [OmitType(Stream, ["configuration"])],
+    type: [
+      OmitType(Stream, ["configuration", "logs", "signature", "variables"]),
+    ],
   })
   @ApiOperation({
     description:
@@ -261,7 +267,9 @@ export class StreamsController {
   public async listUserStreams(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<Omit<Stream, "configuration">[]> {
+  ): Promise<
+    Omit<Stream, "configuration" | "logs" | "signature" | "variables">[]
+  > {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -273,18 +281,20 @@ export class StreamsController {
       userId,
     );
 
-    return streams.map(({ configuration, ...stream }) => stream);
+    return streams.map(
+      ({ configuration, logs, signature, variables, ...stream }) => stream,
+    );
   }
 
   @ApiOkResponse({
     description: "Stream information retrieved successfully",
-    type: OmitType(Stream, ["configuration"]),
+    type: OmitType(Stream, ["configuration", "logs", "signature", "variables"]),
   })
   @ApiOperation({
     description: dedent`
     Retrieves information about a specific stream.
 
-    The response includes all configuration and current status of the stream.`,
+    The response includes all basic information about the stream, excluding sensitive data like configuration, logs, variables, and signature.`,
     summary: "Read stream",
   })
   @ApiParam({
@@ -297,30 +307,24 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<Omit<Stream, "configuration">> {
+  ): Promise<
+    Omit<Stream, "configuration" | "logs" | "signature" | "variables">
+  > {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const { configuration, ...stream } = await this.streamsService.readStream(
-      handlerId,
-      userId,
-      streamId,
-    );
+    const { configuration, logs, signature, variables, ...stream } =
+      await this.streamsService.readStream(handlerId, userId, streamId);
 
     return stream;
   }
 
   @ApiOkResponse({
     description: "Stream configuration retrieved successfully",
-    schema: {
-      example: {
-        someKey: "someValue",
-      },
-      type: "object",
-    },
+    type: PickType(Stream, ["configuration"]),
   })
   @ApiOperation({
     description: dedent`
@@ -334,7 +338,7 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<Stream["configuration"]> {
+  ): Promise<Pick<Stream, "configuration">> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -347,7 +351,103 @@ export class StreamsController {
       streamId,
     );
 
-    return configuration;
+    return { configuration };
+  }
+
+  @ApiOkResponse({
+    description: "Stream logs retrieved successfully",
+    type: [PickType(Stream, ["logs"])],
+  })
+  @ApiOperation({
+    description: dedent`
+    Retrieves the logs of a specific stream.
+
+    This endpoint provides a secure way to access stream logs separately from other stream data.`,
+    summary: "Read stream logs",
+  })
+  @Get(":streamId/logs")
+  public async readStreamLogs(
+    @Param("handlerId") handlerId: string,
+    @Param("streamId") streamId: string,
+    @Req() request: Request,
+  ): Promise<Pick<Stream, "logs">> {
+    const userId = await this.commonService.getUserIdFromRequest(request);
+
+    if (!isString(userId)) {
+      throw new UnauthorizedException("Missing or invalid authentication");
+    }
+
+    const { logs } = await this.streamsService.readStream(
+      handlerId,
+      userId,
+      streamId,
+    );
+
+    return { logs };
+  }
+
+  @ApiOkResponse({
+    description: "Stream signature retrieved successfully",
+    type: PickType(Stream, ["signature"]),
+  })
+  @ApiOperation({
+    description: dedent`
+    Retrieves the signature of a specific stream.
+
+    This endpoint provides a secure way to access stream signature separately from other stream data.`,
+    summary: "Read stream signature",
+  })
+  @Get(":streamId/signature")
+  public async readStreamSignature(
+    @Param("handlerId") handlerId: string,
+    @Param("streamId") streamId: string,
+    @Req() request: Request,
+  ): Promise<Pick<Stream, "signature">> {
+    const userId = await this.commonService.getUserIdFromRequest(request);
+
+    if (!isString(userId)) {
+      throw new UnauthorizedException("Missing or invalid authentication");
+    }
+
+    const { signature } = await this.streamsService.readStream(
+      handlerId,
+      userId,
+      streamId,
+    );
+
+    return { signature };
+  }
+
+  @ApiOkResponse({
+    description: "Stream variables retrieved successfully",
+    type: PickType(Stream, ["variables"]),
+  })
+  @ApiOperation({
+    description: dedent`
+    Retrieves the variables of a specific stream.
+
+    This endpoint provides a secure way to access stream variables separately from other stream data.`,
+    summary: "Read stream variables",
+  })
+  @Get(":streamId/variables")
+  public async readStreamVariables(
+    @Param("handlerId") handlerId: string,
+    @Param("streamId") streamId: string,
+    @Req() request: Request,
+  ): Promise<Pick<Stream, "variables">> {
+    const userId = await this.commonService.getUserIdFromRequest(request);
+
+    if (!isString(userId)) {
+      throw new UnauthorizedException("Missing or invalid authentication");
+    }
+
+    const { variables } = await this.streamsService.readStream(
+      handlerId,
+      userId,
+      streamId,
+    );
+
+    return { variables };
   }
 
   @ApiBadRequestResponse({
@@ -384,7 +484,7 @@ export class StreamsController {
   })
   @ApiOkResponse({
     description: "Stream successfully updated",
-    type: OmitType(Stream, ["configuration"]),
+    type: OmitType(Stream, ["configuration", "logs", "signature", "variables"]),
   })
   @ApiOperation({
     description: dedent`
@@ -404,7 +504,9 @@ export class StreamsController {
     @Param("streamId") streamId: string,
     @Body() updateStreamDto: UpdateStreamDto,
     @Req() request: Request,
-  ): Promise<Omit<Stream, "configuration">> {
+  ): Promise<
+    Omit<Stream, "configuration" | "logs" | "signature" | "variables">
+  > {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -418,11 +520,8 @@ export class StreamsController {
       updateStreamDto,
     );
 
-    const { configuration, ...stream } = await this.streamsService.readStream(
-      handlerId,
-      userId,
-      streamId,
-    );
+    const { configuration, logs, signature, variables, ...stream } =
+      await this.streamsService.readStream(handlerId, userId, streamId);
 
     return stream;
   }
