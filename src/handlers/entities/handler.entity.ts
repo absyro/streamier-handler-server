@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { BeforeUpdate, Column, Entity, PrimaryColumn } from "typeorm";
 
 @Entity({ name: "handlers" })
@@ -68,12 +68,11 @@ export class Handler {
   @Column({ length: 180, name: "short_description" })
   public shortDescription!: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "Terms of using this handler",
     example:
       "By using this handler, you agree to follow our community guidelines and terms of service.",
     maxLength: 5000,
-    required: false,
   })
   @Column({ length: 5000, name: "terms", nullable: true })
   public terms?: string;

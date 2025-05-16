@@ -1,10 +1,9 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsOptional, IsString, Matches } from "class-validator";
 
 export class SearchHandlerDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "Filter by online status",
-    required: false,
   })
   @IsOptional()
   @IsString()
@@ -13,10 +12,9 @@ export class SearchHandlerDto {
   })
   public isOnline?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     default: "20",
     description: "Maximum number of results to return",
-    required: false,
   })
   @IsOptional()
   @IsString()
@@ -25,10 +23,9 @@ export class SearchHandlerDto {
   })
   public limit?: string = "20";
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     default: "0",
     description: "Number of results to skip (max 1000)",
-    required: false,
   })
   @IsOptional()
   @IsString()
@@ -37,17 +34,15 @@ export class SearchHandlerDto {
   })
   public offset?: string = "0";
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "Search query string to match against handler parameters",
-    required: false,
   })
   @IsOptional()
   @IsString()
   public q?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "Filter by specific user ID",
-    required: false,
   })
   @IsOptional()
   @IsString()

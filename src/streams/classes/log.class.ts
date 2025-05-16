@@ -15,7 +15,6 @@ export class Log {
     example: "l1234567",
     maxLength: 8,
     minLength: 8,
-    required: true,
   })
   @IsString()
   @Length(8, 8)
@@ -25,7 +24,6 @@ export class Log {
     description: "The level of the log",
     enum: LogLevel,
     example: LogLevel.INFO,
-    required: true,
   })
   @IsEnum(LogLevel)
   public level!: LogLevel;
@@ -34,7 +32,6 @@ export class Log {
     description: "The message of the log",
     example: "This is a log message",
     maxLength: 1000,
-    required: true,
   })
   @IsString()
   @MaxLength(1000)
@@ -43,7 +40,6 @@ export class Log {
   @ApiProperty({
     description: "The timestamp of the log",
     example: "2021-01-01T00:00:00.000Z",
-    required: true,
     type: Date,
   })
   @IsISO8601()

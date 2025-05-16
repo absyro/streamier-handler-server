@@ -21,7 +21,6 @@ export class Stream {
     example: {
       someKey: "someValue",
     },
-    required: true,
   })
   @IsObject()
   public configuration!: Record<string, unknown>;
@@ -31,7 +30,6 @@ export class Stream {
     example: "s1234567",
     maxLength: 8,
     minLength: 8,
-    required: true,
   })
   @IsString()
   @Length(8, 8)
@@ -40,7 +38,6 @@ export class Stream {
   @ApiProperty({
     description: "Whether the stream is active",
     example: true,
-    required: true,
   })
   @IsBoolean()
   public isActive!: boolean;
@@ -56,7 +53,6 @@ export class Stream {
       },
     ],
     maxItems: 100,
-    required: true,
     type: [Log],
   })
   @ArrayMaxSize(100)
@@ -69,7 +65,6 @@ export class Stream {
     description: "The name of the stream",
     example: "My Stream",
     maxLength: 100,
-    required: true,
   })
   @IsString()
   @MaxLength(100)
@@ -90,7 +85,6 @@ export class Stream {
       },
     ],
     maxItems: 1000,
-    required: true,
     type: [Node],
   })
   @ArrayMaxSize(1000)
@@ -103,7 +97,6 @@ export class Stream {
     description: "The signature of the stream",
     example: "abc123def456",
     maxLength: 500,
-    required: true,
   })
   @IsString()
   @MaxLength(500)
@@ -114,7 +107,6 @@ export class Stream {
     example: "u1234567",
     maxLength: 8,
     minLength: 8,
-    required: true,
   })
   @IsString()
   @Length(8, 8)
@@ -125,7 +117,6 @@ export class Stream {
     example: {
       someVariable: "someValue",
     },
-    required: true,
   })
   @IsObject()
   public variables!: Record<string, unknown>;

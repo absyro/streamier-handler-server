@@ -7,7 +7,6 @@ export class Node {
     example: {
       message: "Hello, world!",
     },
-    required: true,
   })
   @IsObject()
   public data!: Record<string, unknown>;
@@ -16,7 +15,6 @@ export class Node {
     description: "The ID of the node",
     example: "node-1",
     maxLength: 25,
-    required: true,
   })
   @IsString()
   @MaxLength(25)
@@ -26,7 +24,6 @@ export class Node {
     description: "The name of the node",
     example: "Some Node",
     maxLength: 100,
-    required: true,
   })
   @IsString()
   @MaxLength(100)
@@ -37,7 +34,6 @@ export class Node {
     example: {
       someOutput: [1, 2, 3],
     },
-    required: true,
   })
   @IsObject()
   public outputs!: Record<string, number[]>;
