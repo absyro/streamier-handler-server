@@ -1,6 +1,6 @@
-# Contributing to Streamier Handler Server
+# Contributing to Streamier API Server
 
-Thank you for your interest in contributing to Streamier Handler Server! This document provides guidelines and instructions for contributing to this project.
+Thank you for your interest in contributing to Streamier API Server! This document provides guidelines and instructions for contributing to this project.
 
 ## Table of Contents
 
@@ -21,8 +21,8 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 1. Fork the repository
 2. Clone your fork:
    ```bash
-   git clone https://github.com/absyro/streamier-handler-server.git
-   cd streamier-handler-server
+   git clone https://github.com/absyro/streamier-api-server.git
+   cd streamier-api-server
    ```
 3. Install dependencies:
    ```bash

@@ -1,4 +1,4 @@
-# compiled output
+# Compiled output
 /dist
 /node_modules
 /build
@@ -19,7 +19,7 @@
 .settings/
 *.sublime-workspace
 
-# dotenv environment variable files
+# Dotenv environment variable files
 .env
 .env.local
 .env.*.local

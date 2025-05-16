@@ -4,7 +4,7 @@
 
 ## 1. Purpose
 
-This license governs the use of "Streamier Handler Server" (the "Software"), developed and owned by Streamier Inc. (the "Licensor"). While the source code is publicly available, this license imposes restrictions on its use, modification, and distribution to protect the rights and interests of the Licensor.
+This license governs the use of "Streamier API Server" (the "Software"), developed and owned by Streamier Inc. (the "Licensor"). While the source code is publicly available, this license imposes restrictions on its use, modification, and distribution to protect the rights and interests of the Licensor.
 
 ## 2. Grant of License
 

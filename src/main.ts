@@ -21,10 +21,10 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(
     app,
     new DocumentBuilder()
-      .setTitle("Streamier Handler Server API")
+      .setTitle("Streamier API Server")
       .setDescription(
         dedent`
-        This documentation includes all available API endpoints for the Streamier Handler Server.
+        This documentation includes all available API endpoints for the Streamier API Server.
 
         ## Rate Limiting
         The API is rate-limited to 20 requests per minute to prevent abuse.

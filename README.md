@@ -1,6 +1,6 @@
-# Streamier Handler Server
+# Streamier API Server
 
-A robust NestJS-based server application for handling handlers and real-time communication through WebSockets.
+A powerful NestJS-based API server that provides real-time communication capabilities through WebSockets, built with scalability and maintainability in mind.
 
 ## Prerequisites
 
@@ -14,8 +14,8 @@ A robust NestJS-based server application for handling handlers and real-time com
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/absyro/streamier-handler-server.git
-cd streamier-handler-server
+git clone https://github.com/absyro/streamier-api-server.git
+cd streamier-api-server
 ```
 
 2. Install dependencies:
