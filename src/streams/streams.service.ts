@@ -1,7 +1,7 @@
 import { BadGatewayException, Injectable } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { validateSync } from "class-validator";
-import { isArray, isEmpty, isObject } from "radash";
+import { isArray, isEmpty, isObject, tryit } from "radash";
 import { DataSource } from "typeorm";
 
 import { CommonService } from "../common/common.service";
@@ -52,16 +52,16 @@ export class StreamsService {
     userId: string,
     streamId: string,
   ): Promise<void> {
+    await tryit(this.dataSource.query.bind(this.dataSource))(
+      "DELETE FROM user_streams WHERE id = $1 AND handler_id = $2 AND user_id = $3",
+      [streamId, handlerId, userId],
+    );
+
     await this.commonService.emitToHandler(
       handlerId,
       "streams:delete",
       userId,
       streamId,
-    );
-
-    await this.dataSource.query(
-      "DELETE FROM user_streams WHERE id = $1 AND handler_id = $2 AND user_id = $3",
-      [streamId, handlerId, userId],
     );
   }
 
@@ -120,6 +120,12 @@ export class StreamsService {
 
     if (!isEmpty(errors)) {
       throw new BadGatewayException("Received stream from handler is invalid");
+    }
+
+    if (stream.id !== streamId) {
+      throw new BadGatewayException(
+        "Received stream id does not match requested stream id",
+      );
     }
 
     return stream;
