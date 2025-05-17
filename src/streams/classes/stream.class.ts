@@ -37,7 +37,6 @@ export class Stream {
 
   @ApiProperty({
     description: "Whether the stream is active",
-    example: true,
   })
   @IsBoolean()
   public isActive!: boolean;

@@ -124,8 +124,10 @@ export class HandlersService {
   public async search(searchDto: SearchHandlerDto): Promise<Handler[]> {
     const queryBuilder = this.handlersRepository.createQueryBuilder("handler");
 
+    queryBuilder.where("handler.is_searchable = true");
+
     if (isString(searchDto.q)) {
-      queryBuilder.where(
+      queryBuilder.andWhere(
         "LOWER(handler.name) LIKE LOWER(:query) OR " +
           "LOWER(handler.shortDescription) LIKE LOWER(:query) OR " +
           "LOWER(handler.longDescription) LIKE LOWER(:query)",

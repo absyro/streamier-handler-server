@@ -37,11 +37,16 @@ export class Handler {
 
   @ApiProperty({
     description: "Whether the handler is currently online and connected",
-    example: false,
     readOnly: true,
   })
   @Column({ default: false, name: "is_online" })
   public isOnline!: boolean;
+
+  @ApiPropertyOptional({
+    description: "Whether the handler should be excluded from search results",
+  })
+  @Column({ default: false, name: "is_searchable" })
+  public isSearchable!: boolean;
 
   @ApiProperty({
     description: "Detailed description of the handler's functionality.",

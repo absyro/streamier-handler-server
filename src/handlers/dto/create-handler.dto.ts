@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsOptional, IsString, MaxLength } from "class-validator";
+import { IsBoolean, IsOptional, IsString, MaxLength } from "class-validator";
 
 export class CreateHandlerDto {
   @ApiProperty({
@@ -11,6 +11,13 @@ export class CreateHandlerDto {
   @IsString()
   @MaxLength(12)
   public iconId!: string;
+
+  @ApiPropertyOptional({
+    description: "Whether the handler should be excluded from search results",
+  })
+  @IsBoolean()
+  @IsOptional()
+  public isSearchable?: boolean;
 
   @ApiProperty({
     description:
