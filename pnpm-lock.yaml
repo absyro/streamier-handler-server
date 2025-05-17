@@ -105,6 +105,9 @@ importers:
       '@types/express':
         specifier: ^5.0.1
         version: 5.0.1
+      '@types/express-partial-response':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@types/node':
         specifier: ^22.15.18
         version: 22.15.18
@@ -1413,6 +1416,9 @@ packages:
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
+
+  '@types/express-partial-response@1.0.0':
+    resolution: {integrity: sha512-JJvD55SR2I6C52h+6ujs8lnD/N4VTRy6nCEVqpZTYRaQ03EBVEagnabMOjQ9i2zFJX4c5ANRHaqmIaXtTufDkw==}
 
   '@types/express-serve-static-core@5.0.6':
     resolution: {integrity: sha512-3xhRnjJPkULekpSzgtoNYYcTWgEZkp4myc+Saevii5JPnHNvHMRlBSHDbs7Bh1iPPoVTERHEZXyhyLbMEsExsA==}
@@ -6053,6 +6059,10 @@ snapshots:
       '@types/json-schema': 7.0.15
 
   '@types/estree@1.0.7': {}
+
+  '@types/express-partial-response@1.0.0':
+    dependencies:
+      '@types/express': 5.0.1
 
   '@types/express-serve-static-core@5.0.6':
     dependencies:
