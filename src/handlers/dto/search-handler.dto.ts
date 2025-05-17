@@ -4,6 +4,7 @@ import { IsOptional, IsString, Matches } from "class-validator";
 export class SearchHandlerDto {
   @ApiPropertyOptional({
     description: "Filter by online status",
+    enum: ["true", "false"],
   })
   @IsOptional()
   @IsString()
