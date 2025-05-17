@@ -2,6 +2,7 @@ import { BadGatewayException, Injectable } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
 import { validateSync } from "class-validator";
 import { isArray, isEmpty, isObject } from "radash";
+import { DataSource } from "typeorm";
 
 import { CommonService } from "../common/common.service";
 import { Stream } from "./classes/stream.class";
@@ -9,7 +10,10 @@ import { UpdateStreamDto } from "./dto/update-stream.dto";
 
 @Injectable()
 export class StreamsService {
-  public constructor(private readonly commonService: CommonService) {}
+  public constructor(
+    private readonly dataSource: DataSource,
+    private readonly commonService: CommonService,
+  ) {}
 
   public async createStream(
     handlerId: string,
@@ -35,6 +39,11 @@ export class StreamsService {
       throw new BadGatewayException("Received stream from handler is invalid");
     }
 
+    await this.dataSource.query(
+      "INSERT INTO user_streams (id, handler_id, user_id, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW())",
+      [stream.id, handlerId, userId],
+    );
+
     return stream;
   }
 
@@ -48,6 +57,11 @@ export class StreamsService {
       "streams:delete",
       userId,
       streamId,
+    );
+
+    await this.dataSource.query(
+      "DELETE FROM user_streams WHERE id = $1 AND handler_id = $2 AND user_id = $3",
+      [streamId, handlerId, userId],
     );
   }
 
