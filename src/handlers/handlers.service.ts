@@ -55,15 +55,25 @@ export class HandlersService {
 
     handler.name = createHandlerDto.name;
 
-    handler.shortDescription = createHandlerDto.shortDescription;
-
-    handler.longDescription = createHandlerDto.longDescription;
-
-    handler.iconId = createHandlerDto.iconId;
-
     handler.authToken = authToken;
 
     handler.userId = userId;
+
+    if (createHandlerDto.shortDescription !== undefined) {
+      handler.shortDescription = createHandlerDto.shortDescription;
+    }
+
+    if (createHandlerDto.longDescription !== undefined) {
+      handler.longDescription = createHandlerDto.longDescription;
+    }
+
+    if (createHandlerDto.iconId !== undefined) {
+      handler.iconId = createHandlerDto.iconId;
+    }
+
+    if (createHandlerDto.isSearchable !== undefined) {
+      handler.isSearchable = createHandlerDto.isSearchable;
+    }
 
     return this.handlersRepository.save(handler);
   }

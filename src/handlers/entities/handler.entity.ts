@@ -19,13 +19,13 @@ export class Handler {
   @Column({ default: () => "CURRENT_TIMESTAMP", name: "created_at" })
   public createdAt!: Date;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "The ID of the handler icon from https://icons8.com",
     example: "000000",
     maxLength: 12,
   })
-  @Column({ length: 12, name: "icon_id" })
-  public iconId!: string;
+  @Column({ length: 12, name: "icon_id", nullable: true })
+  public iconId?: string;
 
   @ApiProperty({
     description: "Unique identifier for the handler",
@@ -48,14 +48,14 @@ export class Handler {
   @Column({ default: false, name: "is_searchable" })
   public isSearchable!: boolean;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "Detailed description of the handler's functionality.",
     example:
       "This handler is used for developing Discord bots. It allows you to create and manage Discord bots with ease.",
     maxLength: 5000,
   })
-  @Column({ length: 5000, name: "long_description" })
-  public longDescription!: string;
+  @Column({ length: 5000, name: "long_description", nullable: true })
+  public longDescription?: string;
 
   @ApiProperty({
     description: "Display name of the handler",
@@ -65,13 +65,13 @@ export class Handler {
   @Column({ length: 100, name: "name" })
   public name!: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "Brief description of the handler's purpose",
     example: "Create and manage Discord bots",
     maxLength: 180,
   })
-  @Column({ length: 180, name: "short_description" })
-  public shortDescription!: string;
+  @Column({ length: 180, name: "short_description", nullable: true })
+  public shortDescription?: string;
 
   @ApiPropertyOptional({
     description: "Terms of using this handler",
