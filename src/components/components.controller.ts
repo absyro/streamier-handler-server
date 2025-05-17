@@ -24,7 +24,7 @@ import { ComponentsService } from "./components.service";
         type: "string",
       },
       message: {
-        example: "Received stream from handler is invalid",
+        example: "Received data from handler is invalid",
         type: "string",
       },
       statusCode: {
@@ -101,48 +101,33 @@ import { ComponentsService } from "./components.service";
 export class ComponentsController {
   public constructor(private readonly componentsService: ComponentsService) {}
 
-  @ApiBadGatewayResponse({
-    description: "Received data from handler is invalid",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.BAD_GATEWAY],
-          type: "string",
-        },
-        message: {
-          example: "Received data from handler is invalid",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.BAD_GATEWAY],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+  @ApiOkResponse({
+    description: "Successfully retrieved component details",
+    type: Component,
   })
-  @ApiNotFoundResponse({
-    description: "Handler not found",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.NOT_FOUND],
-          type: "string",
-        },
-        message: {
-          example: "Handler not found",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.NOT_FOUND],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+  @ApiOperation({
+    description:
+      "Retrieves a specific component by name for a given handler ID.",
+    summary: "Read component",
   })
+  @ApiParam({
+    description: "The name of the component to retrieve.",
+    example: "send_message",
+    name: "componentName",
+  })
+  @Get(":componentName")
+  public async getComponent(
+    @Param("handlerId") handlerId: string,
+    @Param("componentName") componentName: string,
+  ): Promise<Component> {
+    const component = await this.componentsService.readComponent(
+      handlerId,
+      componentName,
+    );
+
+    return component;
+  }
+
   @ApiOkResponse({
     description: "Successfully retrieved handler components",
     type: [Component],
@@ -150,32 +135,6 @@ export class ComponentsController {
   @ApiOperation({
     description: "Retrieves all components associated with a given handler ID.",
     summary: "List components",
-  })
-  @ApiParam({
-    description: "The ID of the handler whose components are to be retrieved.",
-    example: "h1234567",
-    name: "handlerId",
-  })
-  @ApiServiceUnavailableResponse({
-    description: "Handler is offline",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.SERVICE_UNAVAILABLE],
-          type: "string",
-        },
-        message: {
-          example: "Handler is offline",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.SERVICE_UNAVAILABLE],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
   })
   @Get()
   public async listComponents(

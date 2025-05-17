@@ -1,6 +1,6 @@
 import { BadGatewayException, Injectable } from "@nestjs/common";
 import { plainToInstance } from "class-transformer";
-import { validateSync } from "class-validator";
+import { isObject, validateSync } from "class-validator";
 import { isArray, isEmpty } from "radash";
 
 import { CommonService } from "../common/common.service";
@@ -37,5 +37,40 @@ export class ComponentsService {
     });
 
     return components;
+  }
+
+  public async readComponent(
+    handlerId: string,
+    componentName: string,
+  ): Promise<Component> {
+    const response = await this.commonService.emitToHandler(
+      handlerId,
+      "components:read",
+      componentName,
+    );
+
+    if (!("component" in response) || !isObject(response.component)) {
+      throw new BadGatewayException(
+        "Received component from handler is invalid",
+      );
+    }
+
+    const component = plainToInstance(Component, response.component);
+
+    const errors = validateSync(component);
+
+    if (!isEmpty(errors)) {
+      throw new BadGatewayException(
+        "Received component from handler is invalid",
+      );
+    }
+
+    if (component.name !== componentName) {
+      throw new BadGatewayException(
+        "Received component name does not match requested component name",
+      );
+    }
+
+    return component;
   }
 }
