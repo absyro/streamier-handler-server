@@ -36,6 +36,7 @@ import { Stream } from "./classes/stream.class";
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { PublicStreamResponse } from "./responses/public-stream.response";
+import { StreamConfigurationSchemaResponse } from "./responses/stream-configuration-schema.response";
 import { StreamConfigurationResponse } from "./responses/stream-configuration.response";
 import { StreamLogsResponse } from "./responses/stream-logs.response";
 import { StreamSignatureResponse } from "./responses/stream-signature.response";
@@ -335,6 +336,11 @@ export class StreamsController {
     This endpoint provides a secure way to access stream configuration separately from other stream data.`,
     summary: "Read stream configuration",
   })
+  @ApiParam({
+    description: "ID of the stream to retrieve",
+    example: "stream-456",
+    name: "streamId",
+  })
   @Get(":streamId/configuration")
   public async readStreamConfiguration(
     @Param("handlerId") handlerId: string,
@@ -367,6 +373,11 @@ export class StreamsController {
     This endpoint provides a secure way to access stream logs separately from other stream data.`,
     summary: "Read stream logs",
   })
+  @ApiParam({
+    description: "ID of the stream to retrieve",
+    example: "stream-456",
+    name: "streamId",
+  })
   @Get(":streamId/logs")
   public async readStreamLogs(
     @Param("handlerId") handlerId: string,
@@ -389,6 +400,28 @@ export class StreamsController {
   }
 
   @ApiOkResponse({
+    description: "Configuration schema successfully retrieved",
+    type: StreamConfigurationSchemaResponse,
+  })
+  @ApiOperation({
+    description: dedent`
+    Retrieves the configuration schema for streams.
+
+    This schema defines what type of configuration streams need.
+
+    The schema is not validated on the server side.
+
+    See https://www.npmjs.com/package/zod-to-json-schema#expected-output for more information.`,
+    summary: "Read streams configuration schema",
+  })
+  @Get("configuration-schema")
+  public async readStreamsConfigurationSchema(
+    @Param("handlerId") handlerId: string,
+  ): Promise<StreamConfigurationSchemaResponse> {
+    return this.streamsService.readStreamsConfigurationSchema(handlerId);
+  }
+
+  @ApiOkResponse({
     description: "Stream signature retrieved successfully",
     type: StreamSignatureResponse,
   })
@@ -398,6 +431,11 @@ export class StreamsController {
 
     This endpoint provides a secure way to access stream signature separately from other stream data.`,
     summary: "Read stream signature",
+  })
+  @ApiParam({
+    description: "ID of the stream to retrieve",
+    example: "stream-456",
+    name: "streamId",
   })
   @Get(":streamId/signature")
   public async readStreamSignature(
@@ -430,6 +468,11 @@ export class StreamsController {
 
     This endpoint provides a secure way to access stream variables separately from other stream data.`,
     summary: "Read stream variables",
+  })
+  @ApiParam({
+    description: "ID of the stream to retrieve",
+    example: "stream-456",
+    name: "streamId",
   })
   @Get(":streamId/variables")
   public async readStreamVariables(

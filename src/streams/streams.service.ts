@@ -7,6 +7,7 @@ import { DataSource } from "typeorm";
 import { CommonService } from "../common/common.service";
 import { Stream } from "./classes/stream.class";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
+import { StreamConfigurationSchemaResponse } from "./responses/stream-configuration-schema.response";
 
 @Injectable()
 export class StreamsService {
@@ -129,6 +130,21 @@ export class StreamsService {
     }
 
     return stream;
+  }
+
+  public async readStreamsConfigurationSchema(
+    handlerId: string,
+  ): Promise<StreamConfigurationSchemaResponse> {
+    const response = await this.commonService.emitToHandler(
+      handlerId,
+      "streams:read-configuration-schema",
+    );
+
+    if (!("schema" in response) || !isObject(response.schema)) {
+      throw new BadGatewayException("Received schema from handler is invalid");
+    }
+
+    return { schema: response.schema };
   }
 
   public async updateStream(
