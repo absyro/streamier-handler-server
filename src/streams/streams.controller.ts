@@ -49,7 +49,6 @@ import { StreamsService } from "./streams.service";
         type: "string",
       },
       message: {
-        example: "Received stream from handler is invalid",
         type: "string",
       },
       statusCode: {
@@ -70,7 +69,6 @@ import { StreamsService } from "./streams.service";
         type: "string",
       },
       message: {
-        example: "Handler not found",
         type: "string",
       },
       statusCode: {
@@ -84,7 +82,6 @@ import { StreamsService } from "./streams.service";
 })
 @ApiParam({
   description: "ID of the target handler",
-  example: "h1234567",
   name: "handlerId",
 })
 @ApiQuery({
@@ -109,7 +106,6 @@ import { StreamsService } from "./streams.service";
         type: "string",
       },
       message: {
-        example: "Handler is offline",
         type: "string",
       },
       statusCode: {
@@ -131,7 +127,6 @@ import { StreamsService } from "./streams.service";
         type: "string",
       },
       message: {
-        example: "Missing or invalid authentication",
         type: "string",
       },
       statusCode: {
@@ -161,12 +156,10 @@ export class StreamsController {
         message: {
           oneOf: [
             {
-              example: "X must be a string",
               type: "string",
             },
             {
               items: {
-                example: "X must be a string",
                 type: "string",
               },
               type: "array",
@@ -188,7 +181,6 @@ export class StreamsController {
   })
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -219,7 +211,6 @@ export class StreamsController {
 
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -235,7 +226,6 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the stream to delete",
-    example: "stream-456",
     name: "streamId",
   })
   @Delete(":streamId")
@@ -252,7 +242,6 @@ export class StreamsController {
 
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
   })
   @ApiOkResponse({
@@ -283,7 +272,6 @@ export class StreamsController {
 
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
   })
   @ApiOkResponse({
@@ -301,7 +289,6 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the stream to retrieve",
-    example: "stream-456",
     name: "streamId",
   })
   @Get(":streamId")
@@ -320,7 +307,6 @@ export class StreamsController {
 
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -337,7 +323,6 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the stream to retrieve",
-    example: "stream-456",
     name: "streamId",
   })
   @Get(":streamId/configuration")
@@ -359,7 +344,6 @@ export class StreamsController {
 
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -376,7 +360,6 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the stream to retrieve",
-    example: "stream-456",
     name: "streamId",
   })
   @Get(":streamId/logs")
@@ -423,7 +406,6 @@ export class StreamsController {
 
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -440,7 +422,6 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the stream to retrieve",
-    example: "stream-456",
     name: "streamId",
   })
   @Get(":streamId/signature")
@@ -462,7 +443,6 @@ export class StreamsController {
 
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -479,7 +459,6 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the stream to retrieve",
-    example: "stream-456",
     name: "streamId",
   })
   @Get(":streamId/variables")
@@ -510,12 +489,10 @@ export class StreamsController {
         message: {
           oneOf: [
             {
-              example: "X must be a string",
               type: "string",
             },
             {
               items: {
-                example: "X must be a string",
                 type: "string",
               },
               type: "array",
@@ -533,7 +510,6 @@ export class StreamsController {
   })
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -550,7 +526,6 @@ export class StreamsController {
   })
   @ApiParam({
     description: "ID of the stream to update",
-    example: "stream-456",
     name: "streamId",
   })
   @Put(":streamId")

@@ -73,12 +73,10 @@ export class HandlersController {
         message: {
           oneOf: [
             {
-              example: "X must be a string",
               type: "string",
             },
             {
               items: {
-                example: "X must be a string",
                 type: "string",
               },
               type: "array",
@@ -107,8 +105,6 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example:
-            "You have reached the maximum limit of 100 handlers per user",
           type: "string",
         },
         statusCode: {
@@ -122,7 +118,6 @@ export class HandlersController {
   })
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -143,7 +138,6 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -171,7 +165,6 @@ export class HandlersController {
 
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -185,7 +178,6 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example: "Handler not found",
           type: "string",
         },
         statusCode: {
@@ -204,7 +196,6 @@ export class HandlersController {
   })
   @ApiParam({
     description: "The ID of the handler to delete",
-    example: "h1234567",
     name: "handlerId",
   })
   @ApiUnauthorizedResponse({
@@ -216,7 +207,6 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -266,12 +256,10 @@ export class HandlersController {
         message: {
           oneOf: [
             {
-              example: "X must be between 1 and 100",
               type: "string",
             },
             {
               items: {
-                example: "X must be between 1 and 100",
                 type: "string",
               },
               type: "array",
@@ -317,7 +305,6 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example: "Handler not found",
           type: "string",
         },
         statusCode: {
@@ -339,7 +326,6 @@ export class HandlersController {
   })
   @ApiParam({
     description: "The ID of the handler to retrieve",
-    example: "h1234567",
     name: "handlerId",
   })
   @Get(":handlerId")
@@ -359,7 +345,6 @@ export class HandlersController {
 
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -372,7 +357,6 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example: "Handler not found",
           type: "string",
         },
         statusCode: {
@@ -395,7 +379,6 @@ export class HandlersController {
   })
   @ApiParam({
     description: "The ID of the handler to regenerate token for",
-    example: "h1234567",
     name: "handlerId",
   })
   @ApiUnauthorizedResponse({
@@ -407,7 +390,6 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {
@@ -461,12 +443,10 @@ export class HandlersController {
         message: {
           oneOf: [
             {
-              example: "X must be a string",
               type: "string",
             },
             {
               items: {
-                example: "X must be a string",
                 type: "string",
               },
               type: "array",
@@ -484,7 +464,6 @@ export class HandlersController {
   })
   @ApiHeader({
     description: "Session ID for authentication",
-    example: "s123456789",
     name: "X-Session-Id",
     required: true,
   })
@@ -497,7 +476,6 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example: "Handler not found",
           type: "string",
         },
         statusCode: {
@@ -520,7 +498,6 @@ export class HandlersController {
   })
   @ApiParam({
     description: "The ID of the handler to update",
-    example: "h1234567",
     name: "handlerId",
   })
   @ApiUnauthorizedResponse({
@@ -532,7 +509,6 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          example: "Missing or invalid authentication",
           type: "string",
         },
         statusCode: {

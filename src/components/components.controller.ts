@@ -25,7 +25,6 @@ import { ComponentDto } from "./schemas/component.schema";
         type: "string",
       },
       message: {
-        example: "Received data from handler is invalid",
         type: "string",
       },
       statusCode: {
@@ -46,7 +45,6 @@ import { ComponentDto } from "./schemas/component.schema";
         type: "string",
       },
       message: {
-        example: "Handler not found",
         type: "string",
       },
       statusCode: {
@@ -60,7 +58,6 @@ import { ComponentDto } from "./schemas/component.schema";
 })
 @ApiParam({
   description: "ID of the target handler",
-  example: "h1234567",
   name: "handlerId",
 })
 @ApiQuery({
@@ -85,7 +82,6 @@ import { ComponentDto } from "./schemas/component.schema";
         type: "string",
       },
       message: {
-        example: "Handler is offline",
         type: "string",
       },
       statusCode: {
@@ -107,7 +103,6 @@ import { ComponentDto } from "./schemas/component.schema";
         type: "string",
       },
       message: {
-        example: "Missing or invalid authentication",
         type: "string",
       },
       statusCode: {
@@ -134,7 +129,6 @@ export class ComponentsController {
   })
   @ApiParam({
     description: "The name of the component to retrieve.",
-    example: "send_message",
     name: "componentName",
   })
   @Get(":componentName")

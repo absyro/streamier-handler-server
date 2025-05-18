@@ -5,7 +5,6 @@ import { BeforeUpdate, Column, Entity, PrimaryColumn } from "typeorm";
 export class Handler {
   @ApiProperty({
     description: "Authentication token used for WebSocket connections",
-    example: "abc123def456",
     readOnly: true,
   })
   @Column({ length: 64, name: "auth_token", unique: true })
@@ -13,7 +12,6 @@ export class Handler {
 
   @ApiProperty({
     description: "Timestamp when the handler was created",
-    example: new Date().toISOString(),
     readOnly: true,
   })
   @Column({ default: () => "CURRENT_TIMESTAMP", name: "created_at" })
@@ -21,7 +19,6 @@ export class Handler {
 
   @ApiPropertyOptional({
     description: "The ID of the handler icon from https://icons8.com",
-    example: "000000",
     maxLength: 12,
   })
   @Column({ length: 12, name: "icon_id", nullable: true })
@@ -29,7 +26,6 @@ export class Handler {
 
   @ApiProperty({
     description: "Unique identifier for the handler",
-    example: "h1234567",
     maxLength: 8,
   })
   @PrimaryColumn({ length: 8, name: "id" })
@@ -50,8 +46,6 @@ export class Handler {
 
   @ApiPropertyOptional({
     description: "Detailed description of the handler's functionality.",
-    example:
-      "This handler is used for developing Discord bots. It allows you to create and manage Discord bots with ease.",
     maxLength: 5000,
   })
   @Column({ length: 5000, name: "long_description", nullable: true })
@@ -59,7 +53,6 @@ export class Handler {
 
   @ApiProperty({
     description: "Display name of the handler",
-    example: "Discord (Bots)",
     maxLength: 100,
   })
   @Column({ length: 100, name: "name" })
@@ -67,7 +60,6 @@ export class Handler {
 
   @ApiPropertyOptional({
     description: "Brief description of the handler's purpose",
-    example: "Create and manage Discord bots",
     maxLength: 180,
   })
   @Column({ length: 180, name: "short_description", nullable: true })
@@ -75,8 +67,6 @@ export class Handler {
 
   @ApiPropertyOptional({
     description: "Terms of using this handler",
-    example:
-      "By using this handler, you agree to follow our community guidelines and terms of service.",
     maxLength: 5000,
   })
   @Column({ length: 5000, name: "terms", nullable: true })
@@ -84,7 +74,6 @@ export class Handler {
 
   @ApiProperty({
     description: "Timestamp when the handler was last updated",
-    example: new Date().toISOString(),
     readOnly: true,
   })
   @Column({ default: () => "CURRENT_TIMESTAMP", name: "updated_at" })
@@ -92,7 +81,6 @@ export class Handler {
 
   @ApiProperty({
     description: "ID of the user who owns this handler",
-    example: "u1234567",
     maxLength: 8,
     readOnly: true,
   })
