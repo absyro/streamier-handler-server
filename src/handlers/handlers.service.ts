@@ -5,7 +5,6 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { isString } from "radash";
 import randomatic from "randomatic";
 import { Repository } from "typeorm";
 
@@ -136,7 +135,7 @@ export class HandlersService {
 
     queryBuilder.where("handler.is_searchable = true");
 
-    if (isString(searchDto.q)) {
+    if (searchDto.q !== undefined) {
       queryBuilder.andWhere(
         "LOWER(handler.name) LIKE LOWER(:query) OR " +
           "LOWER(handler.shortDescription) LIKE LOWER(:query) OR " +
@@ -145,25 +144,21 @@ export class HandlersService {
       );
     }
 
-    if (isString(searchDto.userId)) {
+    if (searchDto.userId !== undefined) {
       queryBuilder.andWhere("handler.userId = :userId", {
         userId: searchDto.userId,
       });
     }
 
-    if (isString(searchDto.isOnline)) {
+    if (searchDto.isOnline !== undefined) {
       const isOnline = searchDto.isOnline === "true";
 
       queryBuilder.andWhere("handler.isOnline = :isOnline", { isOnline });
     }
 
-    const offset = isString(searchDto.offset)
-      ? parseInt(searchDto.offset, 10)
-      : 0;
+    const offset = searchDto.offset ? parseInt(searchDto.offset, 10) : 0;
 
-    const limit = isString(searchDto.limit)
-      ? parseInt(searchDto.limit, 10)
-      : 20;
+    const limit = searchDto.limit ? parseInt(searchDto.limit, 10) : 20;
 
     queryBuilder.skip(offset).take(limit);
 
