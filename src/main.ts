@@ -1,13 +1,12 @@
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { RedocOptions } from "nestjs-redoc";
 
-import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import compression from "compression";
 import partialResponse from "express-partial-response";
 import { RedocModule } from "nestjs-redoc";
-import { patchNestJsSwagger } from "nestjs-zod";
+import { patchNestJsSwagger, ZodValidationPipe } from "nestjs-zod";
 import { dedent } from "ts-dedent";
 
 import packageJson from "../package.json";
@@ -54,7 +53,7 @@ async function bootstrap(): Promise<void> {
 
   app.use(compression());
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ZodValidationPipe());
 
   app.useWebSocketAdapter(new WsAdapter(app));
 
