@@ -64,12 +64,6 @@ import { StreamsService } from "./streams.service";
     type: "object",
   },
 })
-@ApiHeader({
-  description: "Session ID for authentication",
-  example: "s123456789",
-  name: "X-Session-Id",
-  required: true,
-})
 @ApiNotFoundResponse({
   description: "Handler not found",
   schema: {
@@ -131,27 +125,6 @@ import { StreamsService } from "./streams.service";
   },
 })
 @ApiTags("Streams")
-@ApiUnauthorizedResponse({
-  description: "Missing or invalid authentication",
-  schema: {
-    properties: {
-      error: {
-        enum: [ReasonPhrases.UNAUTHORIZED],
-        type: "string",
-      },
-      message: {
-        example: "Missing or invalid authentication",
-        type: "string",
-      },
-      statusCode: {
-        enum: [HttpStatus.UNAUTHORIZED],
-        type: "number",
-      },
-    },
-    required: ["error", "message", "statusCode"],
-    type: "object",
-  },
-})
 @Controller("api/handlers/:handlerId/streams")
 export class StreamsController {
   public constructor(
@@ -195,12 +168,39 @@ export class StreamsController {
     description: "Stream successfully created",
     type: PublicStreamResponse,
   })
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
+  })
   @ApiOperation({
     description: dedent`
     Creates a new stream associated with the specified handler.
 
     The stream will be configured according to the provided parameters and will be associated with the authenticated user.`,
     summary: "Create stream",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
   })
   @Post()
   public async createStream(
@@ -226,6 +226,12 @@ export class StreamsController {
     return stream;
   }
 
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
+  })
   @ApiNoContentResponse({
     description: "Stream successfully deleted",
   })
@@ -240,6 +246,27 @@ export class StreamsController {
     description: "ID of the stream to delete",
     example: "stream-456",
     name: "streamId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
   })
   @Delete(":streamId")
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -257,6 +284,12 @@ export class StreamsController {
     return this.streamsService.deleteStream(handlerId, userId, streamId);
   }
 
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
+  })
   @ApiOkResponse({
     description: "List of streams for the user",
     type: [PublicStreamResponse],
@@ -265,6 +298,27 @@ export class StreamsController {
     description:
       "Retrieves all streams associated with the authenticated user for the specified handler.",
     summary: "List user streams",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
   })
   @Get()
   public async listUserStreams(
@@ -289,6 +343,12 @@ export class StreamsController {
     );
   }
 
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
+  })
   @ApiOkResponse({
     description: "Stream information retrieved successfully",
     type: PublicStreamResponse,
@@ -304,6 +364,27 @@ export class StreamsController {
     description: "ID of the stream to retrieve",
     example: "stream-456",
     name: "streamId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
   })
   @Get(":streamId")
   public async readStream(
@@ -325,6 +406,12 @@ export class StreamsController {
     return stream;
   }
 
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
+  })
   @ApiOkResponse({
     description: "Stream configuration retrieved successfully",
     type: StreamConfigurationResponse,
@@ -340,6 +427,27 @@ export class StreamsController {
     description: "ID of the stream to retrieve",
     example: "stream-456",
     name: "streamId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
   })
   @Get(":streamId/configuration")
   public async readStreamConfiguration(
@@ -362,6 +470,12 @@ export class StreamsController {
     return { configuration };
   }
 
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
+  })
   @ApiOkResponse({
     description: "Stream logs retrieved successfully",
     type: StreamLogsResponse,
@@ -377,6 +491,27 @@ export class StreamsController {
     description: "ID of the stream to retrieve",
     example: "stream-456",
     name: "streamId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
   })
   @Get(":streamId/logs")
   public async readStreamLogs(
@@ -421,6 +556,12 @@ export class StreamsController {
     return this.streamsService.readStreamsConfigurationSchema(handlerId);
   }
 
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
+  })
   @ApiOkResponse({
     description: "Stream signature retrieved successfully",
     type: StreamSignatureResponse,
@@ -436,6 +577,27 @@ export class StreamsController {
     description: "ID of the stream to retrieve",
     example: "stream-456",
     name: "streamId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
   })
   @Get(":streamId/signature")
   public async readStreamSignature(
@@ -458,6 +620,12 @@ export class StreamsController {
     return { signature };
   }
 
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
+  })
   @ApiOkResponse({
     description: "Stream variables retrieved successfully",
     type: StreamVariablesResponse,
@@ -473,6 +641,27 @@ export class StreamsController {
     description: "ID of the stream to retrieve",
     example: "stream-456",
     name: "streamId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
   })
   @Get(":streamId/variables")
   public async readStreamVariables(
@@ -527,6 +716,12 @@ export class StreamsController {
       type: "object",
     },
   })
+  @ApiHeader({
+    description: "Session ID for authentication",
+    example: "s123456789",
+    name: "X-Session-Id",
+    required: true,
+  })
   @ApiOkResponse({
     description: "Stream successfully updated",
     type: PublicStreamResponse,
@@ -542,6 +737,27 @@ export class StreamsController {
     description: "ID of the stream to update",
     example: "stream-456",
     name: "streamId",
+  })
+  @ApiUnauthorizedResponse({
+    description: "Missing or invalid authentication",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.UNAUTHORIZED],
+          type: "string",
+        },
+        message: {
+          example: "Missing or invalid authentication",
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.UNAUTHORIZED],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
   })
   @Put(":streamId")
   public async updateStream(
