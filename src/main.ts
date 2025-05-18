@@ -7,6 +7,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import compression from "compression";
 import partialResponse from "express-partial-response";
 import { RedocModule } from "nestjs-redoc";
+import { patchNestJsSwagger } from "nestjs-zod";
 import { dedent } from "ts-dedent";
 
 import packageJson from "../package.json";
@@ -17,6 +18,8 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,
   });
+
+  patchNestJsSwagger();
 
   const document = SwaggerModule.createDocument(
     app,
