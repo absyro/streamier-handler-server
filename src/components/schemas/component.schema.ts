@@ -43,19 +43,19 @@ export const ComponentSchema = z.object({
     .record(z.unknown())
     .optional()
     .describe(
-      "The schema of the node data. This data will not be validated on the server side. See https://www.npmjs.com/package/zod-to-json-schema#expected-output",
+      "The schema of the node data. This data will not be validated on the server side. See https://json-schema.org/draft-07",
     ),
   outputSchema: z
     .record(z.unknown())
     .optional()
     .describe(
-      "The schema of the output data. This data will not be validated on the server side. See https://www.npmjs.com/package/zod-to-json-schema#expected-output",
+      "The schema of the output data. This data will not be validated on the server side. See https://json-schema.org/draft-07",
     ),
   variablesSchema: z
     .record(z.unknown())
     .optional()
     .describe(
-      "The schema of the variables. This data will not be validated on the server side. See https://www.npmjs.com/package/zod-to-json-schema#expected-output",
+      "The schema of the variables. This data will not be validated on the server side. See https://json-schema.org/draft-07",
     ),
 });
 

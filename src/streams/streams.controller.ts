@@ -391,7 +391,7 @@ export class StreamsController {
 
     The schema is not validated on the server side.
 
-    See https://www.npmjs.com/package/zod-to-json-schema#expected-output for more information.`,
+    See https://json-schema.org/draft-07 for more information.`,
     summary: "Read streams configuration schema",
   })
   @Get("configuration-schema")
