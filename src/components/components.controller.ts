@@ -8,6 +8,7 @@ import {
   ApiQuery,
   ApiServiceUnavailableResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { ReasonPhrases } from "http-status-codes";
 import { dedent } from "ts-dedent";
@@ -97,6 +98,27 @@ import { ComponentsService } from "./components.service";
   },
 })
 @ApiTags("Components")
+@ApiUnauthorizedResponse({
+  description: "Missing or invalid authentication",
+  schema: {
+    properties: {
+      error: {
+        enum: [ReasonPhrases.UNAUTHORIZED],
+        type: "string",
+      },
+      message: {
+        example: "Missing or invalid authentication",
+        type: "string",
+      },
+      statusCode: {
+        enum: [HttpStatus.UNAUTHORIZED],
+        type: "number",
+      },
+    },
+    required: ["error", "message", "statusCode"],
+    type: "object",
+  },
+})
 @Controller("api/handlers/:handlerId/components")
 export class ComponentsController {
   public constructor(private readonly componentsService: ComponentsService) {}

@@ -9,7 +9,6 @@ import {
   Post,
   Put,
   Req,
-  UnauthorizedException,
 } from "@nestjs/common";
 import {
   ApiBadGatewayResponse,
@@ -28,7 +27,6 @@ import {
 } from "@nestjs/swagger";
 import { Request } from "express";
 import { ReasonPhrases } from "http-status-codes";
-import { isString } from "radash";
 import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
@@ -124,6 +122,27 @@ import { StreamsService } from "./streams.service";
   },
 })
 @ApiTags("Streams")
+@ApiUnauthorizedResponse({
+  description: "Missing or invalid authentication",
+  schema: {
+    properties: {
+      error: {
+        enum: [ReasonPhrases.UNAUTHORIZED],
+        type: "string",
+      },
+      message: {
+        example: "Missing or invalid authentication",
+        type: "string",
+      },
+      statusCode: {
+        enum: [HttpStatus.UNAUTHORIZED],
+        type: "number",
+      },
+    },
+    required: ["error", "message", "statusCode"],
+    type: "object",
+  },
+})
 @Controller("api/handlers/:handlerId/streams")
 export class StreamsController {
   public constructor(
@@ -180,27 +199,6 @@ export class StreamsController {
     The stream will be configured according to the provided parameters and will be associated with the authenticated user.`,
     summary: "Create stream",
   })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
   @Post()
   public async createStream(
     @Body() createStreamDto: CreateStreamDto,
@@ -208,10 +206,6 @@ export class StreamsController {
     @Req() request: Request,
   ): Promise<PublicStreamResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
-
-    if (!isString(userId)) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
 
     const { configuration, logs, signature, variables, ...stream } =
       await this.streamsService.createStream(
@@ -244,27 +238,6 @@ export class StreamsController {
     example: "stream-456",
     name: "streamId",
   })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
   @Delete(":streamId")
   @HttpCode(HttpStatus.NO_CONTENT)
   public async deleteStream(
@@ -274,10 +247,6 @@ export class StreamsController {
   ): Promise<void> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (!isString(userId)) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
-
     return this.streamsService.deleteStream(handlerId, userId, streamId);
   }
 
@@ -285,7 +254,6 @@ export class StreamsController {
     description: "Session ID for authentication",
     example: "s123456789",
     name: "X-Session-Id",
-    required: true,
   })
   @ApiOkResponse({
     description: "List of streams for the user",
@@ -293,29 +261,8 @@ export class StreamsController {
   })
   @ApiOperation({
     description:
-      "Retrieves all streams associated with the authenticated user for the specified handler.",
+      "Retrieves all streams associated with the authenticated user for the specified handler. If not authenticated, only public streams are returned.",
     summary: "List user streams",
-  })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
   })
   @Get()
   public async listUserStreams(
@@ -323,10 +270,6 @@ export class StreamsController {
     @Req() request: Request,
   ): Promise<PublicStreamResponse[]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
-
-    if (!isString(userId)) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
 
     const streams = await this.streamsService.listUserStreams(
       handlerId,
@@ -342,7 +285,6 @@ export class StreamsController {
     description: "Session ID for authentication",
     example: "s123456789",
     name: "X-Session-Id",
-    required: true,
   })
   @ApiOkResponse({
     description: "Stream information retrieved successfully",
@@ -352,34 +294,15 @@ export class StreamsController {
     description: dedent`
     Retrieves information about a specific stream.
 
-    The response includes all basic information about the stream, excluding sensitive data like configuration, logs, variables, and signature.`,
+    The response includes all basic information about the stream, excluding sensitive data like configuration, logs, variables, and signature.
+
+    Authentication is optional for public streams, but required for private streams.`,
     summary: "Read stream",
   })
   @ApiParam({
     description: "ID of the stream to retrieve",
     example: "stream-456",
     name: "streamId",
-  })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
   })
   @Get(":streamId")
   public async readStream(
@@ -388,10 +311,6 @@ export class StreamsController {
     @Req() request: Request,
   ): Promise<PublicStreamResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
-
-    if (!isString(userId)) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
 
     const { configuration, logs, signature, variables, ...stream } =
       await this.streamsService.readStream(handlerId, userId, streamId);
@@ -421,27 +340,6 @@ export class StreamsController {
     example: "stream-456",
     name: "streamId",
   })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
   @Get(":streamId/configuration")
   public async readStreamConfiguration(
     @Param("handlerId") handlerId: string,
@@ -449,10 +347,6 @@ export class StreamsController {
     @Req() request: Request,
   ): Promise<StreamConfigurationResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
-
-    if (!isString(userId)) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
 
     const { configuration } = await this.streamsService.readStream(
       handlerId,
@@ -485,27 +379,6 @@ export class StreamsController {
     example: "stream-456",
     name: "streamId",
   })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
   @Get(":streamId/logs")
   public async readStreamLogs(
     @Param("handlerId") handlerId: string,
@@ -513,10 +386,6 @@ export class StreamsController {
     @Req() request: Request,
   ): Promise<StreamLogsResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
-
-    if (!isString(userId)) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
 
     const { logs } = await this.streamsService.readStream(
       handlerId,
@@ -571,27 +440,6 @@ export class StreamsController {
     example: "stream-456",
     name: "streamId",
   })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
   @Get(":streamId/signature")
   public async readStreamSignature(
     @Param("handlerId") handlerId: string,
@@ -599,10 +447,6 @@ export class StreamsController {
     @Req() request: Request,
   ): Promise<StreamSignatureResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
-
-    if (!isString(userId)) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
 
     const { signature } = await this.streamsService.readStream(
       handlerId,
@@ -635,27 +479,6 @@ export class StreamsController {
     example: "stream-456",
     name: "streamId",
   })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
   @Get(":streamId/variables")
   public async readStreamVariables(
     @Param("handlerId") handlerId: string,
@@ -663,10 +486,6 @@ export class StreamsController {
     @Req() request: Request,
   ): Promise<StreamVariablesResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
-
-    if (!isString(userId)) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
 
     const { variables } = await this.streamsService.readStream(
       handlerId,
@@ -731,27 +550,6 @@ export class StreamsController {
     example: "stream-456",
     name: "streamId",
   })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          example: "Missing or invalid authentication",
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
-  })
   @Put(":streamId")
   public async updateStream(
     @Param("handlerId") handlerId: string,
@@ -760,10 +558,6 @@ export class StreamsController {
     @Req() request: Request,
   ): Promise<PublicStreamResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
-
-    if (!isString(userId)) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
 
     await this.streamsService.updateStream(
       handlerId,

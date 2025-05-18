@@ -4,6 +4,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsBoolean,
+  IsEnum,
   IsObject,
   IsString,
   Length,
@@ -12,6 +13,7 @@ import {
 } from "class-validator";
 
 import { LogLevel } from "../enums/log-level.enum";
+import { Visibility } from "../enums/visibility.enum";
 import { Log } from "./log.class";
 import { Node } from "./node.class";
 
@@ -119,4 +121,12 @@ export class Stream {
   })
   @IsObject()
   public variables!: Record<string, unknown>;
+
+  @ApiProperty({
+    description: "The visibility of the stream",
+    enum: Visibility,
+    example: Visibility.PUBLIC,
+  })
+  @IsEnum(Visibility)
+  public visibility!: Visibility;
 }

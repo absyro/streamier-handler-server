@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
   ServiceUnavailableException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { Request } from "express";
 import { isObject, isString } from "radash";
@@ -63,6 +64,36 @@ export class CommonService {
           );
 
           return;
+        }
+
+        if ("unauthorized" in response) {
+          if (typeof response.unauthorized !== "boolean") {
+            reject(
+              new BadGatewayException(
+                "Received response from handler is invalid",
+              ),
+            );
+
+            return;
+          }
+
+          if (response.unauthorized) {
+            if (response.success) {
+              reject(
+                new BadGatewayException(
+                  "Received response from handler is invalid",
+                ),
+              );
+
+              return;
+            }
+
+            reject(
+              new UnauthorizedException("Missing or invalid authentication"),
+            );
+
+            return;
+          }
         }
 
         if ("error" in response) {

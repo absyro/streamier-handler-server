@@ -10,5 +10,6 @@ export class UpdateStreamDto extends PartialType(
     "nodes",
     "signature",
     "variables",
+    "visibility",
   ]),
 ) {}
