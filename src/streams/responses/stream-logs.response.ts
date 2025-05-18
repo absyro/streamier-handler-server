@@ -1,5 +1,7 @@
-import { PickType } from "@nestjs/swagger";
+import { createZodDto } from "nestjs-zod";
 
-import { StreamDto } from "../schemas/stream.schema";
+import { StreamSchema } from "../schemas/stream.schema";
 
-export class StreamLogsResponse extends PickType(StreamDto, ["logs"]) {}
+export class StreamLogsResponse extends createZodDto(
+  StreamSchema.pick({ logs: true }),
+) {}

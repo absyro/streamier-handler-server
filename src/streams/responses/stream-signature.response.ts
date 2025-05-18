@@ -1,7 +1,7 @@
-import { PickType } from "@nestjs/swagger";
+import { createZodDto } from "nestjs-zod";
 
-import { StreamDto } from "../schemas/stream.schema";
+import { StreamSchema } from "../schemas/stream.schema";
 
-export class StreamSignatureResponse extends PickType(StreamDto, [
-  "signature",
-]) {}
+export class StreamSignatureResponse extends createZodDto(
+  StreamSchema.pick({ signature: true }),
+) {}

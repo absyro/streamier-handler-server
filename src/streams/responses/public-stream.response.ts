@@ -1,10 +1,12 @@
-import { OmitType } from "@nestjs/swagger";
+import { createZodDto } from "nestjs-zod";
 
-import { StreamDto } from "../schemas/stream.schema";
+import { StreamSchema } from "../schemas/stream.schema";
 
-export class PublicStreamResponse extends OmitType(StreamDto, [
-  "configuration",
-  "logs",
-  "signature",
-  "variables",
-]) {}
+export class PublicStreamResponse extends createZodDto(
+  StreamSchema.omit({
+    configuration: true,
+    logs: true,
+    signature: true,
+    variables: true,
+  }),
+) {}

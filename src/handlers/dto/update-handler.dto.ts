@@ -1,5 +1,7 @@
-import { PartialType } from "@nestjs/swagger";
+import { createZodDto } from "nestjs-zod";
 
-import { CreateHandlerDto } from "./create-handler.dto";
+import { CreateHandlerSchema } from "./create-handler.dto";
 
-export class UpdateHandlerDto extends PartialType(CreateHandlerDto) {}
+export class UpdateHandlerDto extends createZodDto(
+  CreateHandlerSchema.partial(),
+) {}
