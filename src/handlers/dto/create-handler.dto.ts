@@ -1,66 +1,48 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsBoolean, IsOptional, IsString, MaxLength } from "class-validator";
+import { createZodDto } from "nestjs-zod";
+import { z } from "zod";
 
-export class CreateHandlerDto {
-  @ApiPropertyOptional({
-    description:
+export const CreateHandlerSchema = z.object({
+  iconId: z
+    .string()
+    .nonempty()
+    .max(12)
+    .optional()
+    .describe(
       "The ID of the handler icon from https://icons8.com. Must be a valid icon ID.",
-    example: "000000",
-    maxLength: 12,
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(12)
-  public iconId?: string;
-
-  @ApiPropertyOptional({
-    description: "Whether the handler should be excluded from search results",
-  })
-  @IsBoolean()
-  @IsOptional()
-  public isSearchable?: boolean;
-
-  @ApiPropertyOptional({
-    description:
+    ),
+  isSearchable: z
+    .boolean()
+    .optional()
+    .describe("Whether the handler should be excluded from search results"),
+  longDescription: z
+    .string()
+    .nonempty()
+    .max(5000)
+    .optional()
+    .describe(
       "The long description of the handler. Used for detailed documentation of the handler's functionality.",
-    example:
-      "This handler is used for developing Discord bots. It allows you to create and manage Discord bots with ease.",
-    maxLength: 5000,
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(5000)
-  public longDescription?: string;
-
-  @ApiProperty({
-    description:
+    ),
+  name: z
+    .string()
+    .nonempty()
+    .max(100)
+    .describe(
       "The display name of the handler. Should be descriptive but concise.",
-    example: "Discord (Bots)",
-    maxLength: 100,
-  })
-  @IsString()
-  @MaxLength(100)
-  public name!: string;
-
-  @ApiPropertyOptional({
-    description:
+    ),
+  shortDescription: z
+    .string()
+    .nonempty()
+    .max(180)
+    .optional()
+    .describe(
       "A brief description of the handler's purpose. Used in listings and previews.",
-    example: "Create and manage Discord bots",
-    maxLength: 180,
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(180)
-  public shortDescription?: string;
+    ),
+  terms: z
+    .string()
+    .nonempty()
+    .max(5000)
+    .optional()
+    .describe("Terms of using this handler"),
+});
 
-  @ApiPropertyOptional({
-    description: "Terms of using this handler",
-    example:
-      "By using this handler, you agree to follow our community guidelines and terms of service.",
-    maxLength: 5000,
-  })
-  @IsOptional()
-  @IsString()
-  @MaxLength(5000)
-  public terms?: string;
-}
+export class CreateHandlerDto extends createZodDto(CreateHandlerSchema) {}

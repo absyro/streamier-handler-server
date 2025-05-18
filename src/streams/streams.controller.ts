@@ -415,7 +415,10 @@ export class StreamsController {
   public async readStreamsConfigurationSchema(
     @Param("handlerId") handlerId: string,
   ): Promise<StreamConfigurationSchemaResponse> {
-    return this.streamsService.readStreamsConfigurationSchema(handlerId);
+    const schema =
+      await this.streamsService.readStreamsConfigurationSchema(handlerId);
+
+    return { schema };
   }
 
   @ApiHeader({

@@ -1,9 +1,9 @@
 import { PartialType, PickType } from "@nestjs/swagger";
 
-import { Stream } from "../classes/stream.class";
+import { StreamDto } from "../schemas/stream.schema";
 
 export class UpdateStreamDto extends PartialType(
-  PickType(Stream, [
+  PickType(StreamDto, [
     "configuration",
     "isActive",
     "name",

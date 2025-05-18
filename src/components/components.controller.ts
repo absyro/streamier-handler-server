@@ -13,8 +13,8 @@ import {
 import { ReasonPhrases } from "http-status-codes";
 import { dedent } from "ts-dedent";
 
-import { Component } from "./classes/component.class";
 import { ComponentsService } from "./components.service";
+import { ComponentDto } from "./schemas/component.schema";
 
 @ApiBadGatewayResponse({
   description: "Received data from handler is invalid",
@@ -125,7 +125,7 @@ export class ComponentsController {
 
   @ApiOkResponse({
     description: "Successfully retrieved component details",
-    type: Component,
+    type: ComponentDto,
   })
   @ApiOperation({
     description:
@@ -141,7 +141,7 @@ export class ComponentsController {
   public async getComponent(
     @Param("handlerId") handlerId: string,
     @Param("componentName") componentName: string,
-  ): Promise<Component> {
+  ): Promise<ComponentDto> {
     const component = await this.componentsService.readComponent(
       handlerId,
       componentName,
@@ -152,7 +152,7 @@ export class ComponentsController {
 
   @ApiOkResponse({
     description: "Successfully retrieved handler components",
-    type: [Component],
+    type: [ComponentDto],
   })
   @ApiOperation({
     description: "Retrieves all components associated with a given handler ID.",
@@ -161,7 +161,7 @@ export class ComponentsController {
   @Get()
   public async listComponents(
     @Param("handlerId") handlerId: string,
-  ): Promise<Component[]> {
+  ): Promise<ComponentDto[]> {
     const components = await this.componentsService.listComponents(handlerId);
 
     return components;

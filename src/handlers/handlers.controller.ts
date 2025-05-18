@@ -28,7 +28,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { isString } from "class-validator";
 import { Request } from "express";
 import { ReasonPhrases } from "http-status-codes";
 import { dedent } from "ts-dedent";
@@ -163,7 +162,7 @@ export class HandlersController {
   ): Promise<Handler> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (!isString(userId)) {
+    if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
@@ -237,7 +236,7 @@ export class HandlersController {
   ): Promise<void> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (!isString(userId)) {
+    if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
@@ -427,7 +426,7 @@ export class HandlersController {
   ): Promise<HandlerAuthTokenResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (!isString(userId)) {
+    if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
@@ -553,7 +552,7 @@ export class HandlersController {
   ): Promise<Omit<PublicHandlerResponse, "updateTimestamp">> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    if (!isString(userId)) {
+    if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 

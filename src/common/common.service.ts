@@ -7,8 +7,10 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { Request } from "express";
-import { isObject, isString } from "radash";
+import { validate } from "nestjs-zod";
+import { isString } from "radash";
 import { DataSource } from "typeorm";
+import { z } from "zod";
 
 import { HandlersGateway } from "../handlers/handlers.gateway";
 import { HandlersService } from "../handlers/handlers.service";
@@ -46,93 +48,39 @@ export class CommonService {
 
     return new Promise((resolve, reject) => {
       socket.emit(event, ...data, (response: unknown) => {
-        if (!isObject(response)) {
+        const responseSchema = z.union([
+          z.object({ success: z.literal(true) }).catchall(z.unknown()),
+          z.object({
+            success: z.literal(false),
+            unauthorized: z.literal(true),
+          }),
+          z.object({
+            error: z.string().nonempty(),
+            success: z.literal(false),
+          }),
+        ]);
+
+        const validatedResponse = validate(
+          response,
+          responseSchema,
+          (zodError) => new BadGatewayException(zodError),
+        );
+
+        if ("unauthorized" in validatedResponse) {
           reject(
-            new BadGatewayException(
-              "Received response from handler is invalid",
-            ),
+            new UnauthorizedException("Missing or invalid authentication"),
           );
 
           return;
         }
 
-        if (!("success" in response) || typeof response.success !== "boolean") {
-          reject(
-            new BadGatewayException(
-              "Received response from handler is invalid",
-            ),
-          );
+        if ("error" in validatedResponse) {
+          reject(new BadRequestException(validatedResponse.error));
 
           return;
         }
 
-        if ("unauthorized" in response) {
-          if (typeof response.unauthorized !== "boolean") {
-            reject(
-              new BadGatewayException(
-                "Received response from handler is invalid",
-              ),
-            );
-
-            return;
-          }
-
-          if (response.unauthorized) {
-            if (response.success) {
-              reject(
-                new BadGatewayException(
-                  "Received response from handler is invalid",
-                ),
-              );
-
-              return;
-            }
-
-            reject(
-              new UnauthorizedException("Missing or invalid authentication"),
-            );
-
-            return;
-          }
-        }
-
-        if ("error" in response) {
-          if (!isString(response.error)) {
-            reject(
-              new BadGatewayException(
-                "Received response from handler is invalid",
-              ),
-            );
-
-            return;
-          }
-
-          if (response.success) {
-            reject(
-              new BadGatewayException(
-                "Received response from handler is invalid",
-              ),
-            );
-
-            return;
-          }
-
-          reject(new BadRequestException(response.error));
-
-          return;
-        }
-
-        if (!response.success) {
-          reject(
-            new BadGatewayException(
-              "Received response from handler is invalid",
-            ),
-          );
-
-          return;
-        }
-
-        resolve(response);
+        resolve(validatedResponse);
       });
     });
   }

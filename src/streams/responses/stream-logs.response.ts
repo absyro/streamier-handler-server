@@ -1,5 +1,5 @@
 import { PickType } from "@nestjs/swagger";
 
-import { Stream } from "../classes/stream.class";
+import { StreamDto } from "../schemas/stream.schema";
 
-export class StreamLogsResponse extends PickType(Stream, ["logs"]) {}
+export class StreamLogsResponse extends PickType(StreamDto, ["logs"]) {}

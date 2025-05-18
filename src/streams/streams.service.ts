@@ -1,14 +1,14 @@
 import { BadGatewayException, Injectable } from "@nestjs/common";
-import { plainToInstance } from "class-transformer";
-import { validateSync } from "class-validator";
-import { isArray, isEmpty, isObject, tryit } from "radash";
+import { validate } from "nestjs-zod";
+import { tryit } from "radash";
 import { DataSource } from "typeorm";
+import { z } from "zod";
 
 import { CommonService } from "../common/common.service";
-import { Stream } from "./classes/stream.class";
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamConfigurationSchemaResponse } from "./responses/stream-configuration-schema.response";
+import { StreamDto, StreamSchema } from "./schemas/stream.schema";
 
 @Injectable()
 export class StreamsService {
@@ -21,7 +21,7 @@ export class StreamsService {
     handlerId: string,
     userId: null | string,
     createStreamDto: CreateStreamDto,
-  ): Promise<Stream> {
+  ): Promise<StreamDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:create",
@@ -29,17 +29,19 @@ export class StreamsService {
       createStreamDto,
     );
 
-    if (!("stream" in response) || !isObject(response.stream)) {
-      throw new BadGatewayException("Received stream from handler is invalid");
-    }
-
-    const stream = plainToInstance(Stream, response.stream);
-
-    const errors = validateSync(stream);
-
-    if (!isEmpty(errors)) {
-      throw new BadGatewayException("Received stream from handler is invalid");
-    }
+    const { stream } = validate(
+      response,
+      z.object({
+        stream: StreamSchema.refine(
+          (s) =>
+            s.configuration === createStreamDto.configuration &&
+            s.name === createStreamDto.name &&
+            s.visibility === createStreamDto.visibility,
+          "Received stream properties do not match requested properties",
+        ),
+      }),
+      (zodError) => new BadGatewayException(zodError),
+    );
 
     await this.dataSource.query(
       "INSERT INTO user_streams (id, handler_id, user_id, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW())",
@@ -70,32 +72,18 @@ export class StreamsService {
   public async listUserStreams(
     handlerId: string,
     userId: null | string,
-  ): Promise<Stream[]> {
+  ): Promise<StreamDto[]> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:list",
       userId,
     );
 
-    if (!("streams" in response) || !isArray(response.streams)) {
-      throw new BadGatewayException(
-        "Received streams from handler are invalid",
-      );
-    }
-
-    const streams = response.streams.map((stream: unknown) => {
-      const instance = plainToInstance(Stream, stream);
-
-      const errors = validateSync(instance);
-
-      if (!isEmpty(errors)) {
-        throw new BadGatewayException(
-          "Received streams from handler are invalid",
-        );
-      }
-
-      return instance;
-    });
+    const { streams } = validate(
+      response,
+      z.object({ streams: z.array(StreamSchema) }),
+      (zodError) => new BadGatewayException(zodError),
+    );
 
     return streams;
   }
@@ -104,7 +92,7 @@ export class StreamsService {
     handlerId: string,
     userId: null | string,
     streamId: string,
-  ): Promise<Stream> {
+  ): Promise<StreamDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:read",
@@ -112,40 +100,35 @@ export class StreamsService {
       streamId,
     );
 
-    if (!("stream" in response) || !isObject(response.stream)) {
-      throw new BadGatewayException("Received stream from handler is invalid");
-    }
-
-    const stream = plainToInstance(Stream, response.stream);
-
-    const errors = validateSync(stream);
-
-    if (!isEmpty(errors)) {
-      throw new BadGatewayException("Received stream from handler is invalid");
-    }
-
-    if (stream.id !== streamId) {
-      throw new BadGatewayException(
-        "Received stream id does not match requested stream id",
-      );
-    }
+    const { stream } = validate(
+      response,
+      z.object({
+        stream: StreamSchema.refine(
+          (s) => s.id === streamId,
+          "Received stream id does not match requested stream id",
+        ),
+      }),
+      (zodError) => new BadGatewayException(zodError),
+    );
 
     return stream;
   }
 
   public async readStreamsConfigurationSchema(
     handlerId: string,
-  ): Promise<StreamConfigurationSchemaResponse> {
+  ): Promise<StreamConfigurationSchemaResponse["schema"]> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:read-configuration-schema",
     );
 
-    if (!("schema" in response) || !isObject(response.schema)) {
-      throw new BadGatewayException("Received schema from handler is invalid");
-    }
+    const { schema } = validate(
+      response,
+      z.object({ schema: z.record(z.unknown()) }),
+      (zodError) => new BadGatewayException(zodError),
+    );
 
-    return { schema: response.schema };
+    return schema;
   }
 
   public async updateStream(

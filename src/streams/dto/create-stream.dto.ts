@@ -1,8 +1,8 @@
 import { PickType } from "@nestjs/swagger";
 
-import { Stream } from "../classes/stream.class";
+import { StreamDto } from "../schemas/stream.schema";
 
-export class CreateStreamDto extends PickType(Stream, [
+export class CreateStreamDto extends PickType(StreamDto, [
   "configuration",
   "name",
   "visibility",

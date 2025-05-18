@@ -1,40 +1,25 @@
 import { BadGatewayException, Injectable } from "@nestjs/common";
-import { plainToInstance } from "class-transformer";
-import { isObject, validateSync } from "class-validator";
-import { isArray, isEmpty } from "radash";
+import { validate } from "nestjs-zod";
+import { z } from "zod";
 
 import { CommonService } from "../common/common.service";
-import { Component } from "./classes/component.class";
+import { ComponentDto, ComponentSchema } from "./schemas/component.schema";
 
 @Injectable()
 export class ComponentsService {
   public constructor(private readonly commonService: CommonService) {}
 
-  public async listComponents(handlerId: string): Promise<Component[]> {
+  public async listComponents(handlerId: string): Promise<ComponentDto[]> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "components:list",
     );
 
-    if (!("components" in response) || !isArray(response.components)) {
-      throw new BadGatewayException(
-        "Received components from handler are invalid",
-      );
-    }
-
-    const components = response.components.map((component: unknown) => {
-      const instance = plainToInstance(Component, component);
-
-      const errors = validateSync(instance);
-
-      if (!isEmpty(errors)) {
-        throw new BadGatewayException(
-          "Received components from handler are invalid",
-        );
-      }
-
-      return instance;
-    });
+    const { components } = validate(
+      response,
+      z.object({ components: z.array(ComponentSchema) }),
+      (zodError) => new BadGatewayException(zodError),
+    );
 
     return components;
   }
@@ -42,34 +27,23 @@ export class ComponentsService {
   public async readComponent(
     handlerId: string,
     componentName: string,
-  ): Promise<Component> {
+  ): Promise<ComponentDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "components:read",
       componentName,
     );
 
-    if (!("component" in response) || !isObject(response.component)) {
-      throw new BadGatewayException(
-        "Received component from handler is invalid",
-      );
-    }
-
-    const component = plainToInstance(Component, response.component);
-
-    const errors = validateSync(component);
-
-    if (!isEmpty(errors)) {
-      throw new BadGatewayException(
-        "Received component from handler is invalid",
-      );
-    }
-
-    if (component.name !== componentName) {
-      throw new BadGatewayException(
-        "Received component name does not match requested component name",
-      );
-    }
+    const { component } = validate(
+      response,
+      z.object({
+        component: ComponentSchema.refine(
+          (c) => c.name === componentName,
+          "Received component name does not match requested component name",
+        ),
+      }),
+      (zodError) => new BadGatewayException(zodError),
+    );
 
     return component;
   }

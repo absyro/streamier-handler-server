@@ -21,20 +21,20 @@
     "@nestjs/throttler": "^6.4.0",
     "@nestjs/typeorm": "^11.0.0",
     "@nestjs/websockets": "^11.1.1",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.2",
     "compression": "^1.8.0",
     "express-partial-response": "^1.0.4",
     "http-status-codes": "^2.3.0",
     "joi": "^17.13.3",
     "nestjs-redoc": "^2.2.2",
+    "nestjs-zod": "^4.3.1",
     "radash": "^12.1.0",
     "randomatic": "^3.1.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "socket.io": "^4.8.1",
     "ts-dedent": "^2.2.0",
-    "typeorm": "^0.3.24"
+    "typeorm": "^0.3.24",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@compodoc/compodoc": "^1.1.26",

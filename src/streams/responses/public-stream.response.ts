@@ -1,8 +1,8 @@
 import { OmitType } from "@nestjs/swagger";
 
-import { Stream } from "../classes/stream.class";
+import { StreamDto } from "../schemas/stream.schema";
 
-export class PublicStreamResponse extends OmitType(Stream, [
+export class PublicStreamResponse extends OmitType(StreamDto, [
   "configuration",
   "logs",
   "signature",

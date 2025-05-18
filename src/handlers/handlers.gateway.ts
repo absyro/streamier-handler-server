@@ -6,7 +6,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
-import { isString } from "class-validator";
+import { isString } from "radash";
 
 import { HandlersService } from "./handlers.service";
 import { HandlerSocketData } from "./interfaces/handler-socket-data.interface";
