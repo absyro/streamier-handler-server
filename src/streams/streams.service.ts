@@ -6,6 +6,7 @@ import { DataSource } from "typeorm";
 
 import { CommonService } from "../common/common.service";
 import { Stream } from "./classes/stream.class";
+import { CreateStreamDto } from "./dto/create-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamConfigurationSchemaResponse } from "./responses/stream-configuration-schema.response";
 
@@ -19,7 +20,7 @@ export class StreamsService {
   public async createStream(
     handlerId: string,
     userId: string,
-    createStreamDto: Pick<Stream, "configuration" | "name">,
+    createStreamDto: CreateStreamDto,
   ): Promise<Stream> {
     const response = await this.commonService.emitToHandler(
       handlerId,

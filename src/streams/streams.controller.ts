@@ -32,7 +32,6 @@ import { isString } from "radash";
 import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
-import { Stream } from "./classes/stream.class";
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { PublicStreamResponse } from "./responses/public-stream.response";
@@ -207,9 +206,7 @@ export class StreamsController {
     @Body() createStreamDto: CreateStreamDto,
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<
-    Omit<Stream, "configuration" | "logs" | "signature" | "variables">
-  > {
+  ): Promise<PublicStreamResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -324,9 +321,7 @@ export class StreamsController {
   public async listUserStreams(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<
-    Omit<Stream, "configuration" | "logs" | "signature" | "variables">[]
-  > {
+  ): Promise<PublicStreamResponse[]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -391,9 +386,7 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<
-    Omit<Stream, "configuration" | "logs" | "signature" | "variables">
-  > {
+  ): Promise<PublicStreamResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -454,7 +447,7 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<Pick<Stream, "configuration">> {
+  ): Promise<StreamConfigurationResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -518,7 +511,7 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<Pick<Stream, "logs">> {
+  ): Promise<StreamLogsResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -604,7 +597,7 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<Pick<Stream, "signature">> {
+  ): Promise<StreamSignatureResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -668,7 +661,7 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<Pick<Stream, "variables">> {
+  ): Promise<StreamVariablesResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -765,9 +758,7 @@ export class StreamsController {
     @Param("streamId") streamId: string,
     @Body() updateStreamDto: UpdateStreamDto,
     @Req() request: Request,
-  ): Promise<
-    Omit<Stream, "configuration" | "logs" | "signature" | "variables">
-  > {
+  ): Promise<PublicStreamResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {

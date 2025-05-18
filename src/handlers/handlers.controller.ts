@@ -303,7 +303,7 @@ export class HandlersController {
   @Get()
   public async listHandlers(
     @Query() searchDto: SearchHandlerDto,
-  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">[]> {
+  ): Promise<Omit<PublicHandlerResponse, "updateTimestamp">[]> {
     const handlers = await this.handlersService.search(searchDto);
 
     return handlers.map(({ authToken, ...handler }) => handler);
@@ -346,7 +346,7 @@ export class HandlersController {
   @Get(":handlerId")
   public async readHandler(
     @Param("handlerId") handlerId: string,
-  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
+  ): Promise<Omit<PublicHandlerResponse, "updateTimestamp">> {
     const handler = await this.handlersService.findOne(handlerId);
 
     if (!handler) {
@@ -424,7 +424,7 @@ export class HandlersController {
   public async regenerateAuthToken(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<Pick<Handler, "authToken">> {
+  ): Promise<HandlerAuthTokenResponse> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
@@ -550,7 +550,7 @@ export class HandlersController {
     @Param("handlerId") handlerId: string,
     @Body() updateHandlerDto: UpdateHandlerDto,
     @Req() request: Request,
-  ): Promise<Omit<Handler, "authToken" | "updateTimestamp">> {
+  ): Promise<Omit<PublicHandlerResponse, "updateTimestamp">> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (!isString(userId)) {
