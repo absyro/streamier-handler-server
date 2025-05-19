@@ -3,14 +3,14 @@ import { z } from "zod";
 export const streamPermissionMatrixSchema = z
   .object({
     all: z
-      .array(z.string().max(500).describe("Resource path or identifier"))
+      .array(z.string().max(500).describe("Resource identifier"))
       .max(100)
       .describe("Resources accessible to everyone with this permission type"),
     roles: z
       .record(
         z.string().nonempty().max(100).describe("Name of the role"),
         z
-          .array(z.string().max(500).describe("Resource path or identifier"))
+          .array(z.string().max(500).describe("Resource identifier"))
           .max(100)
           .describe("Resources accessible to this specific role"),
       )
@@ -19,7 +19,7 @@ export const streamPermissionMatrixSchema = z
       .record(
         z.string().length(8).describe("8-character team ID"),
         z
-          .array(z.string().max(500).describe("Resource path or identifier"))
+          .array(z.string().max(500).describe("Resource identifier"))
           .max(100)
           .describe("Resources accessible to this specific team"),
       )
@@ -28,7 +28,7 @@ export const streamPermissionMatrixSchema = z
       .record(
         z.string().length(8).describe("8-character user ID"),
         z
-          .array(z.string().max(500).describe("Resource path or identifier"))
+          .array(z.string().max(500).describe("Resource identifier"))
           .max(100)
           .describe("Resources accessible to this specific user"),
       )
