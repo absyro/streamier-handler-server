@@ -66,13 +66,13 @@ export class StreamsService {
     );
   }
 
-  public async listStreamIds(
+  public async listUserStreamIds(
     handlerId: string,
     userId: null | string,
   ): Promise<StreamIdsDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
-      "streams:list",
+      "streams:users:list:ids",
       userId,
     );
 

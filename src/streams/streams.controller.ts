@@ -237,26 +237,24 @@ export class StreamsController {
     return this.streamsService.deleteStream(handlerId, userId, streamId);
   }
 
-  @ApiHeader({
-    description: "Session ID for authentication",
-    name: "X-Session-Id",
-  })
   @ApiOkResponse({
-    description: "List of stream IDs for the user",
+    description: "List of stream IDs from the given user",
     type: StreamIdsDto,
   })
   @ApiOperation({
-    description: "Retrieves IDs of all streams for the given user.",
-    summary: "List user streams",
+    description: "Retrieves IDs of all streams from the given user.",
+    summary: "List user stream IDs",
   })
-  @Get()
-  public async listStreamIds(
+  @ApiParam({
+    description: "ID of the user to retrieve streams from",
+    name: "userId",
+  })
+  @Get("users/:userId")
+  public async listUserStreamIds(
     @Param("handlerId") handlerId: string,
-    @Req() request: Request,
+    @Param("userId") userId: string,
   ): Promise<StreamIdsDto> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
-
-    const streamIds = await this.streamsService.listStreamIds(
+    const streamIds = await this.streamsService.listUserStreamIds(
       handlerId,
       userId,
     );
