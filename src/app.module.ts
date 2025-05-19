@@ -12,7 +12,7 @@ import { StreamsModule } from "./streams/streams.module";
   imports: [
     ConfigModule,
     DatabaseModule,
-    ThrottlerModule.forRoot({ throttlers: [{ limit: 20, ttl: 60000 }] }),
+    ThrottlerModule.forRoot({ throttlers: [{ limit: 40, ttl: 60000 }] }),
     HandlersModule,
     StreamsModule,
     ComponentsModule,

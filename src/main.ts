@@ -29,7 +29,7 @@ async function bootstrap(): Promise<void> {
         This documentation includes all available API endpoints for the Streamier API Server.
 
         ## Rate Limiting
-        The API is rate-limited to 20 requests per minute to prevent abuse.
+        The API is rate-limited to 40 requests per minute to prevent abuse.
 
         ## Error Handling
         All errors are returned in a consistent format with appropriate HTTP status codes.`,
