@@ -3,9 +3,11 @@ import { validate } from "nestjs-zod";
 import { tryit } from "radash";
 import { DataSource } from "typeorm";
 import { z } from "zod";
+import { zodDeepPartial } from "zod-deep-partial";
 
 import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
+import { PartialStreamDto } from "./dto/partial-stream.dto";
 import { StreamConfigurationSchemaDto } from "./dto/stream-configuration-schema";
 import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
@@ -32,14 +34,7 @@ export class StreamsService {
 
     const { stream } = validate(
       response,
-      z.object({
-        stream: streamSchema.refine(
-          (s) =>
-            s.configuration === createStreamDto.configuration &&
-            s.name === createStreamDto.name,
-          "Received stream properties do not match requested properties",
-        ),
-      }),
+      z.object({ stream: streamSchema }),
       (zodError) => new BadGatewayException(zodError),
     );
 
@@ -69,30 +64,30 @@ export class StreamsService {
     );
   }
 
-  public async listStreams(
+  public async listStreamIds(
     handlerId: string,
     userId: null | string,
-  ): Promise<StreamDto[]> {
+  ): Promise<string[]> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:list",
       userId,
     );
 
-    const { streams } = validate(
+    const { streamIds } = validate(
       response,
-      z.object({ streams: z.array(streamSchema) }),
+      z.object({ streamIds: z.array(z.string().length(8)).max(100) }),
       (zodError) => new BadGatewayException(zodError),
     );
 
-    return streams;
+    return streamIds;
   }
 
   public async readStream(
     handlerId: string,
     userId: null | string,
     streamId: string,
-  ): Promise<StreamDto> {
+  ): Promise<PartialStreamDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:read",
@@ -102,12 +97,7 @@ export class StreamsService {
 
     const { stream } = validate(
       response,
-      z.object({
-        stream: streamSchema.refine(
-          (s) => s.id === streamId,
-          "Received stream id does not match requested stream id",
-        ),
-      }),
+      z.object({ stream: zodDeepPartial(streamSchema) }),
       (zodError) => new BadGatewayException(zodError),
     );
 

@@ -239,23 +239,26 @@ export class StreamsController {
     name: "X-Session-Id",
   })
   @ApiOkResponse({
-    description: "List of streams for the user",
-    type: [PartialStreamDto],
+    description: "List of stream IDs for the user",
+    type: [String],
   })
   @ApiOperation({
-    description: "Retrieves all readable streams for the given user.",
+    description: "Retrieves IDs of all streams for the given user.",
     summary: "List user streams",
   })
   @Get()
-  public async listStreams(
+  public async listStreamIds(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<PartialStreamDto[]> {
+  ): Promise<string[]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    const streams = await this.streamsService.listStreams(handlerId, userId);
+    const streamIds = await this.streamsService.listStreamIds(
+      handlerId,
+      userId,
+    );
 
-    return streams;
+    return streamIds;
   }
 
   @ApiHeader({
