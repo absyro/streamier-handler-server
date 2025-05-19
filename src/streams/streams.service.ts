@@ -24,7 +24,7 @@ export class StreamsService {
 
   public async createStream(
     handlerId: string,
-    userId: null | string,
+    userId: string,
     createStreamDto: CreateStreamDto,
   ): Promise<StreamDto> {
     const response = await this.commonService.emitToHandler(
@@ -50,7 +50,7 @@ export class StreamsService {
 
   public async deleteStream(
     handlerId: string,
-    userId: null | string,
+    userId: string,
     streamId: string,
   ): Promise<void> {
     await tryit(this.dataSource.query.bind(this.dataSource))(
@@ -68,7 +68,7 @@ export class StreamsService {
 
   public async listUserStreamIds(
     handlerId: string,
-    userId: null | string,
+    userId: string,
   ): Promise<StreamIdsDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
@@ -125,7 +125,7 @@ export class StreamsService {
 
   public async updateStream(
     handlerId: string,
-    userId: null | string,
+    userId: string,
     streamId: string,
     updateStreamDto: UpdateStreamDto,
   ): Promise<void> {
