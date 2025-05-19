@@ -7,7 +7,7 @@ import { zodDeepPartial } from "zod-deep-partial";
 
 import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
-import { PartialStreamDto } from "./dto/partial-stream.dto";
+import { DeepPartialStreamDto } from "./dto/deep-partial-stream.dto";
 import { StreamConfigurationSchemaDto } from "./dto/stream-configuration-schema";
 import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
@@ -87,7 +87,7 @@ export class StreamsService {
     handlerId: string,
     userId: null | string,
     streamId: string,
-  ): Promise<PartialStreamDto> {
+  ): Promise<DeepPartialStreamDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:read",
