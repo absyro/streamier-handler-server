@@ -1,5 +1,41 @@
 import { z } from "zod";
 
+export const streamPermissionMatrixSchema = z
+  .object({
+    all: z
+      .array(z.string().max(500).describe("Resource path or identifier"))
+      .max(100)
+      .describe("Resources accessible to everyone with this permission type"),
+    roles: z
+      .record(
+        z.string().nonempty().max(100).describe("Name of the role"),
+        z
+          .array(z.string().max(500).describe("Resource path or identifier"))
+          .max(100)
+          .describe("Resources accessible to this specific role"),
+      )
+      .describe("Role-based permission exceptions"),
+    teams: z
+      .record(
+        z.string().length(8).describe("8-character team ID"),
+        z
+          .array(z.string().max(500).describe("Resource path or identifier"))
+          .max(100)
+          .describe("Resources accessible to this specific team"),
+      )
+      .describe("Team-based permission exceptions"),
+    users: z
+      .record(
+        z.string().length(8).describe("8-character user ID"),
+        z
+          .array(z.string().max(500).describe("Resource path or identifier"))
+          .max(100)
+          .describe("Resources accessible to this specific user"),
+      )
+      .describe("User-based permission exceptions"),
+  })
+  .describe("Permission settings for this permission type");
+
 export const streamSchema = z.object({
   configuration: z
     .record(
@@ -121,54 +157,10 @@ export const streamSchema = z.object({
       }
     }),
   permissions: z
-    .record(
-      z
-        .enum(["read", "write"])
-        .describe("Permission type (either 'read' or 'write')"),
-      z
-        .object({
-          all: z
-            .array(z.string().max(500).describe("Resource path or identifier"))
-            .max(100)
-            .describe(
-              "Resources accessible to everyone with this permission type",
-            ),
-          roles: z
-            .record(
-              z.string().nonempty().max(100).describe("Name of the role"),
-              z
-                .array(
-                  z.string().max(500).describe("Resource path or identifier"),
-                )
-                .max(100)
-                .describe("Resources accessible to this specific role"),
-            )
-            .describe("Role-based permission exceptions"),
-          teams: z
-            .record(
-              z.string().length(8).describe("8-character team ID"),
-              z
-                .array(
-                  z.string().max(500).describe("Resource path or identifier"),
-                )
-                .max(100)
-                .describe("Resources accessible to this specific team"),
-            )
-            .describe("Team-based permission exceptions"),
-          users: z
-            .record(
-              z.string().length(8).describe("8-character user ID"),
-              z
-                .array(
-                  z.string().max(500).describe("Resource path or identifier"),
-                )
-                .max(100)
-                .describe("Resources accessible to this specific user"),
-            )
-            .describe("User-based permission exceptions"),
-        })
-        .describe("Permission settings for this permission type"),
-    )
+    .object({
+      read: streamPermissionMatrixSchema.describe("Read permissions"),
+      write: streamPermissionMatrixSchema.describe("Write permissions"),
+    })
     .describe(
       "Access control configuration organized by permission type (read/write)",
     ),
