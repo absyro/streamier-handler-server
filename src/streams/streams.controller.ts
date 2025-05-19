@@ -247,16 +247,13 @@ export class StreamsController {
     summary: "List user streams",
   })
   @Get()
-  public async listUserStreams(
+  public async listStreams(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
   ): Promise<PartialStreamDto[]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    const streams = await this.streamsService.listUserStreams(
-      handlerId,
-      userId,
-    );
+    const streams = await this.streamsService.listStreams(handlerId, userId);
 
     return streams;
   }

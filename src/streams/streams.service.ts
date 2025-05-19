@@ -69,7 +69,7 @@ export class StreamsService {
     );
   }
 
-  public async listUserStreams(
+  public async listStreams(
     handlerId: string,
     userId: null | string,
   ): Promise<StreamDto[]> {
