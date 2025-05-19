@@ -260,7 +260,7 @@ export class StreamsController {
       userId,
     );
 
-    return { streamIds };
+    return streamIds;
   }
 
   @ApiHeader({

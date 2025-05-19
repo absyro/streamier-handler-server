@@ -8,8 +8,11 @@ import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { PartialStreamDto } from "./dto/partial-stream.dto";
 import { StreamConfigurationSchemaDto } from "./dto/stream-configuration-schema";
+import { StreamIdsDto } from "./dto/stream-ids.dto";
 import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
+import { streamConfigurationSchemaSchema } from "./schemas/stream-configuration-schema.schema";
+import { streamIdsSchema } from "./schemas/stream-ids.schema";
 import { streamSchema } from "./schemas/stream.schema";
 
 @Injectable()
@@ -66,7 +69,7 @@ export class StreamsService {
   public async listStreamIds(
     handlerId: string,
     userId: null | string,
-  ): Promise<string[]> {
+  ): Promise<StreamIdsDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:list",
@@ -75,7 +78,7 @@ export class StreamsService {
 
     const { streamIds } = validate(
       response,
-      z.object({ streamIds: z.array(z.string().length(8)).max(100) }),
+      z.object({ streamIds: streamIdsSchema }),
       (zodError) => new BadGatewayException(zodError),
     );
 
@@ -113,7 +116,7 @@ export class StreamsService {
 
     const { schema } = validate(
       response,
-      z.object({ schema: z.record(z.unknown()) }),
+      z.object({ schema: streamConfigurationSchemaSchema }),
       (zodError) => new BadGatewayException(zodError),
     );
 

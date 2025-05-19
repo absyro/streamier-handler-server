@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-export const streamIdsSchema = z.object({
-  streamIds: z
-    .array(z.string().length(8).describe("8-character stream ID"))
-    .max(100)
-    .describe("List of stream IDs"),
-});
+import { streamSchema } from "./stream.schema";
+
+export const streamIdsSchema = z
+  .array(streamSchema.shape.id)
+  .max(100)
+  .describe("List of stream IDs");

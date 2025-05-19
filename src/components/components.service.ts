@@ -18,7 +18,7 @@ export class ComponentsService {
 
     const { components } = validate(
       response,
-      z.object({ components: z.array(componentSchema) }),
+      z.object({ components: componentSchema.array() }),
       (zodError) => new BadGatewayException(zodError),
     );
 
