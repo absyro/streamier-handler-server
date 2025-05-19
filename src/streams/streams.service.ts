@@ -3,11 +3,10 @@ import { validate } from "nestjs-zod";
 import { tryit } from "radash";
 import { DataSource } from "typeorm";
 import { z } from "zod";
-import { zodDeepPartial } from "zod-deep-partial";
 
 import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
-import { DeepPartialStreamDto } from "./dto/deep-partial-stream.dto";
+import { PartialStreamDto } from "./dto/partial-stream.dto";
 import { StreamConfigurationSchemaDto } from "./dto/stream-configuration-schema";
 import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
@@ -87,7 +86,7 @@ export class StreamsService {
     handlerId: string,
     userId: null | string,
     streamId: string,
-  ): Promise<DeepPartialStreamDto> {
+  ): Promise<PartialStreamDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:read",
@@ -97,7 +96,7 @@ export class StreamsService {
 
     const { stream } = validate(
       response,
-      z.object({ stream: zodDeepPartial(streamSchema) }),
+      z.object({ stream: streamSchema.partial() }),
       (zodError) => new BadGatewayException(zodError),
     );
 

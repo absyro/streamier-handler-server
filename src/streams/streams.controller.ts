@@ -31,7 +31,7 @@ import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
-import { DeepPartialStreamDto } from "./dto/deep-partial-stream.dto";
+import { PartialStreamDto } from "./dto/partial-stream.dto";
 import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
@@ -268,7 +268,7 @@ export class StreamsController {
   })
   @ApiOkResponse({
     description: "Stream information retrieved successfully",
-    type: DeepPartialStreamDto,
+    type: PartialStreamDto,
   })
   @ApiOperation({
     description: "Retrieves information about a specific stream.",
@@ -283,7 +283,7 @@ export class StreamsController {
     @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<DeepPartialStreamDto> {
+  ): Promise<PartialStreamDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     const stream = await this.streamsService.readStream(
@@ -332,7 +332,7 @@ export class StreamsController {
   })
   @ApiOkResponse({
     description: "Stream successfully updated",
-    type: DeepPartialStreamDto,
+    type: PartialStreamDto,
   })
   @ApiOperation({
     description: dedent`
@@ -351,7 +351,7 @@ export class StreamsController {
     @Param("streamId") streamId: string,
     @Body() updateStreamDto: UpdateStreamDto,
     @Req() request: Request,
-  ): Promise<DeepPartialStreamDto> {
+  ): Promise<PartialStreamDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     await this.streamsService.updateStream(
