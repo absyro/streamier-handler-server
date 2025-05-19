@@ -7,9 +7,9 @@ import { z } from "zod";
 import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { PartialStreamDto } from "./dto/partial-stream.dto";
-import { StreamConfigurationSchemaDto } from "./dto/stream-configuration-schema";
 import { StreamIdsDto } from "./dto/stream-ids.dto";
 import { StreamDto } from "./dto/stream.dto";
+import { StreamsConfigurationSchemaDto } from "./dto/streams-configuration-schema.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { streamConfigurationSchemaSchema } from "./schemas/stream-configuration-schema.schema";
 import { streamIdsSchema } from "./schemas/stream-ids.schema";
@@ -108,7 +108,7 @@ export class StreamsService {
 
   public async readStreamsConfigurationSchema(
     handlerId: string,
-  ): Promise<StreamConfigurationSchemaDto["schema"]> {
+  ): Promise<StreamsConfigurationSchemaDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:read-configuration-schema",

@@ -34,6 +34,7 @@ import { CreateStreamDto } from "./dto/create-stream.dto";
 import { PartialStreamDto } from "./dto/partial-stream.dto";
 import { StreamIdsDto } from "./dto/stream-ids.dto";
 import { StreamDto } from "./dto/stream.dto";
+import { StreamsConfigurationSchemaDto } from "./dto/streams-configuration-schema.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
@@ -294,6 +295,31 @@ export class StreamsController {
     );
 
     return stream;
+  }
+
+  @ApiOkResponse({
+    description: "Streams configuration schema successfully retrieved",
+    type: StreamsConfigurationSchemaDto,
+  })
+  @ApiOperation({
+    description: dedent`
+    Retrieves the configuration schema for streams.
+
+    This schema defines what type of configuration streams need.
+
+    This schema is not validated on the server side.
+
+    See https://json-schema.org/draft-07 for more information.`,
+    summary: "Read streams configuration schema",
+  })
+  @Get("configuration-schema")
+  public async readStreamsConfigurationSchema(
+    @Param("handlerId") handlerId: string,
+  ): Promise<StreamsConfigurationSchemaDto> {
+    const schema =
+      await this.streamsService.readStreamsConfigurationSchema(handlerId);
+
+    return schema;
   }
 
   @ApiBadRequestResponse({
