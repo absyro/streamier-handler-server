@@ -3,34 +3,34 @@ import { z } from "zod";
 export const streamPermissionMatrixSchema = z
   .object({
     all: z
-      .array(z.string().max(500).describe("Resource identifier"))
+      .array(z.string().max(500).describe("Field identifier"))
       .max(100)
-      .describe("Resources accessible to everyone with this permission type"),
+      .describe("Fields accessible to everyone with this permission type"),
     roles: z
       .record(
         z.string().nonempty().max(100).describe("Name of the role"),
         z
-          .array(z.string().max(500).describe("Resource identifier"))
+          .array(z.string().max(500).describe("Field identifier"))
           .max(100)
-          .describe("Resources accessible to this specific role"),
+          .describe("Fields accessible to this specific role"),
       )
       .describe("Role-based permission exceptions"),
     teams: z
       .record(
         z.string().length(8).describe("8-character team ID"),
         z
-          .array(z.string().max(500).describe("Resource identifier"))
+          .array(z.string().max(500).describe("Field identifier"))
           .max(100)
-          .describe("Resources accessible to this specific team"),
+          .describe("Fields accessible to this specific team"),
       )
       .describe("Team-based permission exceptions"),
     users: z
       .record(
         z.string().length(8).describe("8-character user ID"),
         z
-          .array(z.string().max(500).describe("Resource identifier"))
+          .array(z.string().max(500).describe("Field identifier"))
           .max(100)
-          .describe("Resources accessible to this specific user"),
+          .describe("Fields accessible to this specific user"),
       )
       .describe("User-based permission exceptions"),
   })
