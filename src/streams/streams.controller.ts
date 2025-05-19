@@ -32,6 +32,7 @@ import { dedent } from "ts-dedent";
 import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { PartialStreamDto } from "./dto/partial-stream.dto";
+import { StreamIdsDto } from "./dto/stream-ids.dto";
 import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
@@ -241,7 +242,7 @@ export class StreamsController {
   })
   @ApiOkResponse({
     description: "List of stream IDs for the user",
-    type: [String],
+    type: StreamIdsDto,
   })
   @ApiOperation({
     description: "Retrieves IDs of all streams for the given user.",
@@ -251,7 +252,7 @@ export class StreamsController {
   public async listStreamIds(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<string[]> {
+  ): Promise<StreamIdsDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     const streamIds = await this.streamsService.listStreamIds(
@@ -259,7 +260,7 @@ export class StreamsController {
       userId,
     );
 
-    return streamIds;
+    return { streamIds };
   }
 
   @ApiHeader({
