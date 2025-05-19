@@ -32,6 +32,7 @@ import { dedent } from "ts-dedent";
 import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { PartialStreamDto } from "./dto/partial-stream.dto";
+import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
@@ -172,7 +173,7 @@ export class StreamsController {
   })
   @ApiCreatedResponse({
     description: "Stream successfully created",
-    type: PartialStreamDto,
+    type: StreamDto,
   })
   @ApiHeader({
     description: "Session ID for authentication",
@@ -191,7 +192,7 @@ export class StreamsController {
     @Body() createStreamDto: CreateStreamDto,
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<PartialStreamDto> {
+  ): Promise<StreamDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     const stream = await this.streamsService.createStream(
