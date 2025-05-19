@@ -3,7 +3,8 @@ import { validate } from "nestjs-zod";
 import { z } from "zod";
 
 import { CommonService } from "../common/common.service";
-import { ComponentDto, ComponentSchema } from "./schemas/component.schema";
+import { ComponentDto } from "./dto/component.dto";
+import { componentSchema } from "./schemas/component.schema";
 
 @Injectable()
 export class ComponentsService {
@@ -17,7 +18,7 @@ export class ComponentsService {
 
     const { components } = validate(
       response,
-      z.object({ components: z.array(ComponentSchema) }),
+      z.object({ components: z.array(componentSchema) }),
       (zodError) => new BadGatewayException(zodError),
     );
 
@@ -37,7 +38,7 @@ export class ComponentsService {
     const { component } = validate(
       response,
       z.object({
-        component: ComponentSchema.refine(
+        component: componentSchema.refine(
           (c) => c.name === componentName,
           "Received component name does not match requested component name",
         ),

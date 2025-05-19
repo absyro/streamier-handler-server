@@ -1,9 +1,8 @@
-import { createZodDto } from "nestjs-zod";
 import { z } from "zod";
 
 const snakeCaseRegex = /^[a-z]+(?:_[a-z]+)*$/u;
 
-export const ComponentSchema = z.object({
+export const componentSchema = z.object({
   category: z
     .string()
     .nonempty()
@@ -58,5 +57,3 @@ export const ComponentSchema = z.object({
       "The schema of the variables. This data will not be validated on the server side. See https://json-schema.org/draft-07",
     ),
 });
-
-export class ComponentDto extends createZodDto(ComponentSchema) {}

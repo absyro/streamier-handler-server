@@ -14,7 +14,7 @@ import { ReasonPhrases } from "http-status-codes";
 import { dedent } from "ts-dedent";
 
 import { ComponentsService } from "./components.service";
-import { ComponentDto } from "./schemas/component.schema";
+import { ComponentDto } from "./dto/component.dto";
 
 @ApiBadGatewayResponse({
   description: "Received data from handler is invalid",

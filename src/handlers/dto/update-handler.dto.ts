@@ -1,7 +1,7 @@
 import { createZodDto } from "nestjs-zod";
 
-import { CreateHandlerSchema } from "./create-handler.dto";
+import { createHandlerSchema } from "../schemas/create-handler.schema";
 
 export class UpdateHandlerDto extends createZodDto(
-  CreateHandlerSchema.partial(),
+  createHandlerSchema.partial(),
 ) {}

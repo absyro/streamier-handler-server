@@ -34,12 +34,12 @@ import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
+import { HandlerAuthTokenDto } from "./dto/handler-auth-token.dto";
+import { HandlerWithoutAuthTokenDto } from "./dto/handler-without-auth-token.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
 import { HandlersService } from "./handlers.service";
-import { HandlerAuthTokenResponse } from "./responses/handler-auth-token.response";
-import { PublicHandlerResponse } from "./responses/public-handler.response";
 
 @ApiQuery({
   description: dedent`
@@ -277,7 +277,7 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "List of handlers matching the search criteria",
-    type: [PublicHandlerResponse],
+    type: [HandlerWithoutAuthTokenDto],
   })
   @ApiOperation({
     description: dedent`
@@ -290,7 +290,7 @@ export class HandlersController {
   @Get()
   public async listHandlers(
     @Query() searchDto: SearchHandlerDto,
-  ): Promise<Omit<PublicHandlerResponse, "updateTimestamp">[]> {
+  ): Promise<Omit<HandlerWithoutAuthTokenDto, "updateTimestamp">[]> {
     const handlers = await this.handlersService.search(searchDto);
 
     return handlers.map(({ authToken, ...handler }) => handler);
@@ -318,7 +318,7 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "Handler information",
-    type: PublicHandlerResponse,
+    type: HandlerWithoutAuthTokenDto,
   })
   @ApiOperation({
     description: "Retrieves information about a specific handler.",
@@ -331,7 +331,7 @@ export class HandlersController {
   @Get(":handlerId")
   public async readHandler(
     @Param("handlerId") handlerId: string,
-  ): Promise<Omit<PublicHandlerResponse, "updateTimestamp">> {
+  ): Promise<Omit<HandlerWithoutAuthTokenDto, "updateTimestamp">> {
     const handler = await this.handlersService.findOne(handlerId);
 
     if (!handler) {
@@ -370,7 +370,7 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "Auth token successfully regenerated",
-    type: HandlerAuthTokenResponse,
+    type: HandlerAuthTokenDto,
   })
   @ApiOperation({
     description:
@@ -405,7 +405,7 @@ export class HandlersController {
   public async regenerateAuthToken(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<HandlerAuthTokenResponse> {
+  ): Promise<HandlerAuthTokenDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (userId === null) {
@@ -489,7 +489,7 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "Handler successfully updated",
-    type: PublicHandlerResponse,
+    type: HandlerWithoutAuthTokenDto,
   })
   @ApiOperation({
     description:
@@ -525,7 +525,7 @@ export class HandlersController {
     @Param("handlerId") handlerId: string,
     @Body() updateHandlerDto: UpdateHandlerDto,
     @Req() request: Request,
-  ): Promise<Omit<PublicHandlerResponse, "updateTimestamp">> {
+  ): Promise<Omit<HandlerWithoutAuthTokenDto, "updateTimestamp">> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (userId === null) {

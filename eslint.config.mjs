@@ -88,11 +88,6 @@ const eslintConfig = [
           types: ["boolean"],
         },
         {
-          format: ["camelCase", "PascalCase"],
-          modifiers: ["const"],
-          selector: "variable",
-        },
-        {
           format: ["camelCase"],
           leadingUnderscore: "require",
           modifiers: ["private"],
@@ -152,6 +147,7 @@ const eslintConfig = [
   eslintPluginImport.flatConfigs.recommended,
   {
     rules: {
+      "import/no-default-export": "error",
       "import/no-unresolved": "off",
     },
   },

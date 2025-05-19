@@ -1,15 +1,18 @@
 import { createZodDto } from "nestjs-zod";
 
-import { StreamSchema } from "../schemas/stream.schema";
+import { streamSchema } from "../schemas/stream.schema";
 
 export class UpdateStreamDto extends createZodDto(
-  StreamSchema.pick({
-    configuration: true,
-    isActive: true,
-    name: true,
-    nodes: true,
-    signature: true,
-    variables: true,
-    visibility: true,
-  }).partial(),
+  streamSchema
+    .pick({
+      configuration: true,
+      isActive: true,
+      name: true,
+      nodes: true,
+      permissions: true,
+      roles: true,
+      signature: true,
+      variables: true,
+    })
+    .partial(),
 ) {}

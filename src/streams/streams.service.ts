@@ -6,9 +6,10 @@ import { z } from "zod";
 
 import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
+import { StreamConfigurationSchemaDto } from "./dto/stream-configuration-schema";
+import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
-import { StreamConfigurationSchemaResponse } from "./responses/stream-configuration-schema.response";
-import { StreamDto, StreamSchema } from "./schemas/stream.schema";
+import { streamSchema } from "./schemas/stream.schema";
 
 @Injectable()
 export class StreamsService {
@@ -32,11 +33,10 @@ export class StreamsService {
     const { stream } = validate(
       response,
       z.object({
-        stream: StreamSchema.refine(
+        stream: streamSchema.refine(
           (s) =>
             s.configuration === createStreamDto.configuration &&
-            s.name === createStreamDto.name &&
-            s.visibility === createStreamDto.visibility,
+            s.name === createStreamDto.name,
           "Received stream properties do not match requested properties",
         ),
       }),
@@ -81,7 +81,7 @@ export class StreamsService {
 
     const { streams } = validate(
       response,
-      z.object({ streams: z.array(StreamSchema) }),
+      z.object({ streams: z.array(streamSchema) }),
       (zodError) => new BadGatewayException(zodError),
     );
 
@@ -103,7 +103,7 @@ export class StreamsService {
     const { stream } = validate(
       response,
       z.object({
-        stream: StreamSchema.refine(
+        stream: streamSchema.refine(
           (s) => s.id === streamId,
           "Received stream id does not match requested stream id",
         ),
@@ -116,7 +116,7 @@ export class StreamsService {
 
   public async readStreamsConfigurationSchema(
     handlerId: string,
-  ): Promise<StreamConfigurationSchemaResponse["schema"]> {
+  ): Promise<StreamConfigurationSchemaDto["schema"]> {
     const response = await this.commonService.emitToHandler(
       handlerId,
       "streams:read-configuration-schema",
