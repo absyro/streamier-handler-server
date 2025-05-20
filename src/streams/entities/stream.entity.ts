@@ -18,7 +18,7 @@ export class Stream implements z.infer<typeof streamSchema> {
   @Column({ default: () => "CURRENT_TIMESTAMP", name: "created_at" })
   public createdAt!: string;
 
-  @ManyToOne(() => Handler)
+  @ManyToOne(() => Handler, { onDelete: "CASCADE" })
   public handler!: Handler;
 
   @Column({ length: 8, name: "handler_id" })
