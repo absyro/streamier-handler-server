@@ -8,6 +8,7 @@ import randomatic from "randomatic";
 import { Repository } from "typeorm";
 
 import { CreateStreamDto } from "./dto/create-stream.dto";
+import { SearchStreamDto } from "./dto/search-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { Stream } from "./entities/stream.entity";
 
@@ -122,6 +123,44 @@ export class StreamsService {
     );
 
     return permittedStream;
+  }
+
+  public async search(searchDto: SearchStreamDto): Promise<Stream[]> {
+    const queryBuilder = this.streamsRepository.createQueryBuilder("stream");
+
+    if (searchDto.q !== undefined) {
+      queryBuilder.andWhere("LOWER(stream.name) LIKE LOWER(:query)", {
+        query: `%${searchDto.q}%`,
+      });
+    }
+
+    if (searchDto.userId !== undefined) {
+      queryBuilder.andWhere("stream.userId = :userId", {
+        userId: searchDto.userId,
+      });
+    }
+
+    if (searchDto.handlerId !== undefined) {
+      queryBuilder.andWhere("stream.handlerId = :handlerId", {
+        handlerId: searchDto.handlerId,
+      });
+    }
+
+    if (searchDto.isActive !== undefined) {
+      const isActive = searchDto.isActive === "true";
+
+      queryBuilder.andWhere("stream.isActive = :isActive", { isActive });
+    }
+
+    const offset = searchDto.offset ? parseInt(searchDto.offset, 10) : 0;
+
+    const limit = searchDto.limit ? parseInt(searchDto.limit, 10) : 20;
+
+    queryBuilder.skip(offset).take(limit);
+
+    const streams = await queryBuilder.getMany();
+
+    return streams;
   }
 
   public async updateOne(

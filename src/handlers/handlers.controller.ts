@@ -261,7 +261,7 @@ export class HandlersController {
   @Get()
   public async listHandlers(
     @Query() searchDto: SearchHandlerDto,
-  ): Promise<Omit<PermittedHandlerDto, "updateTimestamp">[]> {
+  ): Promise<PermittedHandlerDto[]> {
     const handlers = await this.handlersService.search(searchDto);
 
     return handlers.map(({ authToken, ...handler }) => handler);

@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -33,6 +34,7 @@ import { dedent } from "ts-dedent";
 import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { PermittedStreamDto } from "./dto/permitted-stream.dto";
+import { SearchStreamDto } from "./dto/search-stream.dto";
 import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
@@ -258,6 +260,54 @@ export class StreamsController {
     }
 
     return this.streamsService.deleteOne(streamId, userId);
+  }
+
+  @ApiBadRequestResponse({
+    description: "Request query parameters are invalid",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.BAD_REQUEST],
+          type: "string",
+        },
+        message: {
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.BAD_REQUEST],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
+  })
+  @ApiOkResponse({
+    description: "List of streams matching the search criteria",
+    type: [PermittedStreamDto],
+  })
+  @ApiOperation({
+    description: dedent`
+    Gets streams based on various criteria including:
+    - Text search across stream name
+    - Filter by active status
+    - Filter by user ID
+    - Filter by handler ID
+    - Pagination support with limit and offset`,
+    summary: "List streams",
+  })
+  @Get()
+  public async listStreams(
+    @Query() searchDto: SearchStreamDto,
+    @Req() request: Request,
+  ): Promise<PermittedStreamDto[]> {
+    const userId = await this.commonService.getUserIdFromRequest(request);
+
+    const streams = await this.streamsService.search(searchDto);
+
+    return streams.map((stream) =>
+      this.streamsService.getPermittedStream(stream, userId),
+    );
   }
 
   @ApiHeader({
