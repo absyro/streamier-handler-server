@@ -125,7 +125,7 @@ export class StreamsService {
 
   public async updateStream(
     handlerId: string,
-    userId: string,
+    userId: null | string,
     streamId: string,
     updateStreamDto: UpdateStreamDto,
   ): Promise<void> {

@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Req,
+  UnauthorizedException,
 } from "@nestjs/common";
 import {
   ApiBadGatewayResponse,
@@ -187,6 +188,10 @@ export class StreamsController {
   ): Promise<StreamDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
+    if (userId === null) {
+      throw new UnauthorizedException("Missing or invalid authentication");
+    }
+
     const stream = await this.streamsService.createStream(
       handlerId,
       userId,
@@ -243,6 +248,10 @@ export class StreamsController {
     @Req() request: Request,
   ): Promise<void> {
     const userId = await this.commonService.getUserIdFromRequest(request);
+
+    if (userId === null) {
+      throw new UnauthorizedException("Missing or invalid authentication");
+    }
 
     return this.streamsService.deleteStream(handlerId, userId, streamId);
   }
