@@ -25,7 +25,10 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { ReasonPhrases } from "http-status-codes";
+import { BadRequestResponseDto } from "src/common/dto/bad-request-response.dto";
+import { ForbiddenResponseDto } from "src/common/dto/forbidden-response.dto";
+import { NotFoundResponseDto } from "src/common/dto/not-found-response.dto";
+import { UnauthorizedResponseDto } from "src/common/dto/unauthorized-response.dto";
 import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
@@ -59,23 +62,7 @@ export class HandlersController {
 
   @ApiBadRequestResponse({
     description: "Request body parameters are invalid",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.BAD_REQUEST],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.BAD_REQUEST],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: BadRequestResponseDto,
   })
   @ApiCreatedResponse({
     description: "Handler successfully created",
@@ -83,23 +70,7 @@ export class HandlersController {
   })
   @ApiForbiddenResponse({
     description: "User has reached the maximum limit of handlers (100)",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.FORBIDDEN],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.FORBIDDEN],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: ForbiddenResponseDto,
   })
   @ApiOperation({
     description: dedent`
@@ -111,23 +82,7 @@ export class HandlersController {
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: UnauthorizedResponseDto,
   })
   @Post()
   public async createHandler(
@@ -146,23 +101,7 @@ export class HandlersController {
   @ApiNoContentResponse({ description: "Handler successfully deleted" })
   @ApiNotFoundResponse({
     description: "Handler not found",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.NOT_FOUND],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.NOT_FOUND],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: NotFoundResponseDto,
   })
   @ApiOperation({
     description:
@@ -171,23 +110,7 @@ export class HandlersController {
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: UnauthorizedResponseDto,
   })
   @Delete(":handlerId")
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -216,23 +139,7 @@ export class HandlersController {
 
   @ApiBadRequestResponse({
     description: "Request query parameters are invalid",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.BAD_REQUEST],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.BAD_REQUEST],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: BadRequestResponseDto,
   })
   @ApiOkResponse({
     description: "List of handlers matching the search criteria",
@@ -257,23 +164,7 @@ export class HandlersController {
 
   @ApiNotFoundResponse({
     description: "Handler not found",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.NOT_FOUND],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.NOT_FOUND],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: NotFoundResponseDto,
   })
   @ApiOkResponse({
     description: "Handler information",
@@ -296,23 +187,7 @@ export class HandlersController {
 
   @ApiNotFoundResponse({
     description: "Handler not found",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.NOT_FOUND],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.NOT_FOUND],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: NotFoundResponseDto,
   })
   @ApiOkResponse({
     description: "Auth token successfully regenerated",
@@ -325,23 +200,7 @@ export class HandlersController {
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: UnauthorizedResponseDto,
   })
   @Patch(":handlerId/auth-token")
   public async regenerateAuthToken(
@@ -372,43 +231,11 @@ export class HandlersController {
 
   @ApiBadRequestResponse({
     description: "Request body parameters are invalid",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.BAD_REQUEST],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.BAD_REQUEST],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: BadRequestResponseDto,
   })
   @ApiNotFoundResponse({
     description: "Handler not found",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.NOT_FOUND],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.NOT_FOUND],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: NotFoundResponseDto,
   })
   @ApiOkResponse({
     description: "Handler successfully updated",
@@ -421,23 +248,7 @@ export class HandlersController {
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: UnauthorizedResponseDto,
   })
   @Put(":handlerId")
   public async updateHandler(

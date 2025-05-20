@@ -27,7 +27,12 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { ReasonPhrases } from "http-status-codes";
+import { BadGatewayResponseDto } from "src/common/dto/bad-gateway-response.dto";
+import { BadRequestResponseDto } from "src/common/dto/bad-request-response.dto";
+import { ForbiddenResponseDto } from "src/common/dto/forbidden-response.dto";
+import { NotFoundResponseDto } from "src/common/dto/not-found-response.dto";
+import { ServiceUnavailableResponseDto } from "src/common/dto/service-unavailable-response.dto";
+import { UnauthorizedResponseDto } from "src/common/dto/unauthorized-response.dto";
 import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
@@ -40,43 +45,11 @@ import { StreamsService } from "./streams.service";
 
 @ApiBadGatewayResponse({
   description: "Received data from handler is invalid",
-  schema: {
-    properties: {
-      error: {
-        enum: [ReasonPhrases.BAD_GATEWAY],
-        type: "string",
-      },
-      message: {
-        type: "string",
-      },
-      statusCode: {
-        enum: [HttpStatus.BAD_GATEWAY],
-        type: "number",
-      },
-    },
-    required: ["error", "message", "statusCode"],
-    type: "object",
-  },
+  type: BadGatewayResponseDto,
 })
 @ApiNotFoundResponse({
   description: "Handler not found",
-  schema: {
-    properties: {
-      error: {
-        enum: [ReasonPhrases.NOT_FOUND],
-        type: "string",
-      },
-      message: {
-        type: "string",
-      },
-      statusCode: {
-        enum: [HttpStatus.NOT_FOUND],
-        type: "number",
-      },
-    },
-    required: ["error", "message", "statusCode"],
-    type: "object",
-  },
+  type: NotFoundResponseDto,
 })
 @ApiQuery({
   description: dedent`
@@ -93,23 +66,7 @@ import { StreamsService } from "./streams.service";
 })
 @ApiServiceUnavailableResponse({
   description: "Handler is offline",
-  schema: {
-    properties: {
-      error: {
-        enum: [ReasonPhrases.SERVICE_UNAVAILABLE],
-        type: "string",
-      },
-      message: {
-        type: "string",
-      },
-      statusCode: {
-        enum: [HttpStatus.SERVICE_UNAVAILABLE],
-        type: "number",
-      },
-    },
-    required: ["error", "message", "statusCode"],
-    type: "object",
-  },
+  type: ServiceUnavailableResponseDto,
 })
 @ApiTags("Streams")
 @Controller("api/streams")
@@ -121,23 +78,7 @@ export class StreamsController {
 
   @ApiBadRequestResponse({
     description: "Request body parameters are invalid",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.BAD_REQUEST],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.BAD_REQUEST],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: BadRequestResponseDto,
   })
   @ApiCreatedResponse({
     description: "Stream successfully created",
@@ -145,23 +86,7 @@ export class StreamsController {
   })
   @ApiForbiddenResponse({
     description: "User has reached the maximum limit of streams (100)",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.FORBIDDEN],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.FORBIDDEN],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: ForbiddenResponseDto,
   })
   @ApiOperation({
     description: dedent`
@@ -172,23 +97,7 @@ export class StreamsController {
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: UnauthorizedResponseDto,
   })
   @Post()
   public async createStream(
@@ -218,23 +127,7 @@ export class StreamsController {
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: UnauthorizedResponseDto,
   })
   @Delete(":streamId")
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -253,23 +146,7 @@ export class StreamsController {
 
   @ApiBadRequestResponse({
     description: "Request query parameters are invalid",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.BAD_REQUEST],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.BAD_REQUEST],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: BadRequestResponseDto,
   })
   @ApiHeader({ name: "X-Session-Id", required: false })
   @ApiOkResponse({
@@ -334,23 +211,7 @@ export class StreamsController {
 
   @ApiBadRequestResponse({
     description: "Request body parameters are invalid",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.BAD_REQUEST],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.BAD_REQUEST],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: BadRequestResponseDto,
   })
   @ApiHeader({ name: "X-Session-Id", required: false })
   @ApiOkResponse({
@@ -366,23 +227,7 @@ export class StreamsController {
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
-    schema: {
-      properties: {
-        error: {
-          enum: [ReasonPhrases.UNAUTHORIZED],
-          type: "string",
-        },
-        message: {
-          type: "string",
-        },
-        statusCode: {
-          enum: [HttpStatus.UNAUTHORIZED],
-          type: "number",
-        },
-      },
-      required: ["error", "message", "statusCode"],
-      type: "object",
-    },
+    type: UnauthorizedResponseDto,
   })
   @Put(":streamId")
   public async updateStream(
@@ -399,6 +244,7 @@ export class StreamsController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
+    // FIXME: This should allow everyone to update the stream and doesn't throw unthorized exception and get permitted paramters for update
     const stream = await this.streamsService.updateOne(
       streamId,
       userId,

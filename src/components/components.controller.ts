@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Param } from "@nestjs/common";
+import { Controller, Get, Param } from "@nestjs/common";
 import {
   ApiBadGatewayResponse,
   ApiNotFoundResponse,
@@ -7,9 +7,10 @@ import {
   ApiQuery,
   ApiServiceUnavailableResponse,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { ReasonPhrases } from "http-status-codes";
+import { BadGatewayResponseDto } from "src/common/dto/bad-gateway-response.dto";
+import { NotFoundResponseDto } from "src/common/dto/not-found-response.dto";
+import { ServiceUnavailableResponseDto } from "src/common/dto/service-unavailable-response.dto";
 import { dedent } from "ts-dedent";
 
 import { ComponentsService } from "./components.service";
@@ -17,43 +18,11 @@ import { ComponentDto } from "./dto/component.dto";
 
 @ApiBadGatewayResponse({
   description: "Received data from handler is invalid",
-  schema: {
-    properties: {
-      error: {
-        enum: [ReasonPhrases.BAD_GATEWAY],
-        type: "string",
-      },
-      message: {
-        type: "string",
-      },
-      statusCode: {
-        enum: [HttpStatus.BAD_GATEWAY],
-        type: "number",
-      },
-    },
-    required: ["error", "message", "statusCode"],
-    type: "object",
-  },
+  type: BadGatewayResponseDto,
 })
 @ApiNotFoundResponse({
   description: "Handler not found",
-  schema: {
-    properties: {
-      error: {
-        enum: [ReasonPhrases.NOT_FOUND],
-        type: "string",
-      },
-      message: {
-        type: "string",
-      },
-      statusCode: {
-        enum: [HttpStatus.NOT_FOUND],
-        type: "number",
-      },
-    },
-    required: ["error", "message", "statusCode"],
-    type: "object",
-  },
+  type: NotFoundResponseDto,
 })
 @ApiQuery({
   description: dedent`
@@ -70,45 +39,9 @@ import { ComponentDto } from "./dto/component.dto";
 })
 @ApiServiceUnavailableResponse({
   description: "Handler is offline",
-  schema: {
-    properties: {
-      error: {
-        enum: [ReasonPhrases.SERVICE_UNAVAILABLE],
-        type: "string",
-      },
-      message: {
-        type: "string",
-      },
-      statusCode: {
-        enum: [HttpStatus.SERVICE_UNAVAILABLE],
-        type: "number",
-      },
-    },
-    required: ["error", "message", "statusCode"],
-    type: "object",
-  },
+  type: ServiceUnavailableResponseDto,
 })
 @ApiTags("Components")
-@ApiUnauthorizedResponse({
-  description: "Missing or invalid authentication",
-  schema: {
-    properties: {
-      error: {
-        enum: [ReasonPhrases.UNAUTHORIZED],
-        type: "string",
-      },
-      message: {
-        type: "string",
-      },
-      statusCode: {
-        enum: [HttpStatus.UNAUTHORIZED],
-        type: "number",
-      },
-    },
-    required: ["error", "message", "statusCode"],
-    type: "object",
-  },
-})
 @Controller("api/handlers/:handlerId/components")
 export class ComponentsController {
   public constructor(private readonly componentsService: ComponentsService) {}

@@ -1,0 +1,12 @@
+import { HttpStatus } from "@nestjs/common";
+import { ReasonPhrases } from "http-status-codes";
+import { createZodDto } from "nestjs-zod";
+import { z } from "zod";
+
+export class UnauthorizedResponseDto extends createZodDto(
+  z.object({
+    error: z.literal(ReasonPhrases.UNAUTHORIZED),
+    message: z.string(),
+    statusCode: z.literal(HttpStatus.UNAUTHORIZED),
+  }),
+) {}
