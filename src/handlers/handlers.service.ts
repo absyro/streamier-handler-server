@@ -100,35 +100,39 @@ export class HandlersService {
     return this.handlersRepository.save(handler);
   }
 
-  public async search(searchDto: SearchHandlerDto): Promise<Handler[]> {
+  public async search(searchHandlerDto: SearchHandlerDto): Promise<Handler[]> {
     const queryBuilder = this.handlersRepository.createQueryBuilder("handler");
 
     queryBuilder.where("handler.is_searchable = true");
 
-    if (searchDto.q !== undefined) {
+    if (searchHandlerDto.q !== undefined) {
       queryBuilder.andWhere(
         "LOWER(handler.name) LIKE LOWER(:query) OR " +
           "LOWER(handler.shortDescription) LIKE LOWER(:query) OR " +
           "LOWER(handler.longDescription) LIKE LOWER(:query)",
-        { query: `%${searchDto.q}%` },
+        { query: `%${searchHandlerDto.q}%` },
       );
     }
 
-    if (searchDto.userId !== undefined) {
+    if (searchHandlerDto.userId !== undefined) {
       queryBuilder.andWhere("handler.userId = :userId", {
-        userId: searchDto.userId,
+        userId: searchHandlerDto.userId,
       });
     }
 
-    if (searchDto.isOnline !== undefined) {
-      const isOnline = searchDto.isOnline === "true";
+    if (searchHandlerDto.isOnline !== undefined) {
+      const isOnline = searchHandlerDto.isOnline === "true";
 
       queryBuilder.andWhere("handler.isOnline = :isOnline", { isOnline });
     }
 
-    const offset = searchDto.offset ? parseInt(searchDto.offset, 10) : 0;
+    const offset = searchHandlerDto.offset
+      ? parseInt(searchHandlerDto.offset, 10)
+      : 0;
 
-    const limit = searchDto.limit ? parseInt(searchDto.limit, 10) : 20;
+    const limit = searchHandlerDto.limit
+      ? parseInt(searchHandlerDto.limit, 10)
+      : 20;
 
     queryBuilder.skip(offset).take(limit);
 

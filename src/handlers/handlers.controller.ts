@@ -260,9 +260,9 @@ export class HandlersController {
   })
   @Get()
   public async listHandlers(
-    @Query() searchDto: SearchHandlerDto,
+    @Query() searchHandlerDto: SearchHandlerDto,
   ): Promise<PermittedHandlerDto[]> {
-    const handlers = await this.handlersService.search(searchDto);
+    const handlers = await this.handlersService.search(searchHandlerDto);
 
     return handlers.map(({ authToken, ...handler }) => handler);
   }

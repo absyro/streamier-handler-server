@@ -298,12 +298,12 @@ export class StreamsController {
   })
   @Get()
   public async listStreams(
-    @Query() searchDto: SearchStreamDto,
+    @Query() searchStreamDto: SearchStreamDto,
     @Req() request: Request,
   ): Promise<PermittedStreamDto[]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    const streams = await this.streamsService.search(searchDto);
+    const streams = await this.streamsService.search(searchStreamDto);
 
     return streams.map((stream) =>
       this.streamsService.getPermittedStream(stream, userId),

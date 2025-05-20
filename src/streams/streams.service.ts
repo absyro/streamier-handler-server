@@ -125,36 +125,40 @@ export class StreamsService {
     return permittedStream;
   }
 
-  public async search(searchDto: SearchStreamDto): Promise<Stream[]> {
+  public async search(searchStreamDto: SearchStreamDto): Promise<Stream[]> {
     const queryBuilder = this.streamsRepository.createQueryBuilder("stream");
 
-    if (searchDto.q !== undefined) {
+    if (searchStreamDto.q !== undefined) {
       queryBuilder.andWhere("LOWER(stream.name) LIKE LOWER(:query)", {
-        query: `%${searchDto.q}%`,
+        query: `%${searchStreamDto.q}%`,
       });
     }
 
-    if (searchDto.userId !== undefined) {
+    if (searchStreamDto.userId !== undefined) {
       queryBuilder.andWhere("stream.userId = :userId", {
-        userId: searchDto.userId,
+        userId: searchStreamDto.userId,
       });
     }
 
-    if (searchDto.handlerId !== undefined) {
+    if (searchStreamDto.handlerId !== undefined) {
       queryBuilder.andWhere("stream.handlerId = :handlerId", {
-        handlerId: searchDto.handlerId,
+        handlerId: searchStreamDto.handlerId,
       });
     }
 
-    if (searchDto.isActive !== undefined) {
-      const isActive = searchDto.isActive === "true";
+    if (searchStreamDto.isActive !== undefined) {
+      const isActive = searchStreamDto.isActive === "true";
 
       queryBuilder.andWhere("stream.isActive = :isActive", { isActive });
     }
 
-    const offset = searchDto.offset ? parseInt(searchDto.offset, 10) : 0;
+    const offset = searchStreamDto.offset
+      ? parseInt(searchStreamDto.offset, 10)
+      : 0;
 
-    const limit = searchDto.limit ? parseInt(searchDto.limit, 10) : 20;
+    const limit = searchStreamDto.limit
+      ? parseInt(searchStreamDto.limit, 10)
+      : 20;
 
     queryBuilder.skip(offset).take(limit);
 
