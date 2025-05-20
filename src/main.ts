@@ -11,6 +11,7 @@ import { dedent } from "ts-dedent";
 
 import packageJson from "../package.json";
 import { AppModule } from "./app.module";
+import { ZodValidationExceptionFilter } from "./common/filters/zod-validation-exception.filter";
 import { WsAdapter } from "./websocket/websocket.adapter";
 
 async function bootstrap(): Promise<void> {
@@ -54,6 +55,8 @@ async function bootstrap(): Promise<void> {
   app.use(compression());
 
   app.useGlobalPipes(new ZodValidationPipe());
+
+  app.useGlobalFilters(new ZodValidationExceptionFilter());
 
   app.useWebSocketAdapter(new WsAdapter(app));
 

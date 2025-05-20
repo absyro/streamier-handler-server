@@ -71,17 +71,7 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          oneOf: [
-            {
-              type: "string",
-            },
-            {
-              items: {
-                type: "string",
-              },
-              type: "array",
-            },
-          ],
+          type: "string",
         },
         statusCode: {
           enum: [HttpStatus.BAD_REQUEST],
@@ -254,17 +244,7 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          oneOf: [
-            {
-              type: "string",
-            },
-            {
-              items: {
-                type: "string",
-              },
-              type: "array",
-            },
-          ],
+          type: "string",
         },
         statusCode: {
           enum: [HttpStatus.BAD_REQUEST],
@@ -441,17 +421,7 @@ export class HandlersController {
           type: "string",
         },
         message: {
-          oneOf: [
-            {
-              type: "string",
-            },
-            {
-              items: {
-                type: "string",
-              },
-              type: "array",
-            },
-          ],
+          type: "string",
         },
         statusCode: {
           enum: [HttpStatus.BAD_REQUEST],
