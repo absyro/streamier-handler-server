@@ -32,7 +32,7 @@ export const handlerSchema = z.object({
   shortDescription: z
     .string()
     .nonempty()
-    .max(180)
+    .max(200)
     .optional()
     .describe("Brief description of the handler's purpose"),
   terms: z

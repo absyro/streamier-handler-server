@@ -29,7 +29,7 @@ export class Handler implements z.infer<typeof handlerSchema> {
   @Column({ length: 100, name: "name" })
   public name!: string;
 
-  @Column({ length: 180, name: "short_description", nullable: true })
+  @Column({ length: 200, name: "short_description", nullable: true })
   public shortDescription?: string;
 
   @Column({ length: 5000, name: "terms", nullable: true })

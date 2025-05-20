@@ -57,6 +57,11 @@ export const streamSchema = z.object({
     .describe("The ID of the handler managing this stream"),
   id: z.string().length(8).describe("The unique 8-character ID of the stream"),
   isActive: z.boolean().describe("Active status of the stream (true/false)"),
+  longDescription: z
+    .string()
+    .max(5000)
+    .optional()
+    .describe("Detailed description of the stream (max 5000 chars)"),
   name: z
     .string()
     .nonempty()
@@ -166,6 +171,11 @@ export const streamSchema = z.object({
     .describe(
       "Role definitions mapping role names to their members (teams and users)",
     ),
+  shortDescription: z
+    .string()
+    .max(200)
+    .optional()
+    .describe("Brief description of the stream (max 200 chars)"),
   signature: z
     .string()
     .nonempty()

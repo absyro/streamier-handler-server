@@ -30,6 +30,9 @@ export class Stream implements z.infer<typeof streamSchema> {
   @Column({ default: false, name: "is_active" })
   public isActive!: boolean;
 
+  @Column({ length: 5000, name: "long_description", nullable: true })
+  public longDescription?: string;
+
   @Column({ length: 100, name: "name" })
   public name!: string;
 
@@ -65,6 +68,9 @@ export class Stream implements z.infer<typeof streamSchema> {
       users: string[];
     }
   >;
+
+  @Column({ length: 200, name: "short_description", nullable: true })
+  public shortDescription?: string;
 
   @Column({ length: 500, name: "signature" })
   public signature!: string;
