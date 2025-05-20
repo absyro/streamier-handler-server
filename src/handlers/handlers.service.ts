@@ -126,6 +126,30 @@ export class HandlersService {
       queryBuilder.andWhere("handler.isActive = :isActive", { isActive });
     }
 
+    if (searchHandlerDto.createdDaysAgo !== undefined) {
+      const days = parseInt(searchHandlerDto.createdDaysAgo, 10);
+
+      const date = new Date();
+
+      date.setDate(date.getDate() - days);
+
+      queryBuilder.andWhere("handler.createdAt >= :createdDate", {
+        createdDate: date.toISOString(),
+      });
+    }
+
+    if (searchHandlerDto.updatedDaysAgo !== undefined) {
+      const days = parseInt(searchHandlerDto.updatedDaysAgo, 10);
+
+      const date = new Date();
+
+      date.setDate(date.getDate() - days);
+
+      queryBuilder.andWhere("handler.updatedAt >= :updatedDate", {
+        updatedDate: date.toISOString(),
+      });
+    }
+
     const offset = searchHandlerDto.offset
       ? parseInt(searchHandlerDto.offset, 10)
       : 0;

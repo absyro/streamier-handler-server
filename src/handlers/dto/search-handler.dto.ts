@@ -3,6 +3,11 @@ import { z } from "zod";
 
 export class SearchHandlerDto extends createZodDto(
   z.object({
+    createdDaysAgo: z
+      .string()
+      .regex(/^[0-9]+$/u, "createdDaysAgo must be a positive number")
+      .optional()
+      .describe("Filter handlers created within the specified number of days"),
     isActive: z
       .enum(["true", "false"])
       .optional()
@@ -31,6 +36,11 @@ export class SearchHandlerDto extends createZodDto(
       .max(100)
       .optional()
       .describe("Search query string to match against handler parameters"),
+    updatedDaysAgo: z
+      .string()
+      .regex(/^[0-9]+$/u, "updatedDaysAgo must be a positive number")
+      .optional()
+      .describe("Filter handlers updated within the specified number of days"),
     userId: z
       .string()
       .length(8)

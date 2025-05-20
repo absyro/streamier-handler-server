@@ -3,6 +3,11 @@ import { z } from "zod";
 
 export class SearchStreamDto extends createZodDto(
   z.object({
+    createdDaysAgo: z
+      .string()
+      .regex(/^[0-9]+$/u, "createdDaysAgo must be a positive number")
+      .optional()
+      .describe("Filter streams created within the specified number of days"),
     handlerId: z
       .string()
       .length(8)
@@ -36,6 +41,11 @@ export class SearchStreamDto extends createZodDto(
       .max(100)
       .optional()
       .describe("Search query string to match against stream name"),
+    updatedDaysAgo: z
+      .string()
+      .regex(/^[0-9]+$/u, "updatedDaysAgo must be a positive number")
+      .optional()
+      .describe("Filter streams updated within the specified number of days"),
     userId: z
       .string()
       .length(8)

@@ -155,6 +155,30 @@ export class StreamsService {
       queryBuilder.andWhere("stream.isActive = :isActive", { isActive });
     }
 
+    if (searchStreamDto.createdDaysAgo !== undefined) {
+      const days = parseInt(searchStreamDto.createdDaysAgo, 10);
+
+      const date = new Date();
+
+      date.setDate(date.getDate() - days);
+
+      queryBuilder.andWhere("stream.createdAt >= :createdDate", {
+        createdDate: date.toISOString(),
+      });
+    }
+
+    if (searchStreamDto.updatedDaysAgo !== undefined) {
+      const days = parseInt(searchStreamDto.updatedDaysAgo, 10);
+
+      const date = new Date();
+
+      date.setDate(date.getDate() - days);
+
+      queryBuilder.andWhere("stream.updatedAt >= :updatedDate", {
+        updatedDate: date.toISOString(),
+      });
+    }
+
     const offset = searchStreamDto.offset
       ? parseInt(searchStreamDto.offset, 10)
       : 0;
