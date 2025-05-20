@@ -17,7 +17,6 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
-  ApiHeader,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
