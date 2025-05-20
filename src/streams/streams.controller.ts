@@ -225,10 +225,6 @@ export class StreamsController {
     Only the provided fields will be updated, leaving other configuration unchanged.`,
     summary: "Update stream",
   })
-  @ApiUnauthorizedResponse({
-    description: "Missing or invalid authentication",
-    type: UnauthorizedResponseDto,
-  })
   @Put(":streamId")
   public async updateStream(
     @Param("streamId") streamId: string,
@@ -240,11 +236,6 @@ export class StreamsController {
         ? null
         : await this.commonService.getUserIdFromSessionId(sessionId);
 
-    if (userId === null) {
-      throw new UnauthorizedException("Missing or invalid authentication");
-    }
-
-    // FIXME: This should allow everyone to update the stream and doesn't throw unthorized exception and get permitted paramters for update
     const stream = await this.streamsService.updateOne(
       streamId,
       userId,
