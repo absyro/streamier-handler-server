@@ -51,7 +51,7 @@ export class HandlersService {
 
     handler.userId = userId;
 
-    handler.isOnline = true;
+    handler.isActive = true;
 
     handler.isSearchable = true;
 
@@ -120,10 +120,10 @@ export class HandlersService {
       });
     }
 
-    if (searchHandlerDto.isOnline !== undefined) {
-      const isOnline = searchHandlerDto.isOnline === "true";
+    if (searchHandlerDto.isActive !== undefined) {
+      const isActive = searchHandlerDto.isActive === "true";
 
-      queryBuilder.andWhere("handler.isOnline = :isOnline", { isOnline });
+      queryBuilder.andWhere("handler.isActive = :isActive", { isActive });
     }
 
     const offset = searchHandlerDto.offset
@@ -145,7 +145,7 @@ export class HandlersService {
     await this.handlersRepository
       .createQueryBuilder()
       .update()
-      .set({ isOnline: false })
+      .set({ isActive: false })
       .execute();
   }
 

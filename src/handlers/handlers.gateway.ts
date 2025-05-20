@@ -63,7 +63,7 @@ export class HandlersGateway
 
     socket.data.id = handler.id;
 
-    await this.handlersService.updateOne(handler.id, { isOnline: true });
+    await this.handlersService.updateOne(handler.id, { isActive: true });
   }
 
   public async handleDisconnect(
@@ -74,6 +74,6 @@ export class HandlersGateway
       HandlerSocketData
     >,
   ): Promise<void> {
-    await this.handlersService.updateOne(socket.data.id, { isOnline: false });
+    await this.handlersService.updateOne(socket.data.id, { isActive: false });
   }
 }

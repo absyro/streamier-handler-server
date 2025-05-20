@@ -6,7 +6,7 @@ export class UpdateHandlerDto extends createZodDto(
   handlerSchema
     .pick({
       iconId: true,
-      isOnline: true,
+      isActive: true,
       isSearchable: true,
       longDescription: true,
       name: true,

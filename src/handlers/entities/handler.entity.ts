@@ -17,8 +17,8 @@ export class Handler implements z.infer<typeof handlerSchema> {
   @PrimaryColumn({ length: 8, name: "id" })
   public id!: string;
 
-  @Column({ default: false, name: "is_online" })
-  public isOnline!: boolean;
+  @Column({ default: false, name: "is_active" })
+  public isActive!: boolean;
 
   @Column({ default: false, name: "is_searchable" })
   public isSearchable!: boolean;

@@ -3,10 +3,10 @@ import { z } from "zod";
 
 export class SearchHandlerDto extends createZodDto(
   z.object({
-    isOnline: z
+    isActive: z
       .enum(["true", "false"])
       .optional()
-      .describe("Filter by online status"),
+      .describe("Filter by active status"),
     limit: z
       .string()
       .regex(

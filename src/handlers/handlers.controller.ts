@@ -254,7 +254,7 @@ export class HandlersController {
     description: dedent`
     Gets handlers based on various criteria including:
     - Text search across name and descriptions
-    - Filter by online status
+    - Filter by active status
     - Pagination support with limit and offset`,
     summary: "List handlers",
   })

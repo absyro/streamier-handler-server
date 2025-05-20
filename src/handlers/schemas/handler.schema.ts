@@ -16,9 +16,9 @@ export const handlerSchema = z.object({
     .optional()
     .describe("The ID of the handler icon from https://icons8.com"),
   id: z.string().length(8).describe("Unique identifier for the handler"),
-  isOnline: z
+  isActive: z
     .boolean()
-    .describe("Whether the handler is currently online and connected"),
+    .describe("Whether the handler is currently active and connected"),
   isSearchable: z
     .boolean()
     .describe("Whether the handler should be excluded from search results"),
