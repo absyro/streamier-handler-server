@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
@@ -10,7 +11,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UnauthorizedException,
 } from "@nestjs/common";
 import {
@@ -26,7 +26,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { Request } from "express";
 import { ReasonPhrases } from "http-status-codes";
 import { dedent } from "ts-dedent";
 
@@ -103,11 +102,6 @@ export class HandlersController {
       type: "object",
     },
   })
-  @ApiHeader({
-    description: "Session ID for authentication",
-    name: "X-Session-Id",
-    required: true,
-  })
   @ApiOperation({
     description: dedent`
     Creates a new handler with the specified configuration.
@@ -139,9 +133,9 @@ export class HandlersController {
   @Post()
   public async createHandler(
     @Body() createHandlerDto: CreateHandlerDto,
-    @Req() request: Request,
+    @Headers("X-Session-Id") sessionId: string,
   ): Promise<HandlerDto> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
+    const userId = await this.commonService.getUserIdFromSessionId(sessionId);
 
     if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
@@ -150,11 +144,6 @@ export class HandlersController {
     return this.handlersService.createOne(userId, createHandlerDto);
   }
 
-  @ApiHeader({
-    description: "Session ID for authentication",
-    name: "X-Session-Id",
-    required: true,
-  })
   @ApiNoContentResponse({ description: "Handler successfully deleted" })
   @ApiNotFoundResponse({
     description: "Handler not found",
@@ -205,9 +194,9 @@ export class HandlersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   public async deleteHandler(
     @Param("handlerId") handlerId: string,
-    @Req() request: Request,
+    @Headers("X-Session-Id") sessionId: string,
   ): Promise<void> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
+    const userId = await this.commonService.getUserIdFromSessionId(sessionId);
 
     if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
@@ -306,11 +295,6 @@ export class HandlersController {
     return handler;
   }
 
-  @ApiHeader({
-    description: "Session ID for authentication",
-    name: "X-Session-Id",
-    required: true,
-  })
   @ApiNotFoundResponse({
     description: "Handler not found",
     schema: {
@@ -363,9 +347,9 @@ export class HandlersController {
   @Patch(":handlerId/auth-token")
   public async regenerateAuthToken(
     @Param("handlerId") handlerId: string,
-    @Req() request: Request,
+    @Headers("X-Session-Id") sessionId: string,
   ): Promise<HandlerDto["authToken"]> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
+    const userId = await this.commonService.getUserIdFromSessionId(sessionId);
 
     if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
@@ -406,11 +390,6 @@ export class HandlersController {
       required: ["error", "message", "statusCode"],
       type: "object",
     },
-  })
-  @ApiHeader({
-    description: "Session ID for authentication",
-    name: "X-Session-Id",
-    required: true,
   })
   @ApiNotFoundResponse({
     description: "Handler not found",
@@ -465,9 +444,9 @@ export class HandlersController {
   public async updateHandler(
     @Param("handlerId") handlerId: string,
     @Body() updateHandlerDto: UpdateHandlerDto,
-    @Req() request: Request,
+    @Headers("X-Session-Id") sessionId: string,
   ): Promise<PermittedHandlerDto> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
+    const userId = await this.commonService.getUserIdFromSessionId(sessionId);
 
     if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");

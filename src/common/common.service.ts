@@ -6,9 +6,7 @@ import {
   ServiceUnavailableException,
   UnauthorizedException,
 } from "@nestjs/common";
-import { Request } from "express";
 import { validate } from "nestjs-zod";
-import { isString } from "radash";
 import { HandlersService } from "src/handlers/handlers.service";
 import { DataSource } from "typeorm";
 import { z } from "zod";
@@ -83,13 +81,9 @@ export class CommonService {
     });
   }
 
-  public async getUserIdFromRequest(request: Request): Promise<null | string> {
-    const sessionId = request.headers["x-session-id"];
-
-    if (!isString(sessionId)) {
-      return null;
-    }
-
+  public async getUserIdFromSessionId(
+    sessionId: string,
+  ): Promise<null | string> {
     const result = await this.dataSource.query<{ user_id: string }[]>(
       "SELECT user_id FROM user_sessions WHERE id = $1",
       [sessionId],

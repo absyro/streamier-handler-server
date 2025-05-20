@@ -24,6 +24,10 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(
     app,
     new DocumentBuilder()
+      .addGlobalResponse({
+        description: "Internal server error",
+        status: 500,
+      })
       .setTitle("Streamier API Server")
       .setDescription(
         dedent`

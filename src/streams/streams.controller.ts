@@ -3,13 +3,13 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
   Post,
   Put,
   Query,
-  Req,
   UnauthorizedException,
 } from "@nestjs/common";
 import {
@@ -27,7 +27,6 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { Request } from "express";
 import { ReasonPhrases } from "http-status-codes";
 import { dedent } from "ts-dedent";
 
@@ -164,11 +163,6 @@ export class StreamsController {
       type: "object",
     },
   })
-  @ApiHeader({
-    description: "Session ID for authentication",
-    name: "X-Session-Id",
-    required: true,
-  })
   @ApiOperation({
     description: dedent`
     Creates a new stream associated with the specified handler.
@@ -199,9 +193,9 @@ export class StreamsController {
   @Post()
   public async createStream(
     @Body() createStreamDto: CreateStreamDto,
-    @Req() request: Request,
+    @Headers("X-Session-Id") sessionId: string,
   ): Promise<StreamDto> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
+    const userId = await this.commonService.getUserIdFromSessionId(sessionId);
 
     if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
@@ -212,11 +206,6 @@ export class StreamsController {
     return stream;
   }
 
-  @ApiHeader({
-    description: "Session ID for authentication",
-    name: "X-Session-Id",
-    required: true,
-  })
   @ApiNoContentResponse({
     description: "Stream successfully deleted",
   })
@@ -251,9 +240,9 @@ export class StreamsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   public async deleteStream(
     @Param("streamId") streamId: string,
-    @Req() request: Request,
+    @Headers("X-Session-Id") sessionId: string,
   ): Promise<void> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
+    const userId = await this.commonService.getUserIdFromSessionId(sessionId);
 
     if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
@@ -282,6 +271,7 @@ export class StreamsController {
       type: "object",
     },
   })
+  @ApiHeader({ name: "X-Session-Id", required: false })
   @ApiOkResponse({
     description: "List of streams matching the search criteria",
     type: [PermittedStreamDto],
@@ -299,9 +289,12 @@ export class StreamsController {
   @Get()
   public async listStreams(
     @Query() searchStreamDto: SearchStreamDto,
-    @Req() request: Request,
+    @Headers("X-Session-Id") sessionId?: string,
   ): Promise<PermittedStreamDto[]> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
+    const userId =
+      sessionId === undefined
+        ? null
+        : await this.commonService.getUserIdFromSessionId(sessionId);
 
     const streams = await this.streamsService.search(searchStreamDto);
 
@@ -310,14 +303,7 @@ export class StreamsController {
     );
   }
 
-  @ApiHeader({
-    description: "Session ID for authentication",
-    name: "X-Session-Id",
-  })
-  @ApiHeader({
-    description: "Session ID for authentication",
-    name: "X-Session-Id",
-  })
+  @ApiHeader({ name: "X-Session-Id", required: false })
   @ApiOkResponse({
     description: "Stream information retrieved successfully",
     type: PermittedStreamDto,
@@ -329,9 +315,12 @@ export class StreamsController {
   @Get(":streamId")
   public async readStream(
     @Param("streamId") streamId: string,
-    @Req() request: Request,
+    @Headers("X-Session-Id") sessionId?: string,
   ): Promise<PermittedStreamDto> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
+    const userId =
+      sessionId === undefined
+        ? null
+        : await this.commonService.getUserIdFromSessionId(sessionId);
 
     const stream = await this.streamsService.findOne(streamId);
 
@@ -363,11 +352,7 @@ export class StreamsController {
       type: "object",
     },
   })
-  @ApiHeader({
-    description: "Session ID for authentication",
-    name: "X-Session-Id",
-    required: true,
-  })
+  @ApiHeader({ name: "X-Session-Id", required: false })
   @ApiOkResponse({
     description: "Stream successfully updated",
     type: PermittedStreamDto,
@@ -403,9 +388,12 @@ export class StreamsController {
   public async updateStream(
     @Param("streamId") streamId: string,
     @Body() updateStreamDto: UpdateStreamDto,
-    @Req() request: Request,
+    @Headers("X-Session-Id") sessionId?: string,
   ): Promise<PermittedStreamDto> {
-    const userId = await this.commonService.getUserIdFromRequest(request);
+    const userId =
+      sessionId === undefined
+        ? null
+        : await this.commonService.getUserIdFromSessionId(sessionId);
 
     if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
