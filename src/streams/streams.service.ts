@@ -129,9 +129,12 @@ export class StreamsService {
     const queryBuilder = this.streamsRepository.createQueryBuilder("stream");
 
     if (searchStreamDto.q !== undefined) {
-      queryBuilder.andWhere("LOWER(stream.name) LIKE LOWER(:query)", {
-        query: `%${searchStreamDto.q}%`,
-      });
+      queryBuilder.andWhere(
+        "LOWER(stream.name) LIKE LOWER(:query) OR " +
+          "LOWER(stream.shortDescription) LIKE LOWER(:query) OR " +
+          "LOWER(stream.longDescription) LIKE LOWER(:query)",
+        { query: `%${searchStreamDto.q}%` },
+      );
     }
 
     if (searchStreamDto.userId !== undefined) {
