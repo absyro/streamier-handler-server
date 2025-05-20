@@ -2,11 +2,10 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import randomatic from "randomatic";
-import { Repository } from "typeorm";
+import { FindOneOptions, Repository } from "typeorm";
 
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";
@@ -24,11 +23,13 @@ export class HandlersService {
     userId: string,
     createHandlerDto: CreateHandlerDto,
   ): Promise<Handler> {
-    const count = await this.handlersRepository.count({ where: { userId } });
+    const totalHandlers = await this.handlersRepository.count({
+      where: { userId },
+    });
 
     const maxHandlersPerUser = 100;
 
-    if (count >= maxHandlersPerUser) {
+    if (totalHandlers >= maxHandlersPerUser) {
       throw new ForbiddenException(
         `You have reached the maximum limit of ${maxHandlersPerUser} handlers per user`,
       );
@@ -36,43 +37,23 @@ export class HandlersService {
 
     const handler = new Handler();
 
-    let handlerId: string;
-
-    let authToken: string;
+    let id: string;
 
     do {
-      handlerId = randomatic("a0", 8);
-    } while (
-      await this.handlersRepository.exists({ where: { id: handlerId } })
-    );
+      id = randomatic("a0", 8);
+    } while (await this.exists(id));
 
-    do {
-      authToken = randomatic("Aa0", 64);
-    } while (await this.handlersRepository.exists({ where: { authToken } }));
-
-    handler.id = handlerId;
+    handler.id = id;
 
     handler.name = createHandlerDto.name;
 
-    handler.authToken = authToken;
+    handler.authToken = await this._generateAuthToken();
 
     handler.userId = userId;
 
-    if (createHandlerDto.shortDescription !== undefined) {
-      handler.shortDescription = createHandlerDto.shortDescription;
-    }
+    handler.isOnline = true;
 
-    if (createHandlerDto.longDescription !== undefined) {
-      handler.longDescription = createHandlerDto.longDescription;
-    }
-
-    if (createHandlerDto.iconId !== undefined) {
-      handler.iconId = createHandlerDto.iconId;
-    }
-
-    if (createHandlerDto.isSearchable !== undefined) {
-      handler.isSearchable = createHandlerDto.isSearchable;
-    }
+    handler.isSearchable = true;
 
     return this.handlersRepository.save(handler);
   }
@@ -86,15 +67,23 @@ export class HandlersService {
   }
 
   public async exists(handlerId: string): Promise<boolean> {
-    const count = await this.handlersRepository.count({
-      where: { id: handlerId },
-    });
-
-    return count > 0;
+    return this.handlersRepository.exists({ where: { id: handlerId } });
   }
 
-  public async findOne(handlerId: string): Promise<Handler | null> {
-    return this.handlersRepository.findOne({ where: { id: handlerId } });
+  public async findOne(
+    handlerId: string,
+    options?: FindOneOptions<Handler>,
+  ): Promise<Handler> {
+    const handler = await this.handlersRepository.findOne({
+      where: { id: handlerId },
+      ...options,
+    });
+
+    if (!handler) {
+      throw new NotFoundException("Handler not found");
+    }
+
+    return handler;
   }
 
   public async findOneUsingAuthToken(
@@ -103,29 +92,10 @@ export class HandlersService {
     return this.handlersRepository.findOne({ where: { authToken } });
   }
 
-  public async regenerateAuthToken(
-    handlerId: string,
-    userId: string,
-  ): Promise<Handler> {
+  public async regenerateAuthToken(handlerId: string): Promise<Handler> {
     const handler = await this.findOne(handlerId);
 
-    if (!handler) {
-      throw new NotFoundException("Handler not found");
-    }
-
-    if (handler.userId !== userId) {
-      throw new UnauthorizedException(
-        "You do not have permission to modify this handler",
-      );
-    }
-
-    let authToken: string;
-
-    do {
-      authToken = randomatic("Aa0", 64);
-    } while (await this.handlersRepository.exists({ where: { authToken } }));
-
-    handler.authToken = authToken;
+    handler.authToken = await this._generateAuthToken();
 
     return this.handlersRepository.save(handler);
   }
@@ -175,32 +145,22 @@ export class HandlersService {
       .execute();
   }
 
-  public async setOnlineStatus(
-    handlerId: string,
-    isOnline: boolean,
-  ): Promise<void> {
-    const result = await this.handlersRepository.update(
-      { id: handlerId },
-      { isOnline },
-    );
-
-    if (result.affected === 0) {
-      throw new NotFoundException("Handler not found");
-    }
-  }
-
   public async updateOne(
     handlerId: string,
     updateHandlerDto: UpdateHandlerDto,
   ): Promise<Handler> {
-    const existing = await this.findOne(handlerId);
+    const handler = await this.findOne(handlerId);
 
-    if (!existing) {
-      throw new NotFoundException("Handler not found");
-    }
+    return this.handlersRepository.save({ ...handler, ...updateHandlerDto });
+  }
 
-    const updated = { ...existing, ...updateHandlerDto };
+  private async _generateAuthToken(): Promise<string> {
+    let authToken: string;
 
-    return this.handlersRepository.save(updated);
+    do {
+      authToken = randomatic("Aa0", 64);
+    } while (await this.handlersRepository.exists({ where: { authToken } }));
+
+    return authToken;
   }
 }

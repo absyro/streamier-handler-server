@@ -1,5 +1,7 @@
 import { createZodDto } from "nestjs-zod";
 
-import { createHandlerSchema } from "../schemas/create-handler.schema";
+import { handlerSchema } from "../schemas/handler.schema";
 
-export class CreateHandlerDto extends createZodDto(createHandlerSchema) {}
+export class CreateHandlerDto extends createZodDto(
+  handlerSchema.pick({ name: true }),
+) {}

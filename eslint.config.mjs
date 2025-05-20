@@ -147,6 +147,7 @@ const eslintConfig = [
   eslintPluginImport.flatConfigs.recommended,
   {
     rules: {
+      "import/named": "off",
       "import/no-default-export": "error",
       "import/no-unresolved": "off",
     },

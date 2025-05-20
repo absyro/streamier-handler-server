@@ -4,7 +4,6 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiQuery,
   ApiServiceUnavailableResponse,
   ApiTags,
@@ -55,10 +54,6 @@ import { ComponentDto } from "./dto/component.dto";
     required: ["error", "message", "statusCode"],
     type: "object",
   },
-})
-@ApiParam({
-  description: "ID of the target handler",
-  name: "handlerId",
 })
 @ApiQuery({
   description: dedent`
@@ -127,16 +122,12 @@ export class ComponentsController {
       "Retrieves a specific component by name for a given handler ID.",
     summary: "Read component",
   })
-  @ApiParam({
-    description: "The name of the component to retrieve.",
-    name: "componentName",
-  })
   @Get(":componentName")
   public async getComponent(
     @Param("handlerId") handlerId: string,
     @Param("componentName") componentName: string,
   ): Promise<ComponentDto> {
-    const component = await this.componentsService.readComponent(
+    const component = await this.componentsService.getComponent(
       handlerId,
       componentName,
     );

@@ -1,0 +1,49 @@
+import { z } from "zod";
+
+export const handlerSchema = z.object({
+  authToken: z
+    .string()
+    .length(64)
+    .describe("Authentication token used for WebSocket connections"),
+  createdAt: z
+    .string()
+    .datetime()
+    .describe("Timestamp when the handler was created"),
+  iconId: z
+    .string()
+    .nonempty()
+    .max(12)
+    .optional()
+    .describe("The ID of the handler icon from https://icons8.com"),
+  id: z.string().length(8).describe("Unique identifier for the handler"),
+  isOnline: z
+    .boolean()
+    .describe("Whether the handler is currently online and connected"),
+  isSearchable: z
+    .boolean()
+    .describe("Whether the handler should be excluded from search results"),
+  longDescription: z
+    .string()
+    .nonempty()
+    .max(5000)
+    .optional()
+    .describe("Detailed description of the handler's functionality"),
+  name: z.string().nonempty().max(100).describe("Display name of the handler"),
+  shortDescription: z
+    .string()
+    .nonempty()
+    .max(180)
+    .optional()
+    .describe("Brief description of the handler's purpose"),
+  terms: z
+    .string()
+    .nonempty()
+    .max(5000)
+    .optional()
+    .describe("Terms of using this handler"),
+  updatedAt: z
+    .string()
+    .datetime()
+    .describe("Timestamp when the handler was last updated"),
+  userId: z.string().length(8).describe("ID of the user who owns this handler"),
+});

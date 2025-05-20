@@ -15,12 +15,12 @@ import {
   ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiHeader,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiQuery,
   ApiServiceUnavailableResponse,
   ApiTags,
@@ -32,10 +32,8 @@ import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
-import { PartialStreamDto } from "./dto/partial-stream.dto";
-import { StreamIdsDto } from "./dto/stream-ids.dto";
+import { PermittedStreamDto } from "./dto/permitted-stream.dto";
 import { StreamDto } from "./dto/stream.dto";
-import { StreamsConfigurationSchemaDto } from "./dto/streams-configuration-schema.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
@@ -79,10 +77,6 @@ import { StreamsService } from "./streams.service";
     type: "object",
   },
 })
-@ApiParam({
-  description: "ID of the target handler",
-  name: "handlerId",
-})
 @ApiQuery({
   description: dedent`
   The fields to include in the response.
@@ -117,7 +111,7 @@ import { StreamsService } from "./streams.service";
   },
 })
 @ApiTags("Streams")
-@Controller("api/handlers/:handlerId/streams")
+@Controller("api/streams")
 export class StreamsController {
   public constructor(
     private readonly streamsService: StreamsService,
@@ -147,6 +141,26 @@ export class StreamsController {
   @ApiCreatedResponse({
     description: "Stream successfully created",
     type: StreamDto,
+  })
+  @ApiForbiddenResponse({
+    description: "User has reached the maximum limit of streams (100)",
+    schema: {
+      properties: {
+        error: {
+          enum: [ReasonPhrases.FORBIDDEN],
+          type: "string",
+        },
+        message: {
+          type: "string",
+        },
+        statusCode: {
+          enum: [HttpStatus.FORBIDDEN],
+          type: "number",
+        },
+      },
+      required: ["error", "message", "statusCode"],
+      type: "object",
+    },
   })
   @ApiHeader({
     description: "Session ID for authentication",
@@ -183,7 +197,6 @@ export class StreamsController {
   @Post()
   public async createStream(
     @Body() createStreamDto: CreateStreamDto,
-    @Param("handlerId") handlerId: string,
     @Req() request: Request,
   ): Promise<StreamDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
@@ -192,11 +205,7 @@ export class StreamsController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const stream = await this.streamsService.createStream(
-      handlerId,
-      userId,
-      createStreamDto,
-    );
+    const stream = await this.streamsService.createOne(userId, createStreamDto);
 
     return stream;
   }
@@ -215,10 +224,6 @@ export class StreamsController {
 
     This operation is permanent and cannot be undone. All associated data will be removed.`,
     summary: "Delete stream",
-  })
-  @ApiParam({
-    description: "ID of the stream to delete",
-    name: "streamId",
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
@@ -243,7 +248,6 @@ export class StreamsController {
   @Delete(":streamId")
   @HttpCode(HttpStatus.NO_CONTENT)
   public async deleteStream(
-    @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
   ): Promise<void> {
@@ -253,32 +257,7 @@ export class StreamsController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    return this.streamsService.deleteStream(handlerId, userId, streamId);
-  }
-
-  @ApiOkResponse({
-    description: "List of stream IDs from the given user",
-    type: StreamIdsDto,
-  })
-  @ApiOperation({
-    description: "Retrieves IDs of all streams from the given user.",
-    summary: "List user stream IDs",
-  })
-  @ApiParam({
-    description: "ID of the user to retrieve streams from",
-    name: "userId",
-  })
-  @Get("users/:userId")
-  public async listUserStreamIds(
-    @Param("handlerId") handlerId: string,
-    @Param("userId") userId: string,
-  ): Promise<StreamIdsDto> {
-    const streamIds = await this.streamsService.listUserStreamIds(
-      handlerId,
-      userId,
-    );
-
-    return streamIds;
+    return this.streamsService.deleteOne(streamId, userId);
   }
 
   @ApiHeader({
@@ -291,56 +270,27 @@ export class StreamsController {
   })
   @ApiOkResponse({
     description: "Stream information retrieved successfully",
-    type: PartialStreamDto,
+    type: PermittedStreamDto,
   })
   @ApiOperation({
     description: "Retrieves information about a specific stream.",
     summary: "Read stream",
   })
-  @ApiParam({
-    description: "ID of the stream to retrieve",
-    name: "streamId",
-  })
   @Get(":streamId")
   public async readStream(
-    @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Req() request: Request,
-  ): Promise<PartialStreamDto> {
+  ): Promise<PermittedStreamDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    const stream = await this.streamsService.readStream(
-      handlerId,
+    const stream = await this.streamsService.findOne(streamId);
+
+    const permittedStream = this.streamsService.getPermittedStream(
+      stream,
       userId,
-      streamId,
     );
 
-    return stream;
-  }
-
-  @ApiOkResponse({
-    description: "Streams configuration schema successfully retrieved",
-    type: StreamsConfigurationSchemaDto,
-  })
-  @ApiOperation({
-    description: dedent`
-    Retrieves the configuration schema for streams.
-
-    This schema defines what type of configuration streams need.
-
-    This schema is not validated on the server side.
-
-    See https://json-schema.org/draft-07 for more information.`,
-    summary: "Read streams configuration schema",
-  })
-  @Get("configuration-schema")
-  public async readStreamsConfigurationSchema(
-    @Param("handlerId") handlerId: string,
-  ): Promise<StreamsConfigurationSchemaDto> {
-    const schema =
-      await this.streamsService.readStreamsConfigurationSchema(handlerId);
-
-    return schema;
+    return permittedStream;
   }
 
   @ApiBadRequestResponse({
@@ -370,7 +320,7 @@ export class StreamsController {
   })
   @ApiOkResponse({
     description: "Stream successfully updated",
-    type: PartialStreamDto,
+    type: PermittedStreamDto,
   })
   @ApiOperation({
     description: dedent`
@@ -378,10 +328,6 @@ export class StreamsController {
 
     Only the provided fields will be updated, leaving other configuration unchanged.`,
     summary: "Update stream",
-  })
-  @ApiParam({
-    description: "ID of the stream to update",
-    name: "streamId",
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
@@ -405,26 +351,27 @@ export class StreamsController {
   })
   @Put(":streamId")
   public async updateStream(
-    @Param("handlerId") handlerId: string,
     @Param("streamId") streamId: string,
     @Body() updateStreamDto: UpdateStreamDto,
     @Req() request: Request,
-  ): Promise<PartialStreamDto> {
+  ): Promise<PermittedStreamDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
-    await this.streamsService.updateStream(
-      handlerId,
-      userId,
+    if (userId === null) {
+      throw new UnauthorizedException("Missing or invalid authentication");
+    }
+
+    const stream = await this.streamsService.updateOne(
       streamId,
+      userId,
       updateStreamDto,
     );
 
-    const stream = await this.streamsService.readStream(
-      handlerId,
+    const permittedStream = this.streamsService.getPermittedStream(
+      stream,
       userId,
-      streamId,
     );
 
-    return stream;
+    return permittedStream;
   }
 }

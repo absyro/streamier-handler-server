@@ -10,28 +10,13 @@ import { componentSchema } from "./schemas/component.schema";
 export class ComponentsService {
   public constructor(private readonly commonService: CommonService) {}
 
-  public async listComponents(handlerId: string): Promise<ComponentDto[]> {
-    const response = await this.commonService.emitToHandler(
-      handlerId,
-      "components:list",
-    );
-
-    const { components } = validate(
-      response,
-      z.object({ components: componentSchema.array() }),
-      (zodError) => new BadGatewayException(zodError),
-    );
-
-    return components;
-  }
-
-  public async readComponent(
+  public async getComponent(
     handlerId: string,
     componentName: string,
   ): Promise<ComponentDto> {
     const response = await this.commonService.emitToHandler(
       handlerId,
-      "components:read",
+      "components:get",
       componentName,
     );
 
@@ -47,5 +32,20 @@ export class ComponentsService {
     );
 
     return component;
+  }
+
+  public async listComponents(handlerId: string): Promise<ComponentDto[]> {
+    const response = await this.commonService.emitToHandler(
+      handlerId,
+      "components:list",
+    );
+
+    const { components } = validate(
+      response,
+      z.object({ components: componentSchema.array() }),
+      (zodError) => new BadGatewayException(zodError),
+    );
+
+    return components;
   }
 }

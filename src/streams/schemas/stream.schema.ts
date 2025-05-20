@@ -47,33 +47,16 @@ export const streamSchema = z.object({
       z.unknown().describe("The configuration value (can be any type)"),
     )
     .describe("Key-value pairs of stream configuration settings"),
+  createdAt: z
+    .string()
+    .datetime()
+    .describe("Timestamp when the stream was created"),
+  handlerId: z
+    .string()
+    .length(8)
+    .describe("The ID of the handler managing this stream"),
   id: z.string().length(8).describe("The unique 8-character ID of the stream"),
   isActive: z.boolean().describe("Active status of the stream (true/false)"),
-  logs: z
-    .array(
-      z
-        .object({
-          id: z
-            .string()
-            .length(8)
-            .describe("The unique 8-character ID of the log entry"),
-          level: z
-            .enum(["debug", "info", "warning", "error"])
-            .describe("Severity level of the log entry"),
-          message: z
-            .string()
-            .nonempty()
-            .max(1000)
-            .describe("The log message content (max 1000 chars)"),
-          timestamp: z
-            .string()
-            .datetime()
-            .describe("ISO 8601 timestamp of when the log was created"),
-        })
-        .describe("A single log entry in the stream's log history"),
-    )
-    .max(100)
-    .describe("Array of log entries (max 100 entries)"),
   name: z
     .string()
     .nonempty()
@@ -190,6 +173,10 @@ export const streamSchema = z.object({
     .describe(
       "Cryptographic signature verifying the stream's integrity (max 500 chars)",
     ),
+  updatedAt: z
+    .string()
+    .datetime()
+    .describe("Timestamp when the stream was last updated"),
   userId: z
     .string()
     .length(8)

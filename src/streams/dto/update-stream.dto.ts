@@ -14,5 +14,6 @@ export class UpdateStreamDto extends createZodDto(
       signature: true,
       variables: true,
     })
-    .partial(),
+    .partial()
+    .strict(),
 ) {}

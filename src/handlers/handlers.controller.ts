@@ -5,7 +5,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Patch,
   Post,
@@ -23,7 +22,6 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -34,11 +32,10 @@ import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
-import { HandlerAuthTokenDto } from "./dto/handler-auth-token.dto";
-import { HandlerWithoutAuthTokenDto } from "./dto/handler-without-auth-token.dto";
+import { HandlerDto } from "./dto/handler.dto";
+import { PermittedHandlerDto } from "./dto/permitted-handler.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
-import { Handler } from "./entities/handler.entity";
 import { HandlersService } from "./handlers.service";
 
 @ApiQuery({
@@ -84,7 +81,7 @@ export class HandlersController {
   })
   @ApiCreatedResponse({
     description: "Handler successfully created",
-    type: Handler,
+    type: HandlerDto,
   })
   @ApiForbiddenResponse({
     description: "User has reached the maximum limit of handlers (100)",
@@ -143,7 +140,7 @@ export class HandlersController {
   public async createHandler(
     @Body() createHandlerDto: CreateHandlerDto,
     @Req() request: Request,
-  ): Promise<Handler> {
+  ): Promise<HandlerDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (userId === null) {
@@ -184,10 +181,6 @@ export class HandlersController {
       "Deletes a specific handler. Only handlers belonging to the authenticated user can be deleted.",
     summary: "Delete handler",
   })
-  @ApiParam({
-    description: "The ID of the handler to delete",
-    name: "handlerId",
-  })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
     schema: {
@@ -220,11 +213,9 @@ export class HandlersController {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const handler = await this.handlersService.findOne(handlerId);
-
-    if (!handler) {
-      throw new NotFoundException("Handler not found");
-    }
+    const handler = await this.handlersService.findOne(handlerId, {
+      select: ["userId"],
+    });
 
     if (handler.userId !== userId) {
       throw new UnauthorizedException(
@@ -257,7 +248,7 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "List of handlers matching the search criteria",
-    type: [HandlerWithoutAuthTokenDto],
+    type: [PermittedHandlerDto],
   })
   @ApiOperation({
     description: dedent`
@@ -270,7 +261,7 @@ export class HandlersController {
   @Get()
   public async listHandlers(
     @Query() searchDto: SearchHandlerDto,
-  ): Promise<Omit<HandlerWithoutAuthTokenDto, "updateTimestamp">[]> {
+  ): Promise<Omit<PermittedHandlerDto, "updateTimestamp">[]> {
     const handlers = await this.handlersService.search(searchDto);
 
     return handlers.map(({ authToken, ...handler }) => handler);
@@ -298,29 +289,21 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "Handler information",
-    type: HandlerWithoutAuthTokenDto,
+    type: PermittedHandlerDto,
   })
   @ApiOperation({
     description: "Retrieves information about a specific handler.",
     summary: "Read handler",
   })
-  @ApiParam({
-    description: "The ID of the handler to retrieve",
-    name: "handlerId",
-  })
   @Get(":handlerId")
   public async readHandler(
     @Param("handlerId") handlerId: string,
-  ): Promise<Omit<HandlerWithoutAuthTokenDto, "updateTimestamp">> {
-    const handler = await this.handlersService.findOne(handlerId);
+  ): Promise<PermittedHandlerDto> {
+    const handler = await this.handlersService.findOne(handlerId, {
+      select: { authToken: false },
+    });
 
-    if (!handler) {
-      throw new NotFoundException("Handler not found");
-    }
-
-    const { authToken, ...handlerWithoutAuthToken } = handler;
-
-    return handlerWithoutAuthToken;
+    return handler;
   }
 
   @ApiHeader({
@@ -350,16 +333,12 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "Auth token successfully regenerated",
-    type: HandlerAuthTokenDto,
+    type: String,
   })
   @ApiOperation({
     description:
       "Regenerates the authentication token for a specific handler. Only handlers belonging to the authenticated user can be modified.",
     summary: "Regenerate auth token",
-  })
-  @ApiParam({
-    description: "The ID of the handler to regenerate token for",
-    name: "handlerId",
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
@@ -385,18 +364,16 @@ export class HandlersController {
   public async regenerateAuthToken(
     @Param("handlerId") handlerId: string,
     @Req() request: Request,
-  ): Promise<HandlerAuthTokenDto> {
+  ): Promise<HandlerDto["authToken"]> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const handler = await this.handlersService.findOne(handlerId);
-
-    if (!handler) {
-      throw new NotFoundException("Handler not found");
-    }
+    const handler = await this.handlersService.findOne(handlerId, {
+      select: ["userId"],
+    });
 
     if (handler.userId !== userId) {
       throw new UnauthorizedException(
@@ -404,12 +381,10 @@ export class HandlersController {
       );
     }
 
-    const regeneratedHandler = await this.handlersService.regenerateAuthToken(
-      handlerId,
-      userId,
-    );
+    const { authToken } =
+      await this.handlersService.regenerateAuthToken(handlerId);
 
-    return { authToken: regeneratedHandler.authToken };
+    return authToken;
   }
 
   @ApiBadRequestResponse({
@@ -459,16 +434,12 @@ export class HandlersController {
   })
   @ApiOkResponse({
     description: "Handler successfully updated",
-    type: HandlerWithoutAuthTokenDto,
+    type: PermittedHandlerDto,
   })
   @ApiOperation({
     description:
       "Updates the configuration of a specific handler. Only handlers belonging to the authenticated user can be updated.",
     summary: "Update handler",
-  })
-  @ApiParam({
-    description: "The ID of the handler to update",
-    name: "handlerId",
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
@@ -495,18 +466,16 @@ export class HandlersController {
     @Param("handlerId") handlerId: string,
     @Body() updateHandlerDto: UpdateHandlerDto,
     @Req() request: Request,
-  ): Promise<Omit<HandlerWithoutAuthTokenDto, "updateTimestamp">> {
+  ): Promise<PermittedHandlerDto> {
     const userId = await this.commonService.getUserIdFromRequest(request);
 
     if (userId === null) {
       throw new UnauthorizedException("Missing or invalid authentication");
     }
 
-    const handler = await this.handlersService.findOne(handlerId);
-
-    if (!handler) {
-      throw new NotFoundException("Handler not found");
-    }
+    const handler = await this.handlersService.findOne(handlerId, {
+      select: ["userId"],
+    });
 
     if (handler.userId !== userId) {
       throw new UnauthorizedException(

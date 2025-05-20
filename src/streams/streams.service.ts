@@ -1,140 +1,193 @@
-import { BadGatewayException, Injectable } from "@nestjs/common";
-import { validate } from "nestjs-zod";
-import { tryit } from "radash";
-import { DataSource } from "typeorm";
-import { z } from "zod";
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import randomatic from "randomatic";
+import { Repository } from "typeorm";
 
-import { CommonService } from "../common/common.service";
 import { CreateStreamDto } from "./dto/create-stream.dto";
-import { PartialStreamDto } from "./dto/partial-stream.dto";
-import { StreamIdsDto } from "./dto/stream-ids.dto";
-import { StreamDto } from "./dto/stream.dto";
-import { StreamsConfigurationSchemaDto } from "./dto/streams-configuration-schema.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
-import { streamConfigurationSchemaSchema } from "./schemas/stream-configuration-schema.schema";
-import { streamIdsSchema } from "./schemas/stream-ids.schema";
-import { streamSchema } from "./schemas/stream.schema";
+import { Stream } from "./entities/stream.entity";
 
 @Injectable()
 export class StreamsService {
   public constructor(
-    private readonly dataSource: DataSource,
-    private readonly commonService: CommonService,
+    @InjectRepository(Stream)
+    private readonly streamsRepository: Repository<Stream>,
   ) {}
 
-  public async createStream(
-    handlerId: string,
+  public async createOne(
     userId: string,
     createStreamDto: CreateStreamDto,
-  ): Promise<StreamDto> {
-    const response = await this.commonService.emitToHandler(
-      handlerId,
-      "streams:create",
+  ): Promise<Stream> {
+    const totalStreams = await this.streamsRepository.count({
+      where: { userId },
+    });
+
+    const maxStreamsPerUser = 100;
+
+    if (totalStreams >= maxStreamsPerUser) {
+      throw new ForbiddenException(
+        `You have reached the maximum limit of ${maxStreamsPerUser} streams per user`,
+      );
+    }
+
+    const stream = new Stream();
+
+    let id: string;
+
+    do {
+      id = randomatic("a0", 8);
+    } while (await this.exists(id));
+
+    stream.id = id;
+
+    stream.name = createStreamDto.name;
+
+    stream.configuration = createStreamDto.configuration;
+
+    stream.handlerId = createStreamDto.handlerId;
+
+    stream.isActive = true;
+
+    stream.name = createStreamDto.name;
+
+    stream.nodes = [];
+
+    stream.permissions = {
+      read: {
+        all: [],
+        roles: {},
+        teams: {},
+        users: {},
+      },
+      write: {
+        all: [],
+        roles: {},
+        teams: {},
+        users: {},
+      },
+    };
+
+    stream.signature = randomatic("Aa0", 32);
+
+    stream.userId = userId;
+
+    stream.variables = {};
+
+    return this.streamsRepository.save(stream);
+  }
+
+  public async deleteOne(streamId: string, userId: string): Promise<void> {
+    const result = await this.streamsRepository.delete({
+      id: streamId,
       userId,
-      createStreamDto,
-    );
+    });
 
-    const { stream } = validate(
-      response,
-      z.object({ stream: streamSchema }),
-      (zodError) => new BadGatewayException(zodError),
-    );
+    if (result.affected === 0) {
+      throw new NotFoundException("Stream not found");
+    }
+  }
 
-    await this.dataSource.query(
-      "INSERT INTO user_streams (id, handler_id, user_id, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW())",
-      [stream.id, handlerId, userId],
-    );
+  public async exists(streamId: string): Promise<boolean> {
+    return this.streamsRepository.exists({ where: { id: streamId } });
+  }
+
+  public async findOne(streamId: string): Promise<Stream> {
+    const stream = await this.streamsRepository.findOne({
+      where: { id: streamId },
+    });
+
+    if (!stream) {
+      throw new NotFoundException("Stream not found");
+    }
 
     return stream;
   }
 
-  public async deleteStream(
-    handlerId: string,
-    userId: string,
-    streamId: string,
-  ): Promise<void> {
-    await tryit(this.dataSource.query.bind(this.dataSource))(
-      "DELETE FROM user_streams WHERE id = $1 AND handler_id = $2 AND user_id = $3",
-      [streamId, handlerId, userId],
-    );
-
-    await this.commonService.emitToHandler(
-      handlerId,
-      "streams:delete",
-      userId,
-      streamId,
-    );
-  }
-
-  public async listUserStreamIds(
-    handlerId: string,
-    userId: string,
-  ): Promise<StreamIdsDto> {
-    const response = await this.commonService.emitToHandler(
-      handlerId,
-      "streams:users:list:ids",
-      userId,
-    );
-
-    const { streamIds } = validate(
-      response,
-      z.object({ streamIds: streamIdsSchema }),
-      (zodError) => new BadGatewayException(zodError),
-    );
-
-    return streamIds;
-  }
-
-  public async readStream(
-    handlerId: string,
+  public getPermittedStream(
+    stream: Stream,
     userId: null | string,
-    streamId: string,
-  ): Promise<PartialStreamDto> {
-    const response = await this.commonService.emitToHandler(
-      handlerId,
-      "streams:read",
+  ): Partial<Stream> {
+    const permittedFields = this._getStreamPermittedFields(
+      stream,
+      "read",
       userId,
-      streamId,
     );
 
-    const { stream } = validate(
-      response,
-      z.object({ stream: streamSchema.partial() }),
-      (zodError) => new BadGatewayException(zodError),
+    const permittedStream = Object.fromEntries(
+      permittedFields.map((field) => [field, stream[field]]),
     );
 
-    return stream;
+    return permittedStream;
   }
 
-  public async readStreamsConfigurationSchema(
-    handlerId: string,
-  ): Promise<StreamsConfigurationSchemaDto> {
-    const response = await this.commonService.emitToHandler(
-      handlerId,
-      "streams:read-configuration-schema",
-    );
-
-    const { schema } = validate(
-      response,
-      z.object({ schema: streamConfigurationSchemaSchema }),
-      (zodError) => new BadGatewayException(zodError),
-    );
-
-    return schema;
-  }
-
-  public async updateStream(
-    handlerId: string,
-    userId: null | string,
+  public async updateOne(
     streamId: string,
+    userId: null | string,
     updateStreamDto: UpdateStreamDto,
-  ): Promise<void> {
-    await this.commonService.emitToHandler(
-      handlerId,
-      "streams:update",
+  ): Promise<Stream> {
+    const stream = await this.findOne(streamId);
+
+    const permittedFields = this._getStreamPermittedFields(
+      stream,
+      "write",
       userId,
-      streamId,
-      updateStreamDto,
+    ) as (keyof UpdateStreamDto)[];
+
+    const permittedStreamUpdate = Object.fromEntries(
+      permittedFields.map((field) => [field, updateStreamDto[field]]),
     );
+
+    return this.streamsRepository.save({ ...stream, ...permittedStreamUpdate });
+  }
+
+  private _getStreamPermittedFields(
+    stream: Stream,
+    permission: "read" | "write",
+    userId: null | string,
+  ): (keyof Stream)[] {
+    const fields = Object.keys(stream) as (keyof Stream)[];
+
+    if (stream.userId === userId) {
+      return fields;
+    }
+
+    const userRoles =
+      userId === null
+        ? []
+        : Object.entries(stream.roles)
+            .filter(([_, { users }]) => users.includes(userId))
+            .map(([role]) => role);
+
+    const {
+      all,
+      roles,
+      users,
+    }: {
+      all: string[];
+      roles: Record<string, string[] | undefined>;
+      users: Record<string, string[] | undefined>;
+    } = stream.permissions[permission];
+
+    const permittedFields = fields.filter((field) => {
+      if (all.includes(field)) {
+        return true;
+      }
+
+      if (userId !== null && users[userId]?.includes(field) === true) {
+        return true;
+      }
+
+      if (userRoles.some((role) => roles[role]?.includes(field) === true)) {
+        return true;
+      }
+
+      return false;
+    });
+
+    return permittedFields;
   }
 }

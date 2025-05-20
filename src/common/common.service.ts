@@ -9,11 +9,11 @@ import {
 import { Request } from "express";
 import { validate } from "nestjs-zod";
 import { isString } from "radash";
+import { HandlersService } from "src/handlers/handlers.service";
 import { DataSource } from "typeorm";
 import { z } from "zod";
 
 import { HandlersGateway } from "../handlers/handlers.gateway";
-import { HandlersService } from "../handlers/handlers.service";
 
 @Injectable()
 export class CommonService {
@@ -26,7 +26,7 @@ export class CommonService {
   public async emitToHandler(
     handlerId: string,
     event: string,
-    ...data: unknown[]
+    ...parameters: unknown[]
   ): Promise<object> {
     const doesHandlerExist = await this.handlersService.exists(handlerId);
 
@@ -34,30 +34,30 @@ export class CommonService {
       throw new NotFoundException("Handler not found");
     }
 
-    const { server } = this.handlersGateway;
+    const sockets = await this.handlersGateway.server.fetchSockets();
 
-    const sockets = await server.fetchSockets();
-
-    const socket = sockets.find(
-      ({ data: socketData }) => socketData.id === handlerId,
-    );
+    const socket = sockets.find((s) => s.data.id === handlerId);
 
     if (!socket) {
       throw new ServiceUnavailableException("Handler is offline");
     }
 
     return new Promise((resolve, reject) => {
-      socket.emit(event, ...data, (response: unknown) => {
+      socket.emit(event, ...parameters, (response: unknown) => {
         const responseSchema = z.union([
-          z.object({ success: z.literal(true) }).catchall(z.unknown()),
-          z.object({
-            success: z.literal(false),
-            unauthorized: z.literal(true),
-          }),
-          z.object({
-            error: z.string().nonempty(),
-            success: z.literal(false),
-          }),
+          z.object({ success: z.literal(true) }),
+          z
+            .object({
+              success: z.literal(false),
+              unauthorized: z.string().nonempty(),
+            })
+            .strict(),
+          z
+            .object({
+              error: z.string().nonempty(),
+              success: z.literal(false),
+            })
+            .strict(),
         ]);
 
         const validatedResponse = validate(
@@ -67,9 +67,7 @@ export class CommonService {
         );
 
         if ("unauthorized" in validatedResponse) {
-          reject(
-            new UnauthorizedException("Missing or invalid authentication"),
-          );
+          reject(new UnauthorizedException(validatedResponse.unauthorized));
 
           return;
         }
