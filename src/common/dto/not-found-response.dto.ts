@@ -1,11 +1,10 @@
 import { HttpStatus } from "@nestjs/common";
-import { ReasonPhrases } from "http-status-codes";
 import { createZodDto } from "nestjs-zod";
 import { z } from "zod";
 
 export class NotFoundResponseDto extends createZodDto(
   z.object({
-    error: z.literal(ReasonPhrases.NOT_FOUND),
+    error: z.literal("Not Found"),
     message: z.string(),
     statusCode: z.literal(HttpStatus.NOT_FOUND),
   }),
