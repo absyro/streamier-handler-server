@@ -1,13 +1,19 @@
 import type { DefaultEventsMap, Server, Socket } from "socket.io";
 
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from "@nestjs/websockets";
-import { isString } from "radash";
+import { isString, tryit } from "radash";
 
+import { StreamDto } from "../streams/dto/stream.dto";
+import { StreamsService } from "../streams/streams.service";
 import { HandlersService } from "./handlers.service";
 import { HandlerSocketData } from "./interfaces/handler-socket-data.interface";
 
@@ -23,7 +29,10 @@ export class HandlersGateway
     HandlerSocketData
   >;
 
-  public constructor(private readonly handlersService: HandlersService) {}
+  public constructor(
+    private readonly handlersService: HandlersService,
+    private readonly streamsService: StreamsService,
+  ) {}
 
   public async handleConnection(
     socket: Socket<
@@ -75,5 +84,65 @@ export class HandlersGateway
     >,
   ): Promise<void> {
     await this.handlersService.updateOne(socket.data.id, { isActive: false });
+  }
+
+  @SubscribeMessage("streams:get")
+  public async handleGetStream(
+    @ConnectedSocket()
+    client: Socket<
+      DefaultEventsMap,
+      DefaultEventsMap,
+      DefaultEventsMap,
+      HandlerSocketData
+    >,
+    @MessageBody() streamId: unknown,
+  ): Promise<
+    Pick<
+      StreamDto,
+      | "configuration"
+      | "id"
+      | "name"
+      | "nodes"
+      | "signature"
+      | "userId"
+      | "variables"
+    >
+  > {
+    if (!isString(streamId)) {
+      throw new WsException("Invalid stream ID");
+    }
+
+    const [error, stream] = await tryit(this.streamsService.findOne.bind(this))(
+      streamId,
+      {
+        select: [
+          "configuration",
+          "id",
+          "name",
+          "nodes",
+          "signature",
+          "userId",
+          "variables",
+        ],
+      },
+    );
+
+    if (error) {
+      throw new WsException("Stream not found");
+    }
+
+    if (stream.handlerId !== client.data.id) {
+      throw new WsException("You are not authorized to access this stream");
+    }
+
+    return {
+      configuration: stream.configuration,
+      id: stream.id,
+      name: stream.name,
+      nodes: stream.nodes,
+      signature: stream.signature,
+      userId: stream.userId,
+      variables: stream.variables,
+    };
   }
 }

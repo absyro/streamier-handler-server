@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import randomatic from "randomatic";
-import { Repository } from "typeorm";
+import { FindOneOptions, Repository } from "typeorm";
 
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { SearchStreamDto } from "./dto/search-stream.dto";
@@ -96,9 +96,13 @@ export class StreamsService {
     return this.streamsRepository.exists({ where: { id: streamId } });
   }
 
-  public async findOne(streamId: string): Promise<Stream> {
+  public async findOne(
+    streamId: string,
+    options?: FindOneOptions<Stream>,
+  ): Promise<Stream> {
     const stream = await this.streamsRepository.findOne({
       where: { id: streamId },
+      ...options,
     });
 
     if (!stream) {
