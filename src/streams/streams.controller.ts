@@ -27,15 +27,15 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { BadGatewayResponseDto } from "src/common/dto/bad-gateway-response.dto";
-import { BadRequestResponseDto } from "src/common/dto/bad-request-response.dto";
-import { ForbiddenResponseDto } from "src/common/dto/forbidden-response.dto";
-import { NotFoundResponseDto } from "src/common/dto/not-found-response.dto";
-import { ServiceUnavailableResponseDto } from "src/common/dto/service-unavailable-response.dto";
-import { UnauthorizedResponseDto } from "src/common/dto/unauthorized-response.dto";
 import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
+import { BadGatewayResponseDto } from "../common/dto/bad-gateway-response.dto";
+import { BadRequestResponseDto } from "../common/dto/bad-request-response.dto";
+import { ForbiddenResponseDto } from "../common/dto/forbidden-response.dto";
+import { NotFoundResponseDto } from "../common/dto/not-found-response.dto";
+import { ServiceUnavailableResponseDto } from "../common/dto/service-unavailable-response.dto";
+import { UnauthorizedResponseDto } from "../common/dto/unauthorized-response.dto";
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { PermittedStreamDto } from "./dto/permitted-stream.dto";
 import { SearchStreamDto } from "./dto/search-stream.dto";

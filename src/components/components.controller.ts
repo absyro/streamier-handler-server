@@ -8,11 +8,11 @@ import {
   ApiServiceUnavailableResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { BadGatewayResponseDto } from "src/common/dto/bad-gateway-response.dto";
-import { NotFoundResponseDto } from "src/common/dto/not-found-response.dto";
-import { ServiceUnavailableResponseDto } from "src/common/dto/service-unavailable-response.dto";
 import { dedent } from "ts-dedent";
 
+import { BadGatewayResponseDto } from "../common/dto/bad-gateway-response.dto";
+import { NotFoundResponseDto } from "../common/dto/not-found-response.dto";
+import { ServiceUnavailableResponseDto } from "../common/dto/service-unavailable-response.dto";
 import { ComponentsService } from "./components.service";
 import { ComponentDto } from "./dto/component.dto";
 

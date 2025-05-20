@@ -25,13 +25,13 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import { BadRequestResponseDto } from "src/common/dto/bad-request-response.dto";
-import { ForbiddenResponseDto } from "src/common/dto/forbidden-response.dto";
-import { NotFoundResponseDto } from "src/common/dto/not-found-response.dto";
-import { UnauthorizedResponseDto } from "src/common/dto/unauthorized-response.dto";
 import { dedent } from "ts-dedent";
 
 import { CommonService } from "../common/common.service";
+import { BadRequestResponseDto } from "../common/dto/bad-request-response.dto";
+import { ForbiddenResponseDto } from "../common/dto/forbidden-response.dto";
+import { NotFoundResponseDto } from "../common/dto/not-found-response.dto";
+import { UnauthorizedResponseDto } from "../common/dto/unauthorized-response.dto";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { HandlerDto } from "./dto/handler.dto";
 import { PermittedHandlerDto } from "./dto/permitted-handler.dto";
