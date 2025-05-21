@@ -34,6 +34,24 @@ export class HandlersGateway
     private readonly streamsService: StreamsService,
   ) {}
 
+  @SubscribeMessage("settings:canHostStreams")
+  public handleCanHostStreams(
+    @ConnectedSocket()
+    client: Socket<
+      DefaultEventsMap,
+      DefaultEventsMap,
+      DefaultEventsMap,
+      HandlerSocketData
+    >,
+    @MessageBody() canHostStreams: unknown,
+  ): void {
+    if (typeof canHostStreams !== "boolean") {
+      throw new WsException("Invalid canHostStreams state");
+    }
+
+    client.data.canHostStreams = canHostStreams;
+  }
+
   public async handleConnection(
     socket: Socket<
       DefaultEventsMap,
@@ -71,6 +89,8 @@ export class HandlersGateway
     }
 
     socket.data.id = handler.id;
+
+    socket.data.canHostStreams = false;
 
     await this.handlersService.updateOne(handler.id, { isActive: true });
   }
