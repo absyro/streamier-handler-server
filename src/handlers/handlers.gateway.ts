@@ -119,13 +119,7 @@ export class HandlersGateway
   ): Promise<
     Pick<
       StreamDto,
-      | "configuration"
-      | "id"
-      | "name"
-      | "nodes"
-      | "signature"
-      | "userId"
-      | "variables"
+      "configuration" | "id" | "name" | "nodes" | "userId" | "variables"
     >
   > {
     if (!isString(streamId)) {
@@ -135,15 +129,7 @@ export class HandlersGateway
     const [error, stream] = await tryit(this.streamsService.findOne.bind(this))(
       streamId,
       {
-        select: [
-          "configuration",
-          "id",
-          "name",
-          "nodes",
-          "signature",
-          "userId",
-          "variables",
-        ],
+        select: ["configuration", "id", "name", "nodes", "userId", "variables"],
       },
     );
 
@@ -160,7 +146,6 @@ export class HandlersGateway
       id: stream.id,
       name: stream.name,
       nodes: stream.nodes,
-      signature: stream.signature,
       userId: stream.userId,
       variables: stream.variables,
     };
