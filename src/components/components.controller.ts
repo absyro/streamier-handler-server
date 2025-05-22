@@ -47,28 +47,6 @@ export class ComponentsController {
   public constructor(private readonly componentsService: ComponentsService) {}
 
   @ApiOkResponse({
-    description: "Successfully retrieved component details",
-    type: ComponentDto,
-  })
-  @ApiOperation({
-    description:
-      "Retrieves a specific component by name for a given handler ID.",
-    summary: "Read component",
-  })
-  @Get(":componentName")
-  public async getComponent(
-    @Param("handlerId") handlerId: string,
-    @Param("componentName") componentName: string,
-  ): Promise<ComponentDto> {
-    const component = await this.componentsService.getComponent(
-      handlerId,
-      componentName,
-    );
-
-    return component;
-  }
-
-  @ApiOkResponse({
     description: "Successfully retrieved handler components",
     type: [ComponentDto],
   })

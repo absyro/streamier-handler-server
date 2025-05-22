@@ -10,30 +10,6 @@ import { componentSchema } from "./schemas/component.schema";
 export class ComponentsService {
   public constructor(private readonly commonService: CommonService) {}
 
-  public async getComponent(
-    handlerId: string,
-    componentName: string,
-  ): Promise<ComponentDto> {
-    const response = await this.commonService.emitToHandler(
-      handlerId,
-      "components:get",
-      componentName,
-    );
-
-    const { component } = validate(
-      response,
-      z.object({
-        component: componentSchema.refine(
-          (c) => c.name === componentName,
-          "Received component name does not match requested component name",
-        ),
-      }),
-      (zodError) => new BadGatewayException(zodError),
-    );
-
-    return component;
-  }
-
   public async listComponents(handlerId: string): Promise<ComponentDto[]> {
     const response = await this.commonService.emitToHandler(
       handlerId,
