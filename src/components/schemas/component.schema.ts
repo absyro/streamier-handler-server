@@ -57,3 +57,5 @@ export const componentSchema = z.object({
       "The schema of the variables. This data will not be validated on the server side. See https://json-schema.org/draft-07",
     ),
 });
+
+export type ComponentSchema = z.infer<typeof componentSchema>;
