@@ -3,15 +3,51 @@ import { z } from "zod";
 export const streamPermissionMatrixSchema = z
   .object({
     all: z
-      .array(z.string().max(500).describe("Field identifier"))
-      .max(100)
+      .array(
+        z
+          .enum([
+            "configuration",
+            "createdAt",
+            "handlerId",
+            "id",
+            "isActive",
+            "longDescription",
+            "name",
+            "nodes",
+            "permissions",
+            "roles",
+            "shortDescription",
+            "updatedAt",
+            "userId",
+            "variables",
+          ])
+          .describe("Field identifier"),
+      )
       .describe("Fields accessible to everyone with this permission type"),
     roles: z
       .record(
         z.string().nonempty().max(100).describe("Name of the role"),
         z
-          .array(z.string().max(500).describe("Field identifier"))
-          .max(100)
+          .array(
+            z
+              .enum([
+                "configuration",
+                "createdAt",
+                "handlerId",
+                "id",
+                "isActive",
+                "longDescription",
+                "name",
+                "nodes",
+                "permissions",
+                "roles",
+                "shortDescription",
+                "updatedAt",
+                "userId",
+                "variables",
+              ])
+              .describe("Field identifier"),
+          )
           .describe("Fields accessible to this specific role"),
       )
       .describe("Role-based permission exceptions"),
@@ -19,8 +55,26 @@ export const streamPermissionMatrixSchema = z
       .record(
         z.string().length(8).describe("8-character team ID"),
         z
-          .array(z.string().max(500).describe("Field identifier"))
-          .max(100)
+          .array(
+            z
+              .enum([
+                "configuration",
+                "createdAt",
+                "handlerId",
+                "id",
+                "isActive",
+                "longDescription",
+                "name",
+                "nodes",
+                "permissions",
+                "roles",
+                "shortDescription",
+                "updatedAt",
+                "userId",
+                "variables",
+              ])
+              .describe("Field identifier"),
+          )
           .describe("Fields accessible to this specific team"),
       )
       .describe("Team-based permission exceptions"),
@@ -28,8 +82,26 @@ export const streamPermissionMatrixSchema = z
       .record(
         z.string().length(8).describe("8-character user ID"),
         z
-          .array(z.string().max(500).describe("Field identifier"))
-          .max(100)
+          .array(
+            z
+              .enum([
+                "configuration",
+                "createdAt",
+                "handlerId",
+                "id",
+                "isActive",
+                "longDescription",
+                "name",
+                "nodes",
+                "permissions",
+                "roles",
+                "shortDescription",
+                "updatedAt",
+                "userId",
+                "variables",
+              ])
+              .describe("Field identifier"),
+          )
           .describe("Fields accessible to this specific user"),
       )
       .describe("User-based permission exceptions"),
@@ -191,3 +263,5 @@ export const streamSchema = z.object({
     )
     .describe("Key-value pairs of variables available in the stream"),
 });
+
+export type StreamSchema = z.infer<typeof streamSchema>;

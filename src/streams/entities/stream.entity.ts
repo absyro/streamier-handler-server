@@ -5,13 +5,12 @@ import {
   ManyToOne,
   PrimaryColumn,
 } from "typeorm";
-import { z } from "zod";
 
 import { Handler } from "../../handlers/entities/handler.entity";
-import { streamSchema } from "../schemas/stream.schema";
+import { StreamSchema } from "../schemas/stream.schema";
 
 @Entity({ name: "streams" })
-export class Stream implements z.infer<typeof streamSchema> {
+export class Stream implements StreamSchema {
   @Column({ name: "configuration", type: "json" })
   public configuration!: Record<string, unknown>;
 
@@ -22,7 +21,7 @@ export class Stream implements z.infer<typeof streamSchema> {
   public handler!: Handler;
 
   @Column({ length: 8, name: "handler_id" })
-  public handlerId!: string;
+  public handlerId!: Handler["id"];
 
   @PrimaryColumn({ length: 8, name: "id" })
   public id!: string;
@@ -41,22 +40,22 @@ export class Stream implements z.infer<typeof streamSchema> {
     data: Record<string, unknown>;
     id: string;
     name: string;
-    outputs: Record<string, string[]>;
+    outputs: Record<string, Stream["nodes"][number]["id"][]>;
   }[];
 
   @Column({ name: "permissions", type: "json" })
   public permissions!: {
     read: {
-      all: string[];
-      roles: Record<string, string[]>;
-      teams: Record<string, string[]>;
-      users: Record<string, string[]>;
+      all: (keyof StreamSchema)[];
+      roles: Record<string, (keyof StreamSchema)[]>;
+      teams: Record<string, (keyof StreamSchema)[]>;
+      users: Record<string, (keyof StreamSchema)[]>;
     };
     write: {
-      all: string[];
-      roles: Record<string, string[]>;
-      teams: Record<string, string[]>;
-      users: Record<string, string[]>;
+      all: (keyof StreamSchema)[];
+      roles: Record<string, (keyof StreamSchema)[]>;
+      teams: Record<string, (keyof StreamSchema)[]>;
+      users: Record<string, (keyof StreamSchema)[]>;
     };
   };
 

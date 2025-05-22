@@ -11,6 +11,7 @@ import { CreateStreamDto } from "./dto/create-stream.dto";
 import { SearchStreamDto } from "./dto/search-stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { Stream } from "./entities/stream.entity";
+import { StreamSchema } from "./schemas/stream.schema";
 
 @Injectable()
 export class StreamsService {
@@ -59,7 +60,16 @@ export class StreamsService {
 
     stream.permissions = {
       read: {
-        all: [],
+        all: [
+          "configuration",
+          "createdAt",
+          "handlerId",
+          "id",
+          "longDescription",
+          "name",
+          "shortDescription",
+          "userId",
+        ],
         roles: {},
         teams: {},
         users: {},
@@ -220,8 +230,8 @@ export class StreamsService {
     stream: Stream,
     permission: "read" | "write",
     userId: null | string,
-  ): (keyof Stream)[] {
-    const fields = Object.keys(stream) as (keyof Stream)[];
+  ): (keyof StreamSchema)[] {
+    const fields = Object.keys(stream) as (keyof StreamSchema)[];
 
     if (stream.userId === userId) {
       return fields;
@@ -234,26 +244,18 @@ export class StreamsService {
             .filter(([_, { users }]) => users.includes(userId))
             .map(([role]) => role);
 
-    const {
-      all,
-      roles,
-      users,
-    }: {
-      all: string[];
-      roles: Record<string, string[] | undefined>;
-      users: Record<string, string[] | undefined>;
-    } = stream.permissions[permission];
+    const { all, roles, users } = stream.permissions[permission];
 
     const permittedFields = fields.filter((field) => {
       if (all.includes(field)) {
         return true;
       }
 
-      if (userId !== null && users[userId]?.includes(field) === true) {
+      if (userId !== null && users[userId].includes(field)) {
         return true;
       }
 
-      if (userRoles.some((role) => roles[role]?.includes(field) === true)) {
+      if (userRoles.some((role) => roles[role].includes(field))) {
         return true;
       }
 

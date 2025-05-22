@@ -47,3 +47,5 @@ export const handlerSchema = z.object({
     .describe("Timestamp when the handler was last updated"),
   userId: z.string().length(8).describe("ID of the user who owns this handler"),
 });
+
+export type HandlerSchema = z.infer<typeof handlerSchema>;

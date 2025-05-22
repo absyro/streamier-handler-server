@@ -1,10 +1,9 @@
 import { BeforeUpdate, Column, Entity, PrimaryColumn } from "typeorm";
-import { z } from "zod";
 
-import { handlerSchema } from "../schemas/handler.schema";
+import { HandlerSchema } from "../schemas/handler.schema";
 
 @Entity({ name: "handlers" })
-export class Handler implements z.infer<typeof handlerSchema> {
+export class Handler implements HandlerSchema {
   @Column({ length: 64, name: "auth_token", unique: true })
   public authToken!: string;
 
