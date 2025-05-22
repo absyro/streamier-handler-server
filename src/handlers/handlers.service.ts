@@ -1,22 +1,29 @@
 import {
+  BadGatewayException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { validate } from "nestjs-zod";
 import randomatic from "randomatic";
 import { FindOneOptions, Repository } from "typeorm";
+import { z } from "zod";
 
+import { CommonService } from "../common/common.service";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
+import { HandlerComponentDto } from "./dto/handler-component.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
+import { handlerComponentSchema } from "./schemas/handler-component.schema";
 
 @Injectable()
 export class HandlersService {
   public constructor(
     @InjectRepository(Handler)
     private readonly handlersRepository: Repository<Handler>,
+    private readonly commonService: CommonService,
   ) {}
 
   public async createOne(
@@ -90,6 +97,23 @@ export class HandlersService {
     authToken: string,
   ): Promise<Handler | null> {
     return this.handlersRepository.findOne({ where: { authToken } });
+  }
+
+  public async listHandlerComponents(
+    handlerId: string,
+  ): Promise<HandlerComponentDto[]> {
+    const response = await this.commonService.emitToHandler(
+      handlerId,
+      "get-handler-components",
+    );
+
+    const { handlerComponents } = validate(
+      response,
+      z.object({ handlerComponents: handlerComponentSchema.array() }),
+      (zodError) => new BadGatewayException(zodError),
+    );
+
+    return handlerComponents;
   }
 
   public async regenerateAuthToken(handlerId: string): Promise<Handler> {

@@ -33,6 +33,7 @@ import { ForbiddenResponseDto } from "../common/dto/forbidden-response.dto";
 import { NotFoundResponseDto } from "../common/dto/not-found-response.dto";
 import { UnauthorizedResponseDto } from "../common/dto/unauthorized-response.dto";
 import { CreateHandlerDto } from "./dto/create-handler.dto";
+import { HandlerComponentDto } from "./dto/handler-component.dto";
 import { HandlerDto } from "./dto/handler.dto";
 import { PermittedHandlerDto } from "./dto/permitted-handler.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";
@@ -135,6 +136,24 @@ export class HandlersController {
     }
 
     await this.handlersService.deleteOne(handlerId);
+  }
+
+  @ApiOkResponse({
+    description: "Successfully retrieved handler components",
+    type: [HandlerComponentDto],
+  })
+  @ApiOperation({
+    description: "Retrieves all components associated with a given handler ID.",
+    summary: "List handler components",
+  })
+  @Get(":handlerId/components")
+  public async listHandlerComponents(
+    @Param("handlerId") handlerId: string,
+  ): Promise<HandlerComponentDto[]> {
+    const handlerComponents =
+      await this.handlersService.listHandlerComponents(handlerId);
+
+    return handlerComponents;
   }
 
   @ApiBadRequestResponse({

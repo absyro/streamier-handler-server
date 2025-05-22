@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const snakeCaseRegex = /^[a-z]+(?:_[a-z]+)*$/u;
 
-export const componentSchema = z.object({
+export const handlerComponentSchema = z.object({
   category: z
     .string()
     .nonempty()
@@ -58,4 +58,4 @@ export const componentSchema = z.object({
     ),
 });
 
-export type ComponentSchema = z.infer<typeof componentSchema>;
+export type HandlerComponentSchema = z.infer<typeof handlerComponentSchema>;
