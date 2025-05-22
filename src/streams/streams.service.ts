@@ -4,8 +4,11 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { pick } from "radash";
 import randomatic from "randomatic";
 import { FindOneOptions, Repository } from "typeorm";
+
+import { CommonService } from "@/common/common.service";
 
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { SearchStreamDto } from "./dto/search-stream.dto";
@@ -18,6 +21,7 @@ export class StreamsService {
   public constructor(
     @InjectRepository(Stream)
     private readonly streamsRepository: Repository<Stream>,
+    private readonly commonService: CommonService,
   ) {}
 
   public async createOne(
@@ -234,7 +238,31 @@ export class StreamsService {
       permittedFields.map((field) => [field, updateStreamDto[field]]),
     );
 
-    return this.streamsRepository.save({ ...stream, ...permittedStreamUpdate });
+    const updatedStream = await this.streamsRepository.save({
+      ...stream,
+      ...permittedStreamUpdate,
+    });
+
+    const monitoredFieldsSet = new Set([
+      "configuration",
+      "id",
+      "nodes",
+      "variables",
+    ]);
+
+    const hasMonitoredFieldUpdate = Object.keys(permittedStreamUpdate).some(
+      (field) => monitoredFieldsSet.has(field),
+    );
+
+    if (hasMonitoredFieldUpdate) {
+      await this.commonService.emitToHandler(
+        updatedStream.handlerId,
+        "start-stream",
+        pick(updatedStream, ["configuration", "id", "nodes", "variables"]),
+      );
+    }
+
+    return updatedStream;
   }
 
   private _getStreamPermittedFields(
