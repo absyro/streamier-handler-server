@@ -175,13 +175,15 @@ export class HandlersService {
       });
     }
 
-    const offset = searchHandlerDto.offset
-      ? parseInt(searchHandlerDto.offset, 10)
-      : 0;
+    const offset =
+      searchHandlerDto.offset === undefined
+        ? 0
+        : parseInt(searchHandlerDto.offset, 10);
 
-    const limit = searchHandlerDto.limit
-      ? parseInt(searchHandlerDto.limit, 10)
-      : 20;
+    const limit =
+      searchHandlerDto.limit === undefined
+        ? 20
+        : parseInt(searchHandlerDto.limit, 10);
 
     queryBuilder.skip(offset).take(limit);
 

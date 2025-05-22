@@ -191,13 +191,15 @@ export class StreamsService {
       });
     }
 
-    const offset = searchStreamDto.offset
-      ? parseInt(searchStreamDto.offset, 10)
-      : 0;
+    const offset =
+      searchStreamDto.offset === undefined
+        ? 0
+        : parseInt(searchStreamDto.offset, 10);
 
-    const limit = searchStreamDto.limit
-      ? parseInt(searchStreamDto.limit, 10)
-      : 20;
+    const limit =
+      searchStreamDto.limit === undefined
+        ? 20
+        : parseInt(searchStreamDto.limit, 10);
 
     queryBuilder.skip(offset).take(limit);
 
