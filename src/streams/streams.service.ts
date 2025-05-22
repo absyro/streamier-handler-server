@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -9,6 +10,7 @@ import randomatic from "randomatic";
 import { FindOneOptions, Repository } from "typeorm";
 
 import { CommonService } from "@/common/common.service";
+import { HandlersService } from "@/handlers/handlers.service";
 
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { SearchStreamDto } from "./dto/search-stream.dto";
@@ -22,6 +24,7 @@ export class StreamsService {
     @InjectRepository(Stream)
     private readonly streamsRepository: Repository<Stream>,
     private readonly commonService: CommonService,
+    private readonly handlersService: HandlersService,
   ) {}
 
   public async createOne(
@@ -39,6 +42,20 @@ export class StreamsService {
         `You have reached the maximum limit of ${maxStreamsPerUser} streams per user`,
       );
     }
+
+    const doesHandlerExist = await this.handlersService.exists(
+      createStreamDto.handlerId,
+    );
+
+    if (!doesHandlerExist) {
+      throw new NotFoundException("Handler not found");
+    }
+
+    await this.commonService.emitToHandler(
+      createStreamDto.handlerId,
+      "validate-stream-configuration",
+      createStreamDto.configuration,
+    );
 
     const stream = new Stream();
 
@@ -234,7 +251,107 @@ export class StreamsService {
 
     const permittedStreamUpdate = Object.fromEntries(
       permittedFields.map((field) => [field, updateStreamDto[field]]),
-    );
+    ) as UpdateStreamDto;
+
+    if (permittedStreamUpdate.configuration) {
+      await this.commonService.emitToHandler(
+        stream.handlerId,
+        "validate-stream-configuration",
+        permittedStreamUpdate.configuration,
+      );
+    }
+
+    if (permittedStreamUpdate.permissions) {
+      {
+        const permittedUserIds = new Set<string>();
+
+        Object.keys(permittedStreamUpdate.permissions.read.users).forEach(
+          (permittedUserId) => permittedUserIds.add(permittedUserId),
+        );
+
+        Object.keys(permittedStreamUpdate.permissions.write.users).forEach(
+          (permittedUserId) => permittedUserIds.add(permittedUserId),
+        );
+
+        for (const permittedUserId of permittedUserIds) {
+          const doesUserExist =
+            await this.commonService.doesUserExist(permittedUserId);
+
+          if (!doesUserExist) {
+            throw new BadRequestException(
+              `User with ID ${permittedUserId} does not exist`,
+            );
+          }
+        }
+      }
+
+      {
+        const permittedTeamIds = new Set<string>();
+
+        Object.keys(permittedStreamUpdate.permissions.read.teams).forEach(
+          (permittedTeamId) => permittedTeamIds.add(permittedTeamId),
+        );
+
+        Object.keys(permittedStreamUpdate.permissions.write.users).forEach(
+          (permittedTeamId) => permittedTeamIds.add(permittedTeamId),
+        );
+
+        if (permittedTeamIds.size > 0) {
+          throw new BadRequestException("Teams are not supported yet");
+        }
+      }
+
+      {
+        const permittedRoles = new Set<string>();
+
+        Object.keys(permittedStreamUpdate.permissions.read.roles).forEach(
+          (permittedRole) => permittedRoles.add(permittedRole),
+        );
+
+        Object.keys(permittedStreamUpdate.permissions.write.roles).forEach(
+          (permittedRole) => permittedRoles.add(permittedRole),
+        );
+
+        for (const permittedRole of permittedRoles) {
+          if (!(permittedRole in stream.roles)) {
+            throw new BadRequestException(
+              `Role "${permittedRole}" does not exist in this stream`,
+            );
+          }
+        }
+      }
+    }
+
+    if (permittedStreamUpdate.roles) {
+      const permittedUserIds = new Set<string>();
+
+      const permittedTeamIds = new Set<string>();
+
+      Object.values(permittedStreamUpdate.roles).forEach((role) => {
+        role.users.forEach((permittedUserId) =>
+          permittedUserIds.add(permittedUserId),
+        );
+
+        role.teams.forEach((permittedTeamId) =>
+          permittedTeamIds.add(permittedTeamId),
+        );
+      });
+
+      for (const permittedUserId of permittedUserIds) {
+        const doesUserExist =
+          await this.commonService.doesUserExist(permittedUserId);
+
+        if (!doesUserExist) {
+          throw new BadRequestException(
+            `User with ID ${permittedUserId} does not exist`,
+          );
+        }
+      }
+
+      if (permittedTeamIds.size > 0) {
+        throw new BadRequestException("Teams are not supported yet");
+      }
+    }
 
     const updatedStream = await this.streamsRepository.save({
       ...stream,

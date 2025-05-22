@@ -20,6 +20,15 @@ export class CommonService {
     private readonly handlersService: HandlersService,
   ) {}
 
+  public async doesUserExist(userId: string): Promise<boolean> {
+    const result = await this.dataSource.query<{ exists: boolean }[]>(
+      "SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)",
+      [userId],
+    );
+
+    return result[0]?.exists ?? false;
+  }
+
   public async emitToHandler(
     handlerId: string,
     event: string,
