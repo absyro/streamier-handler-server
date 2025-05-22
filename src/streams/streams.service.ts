@@ -255,11 +255,21 @@ export class StreamsService {
     );
 
     if (hasMonitoredFieldUpdate) {
-      await this.commonService.emitToHandler(
-        updatedStream.handlerId,
-        "start-stream",
-        pick(updatedStream, ["configuration", "id", "nodes", "variables"]),
-      );
+      if (updatedStream.isActive) {
+        await this.commonService.emitToHandler(
+          updatedStream.handlerId,
+          "start-stream",
+          pick(updatedStream, ["configuration", "id", "nodes", "variables"]),
+        );
+      } else {
+        await this.commonService.emitToHandler(
+          updatedStream.handlerId,
+          "stop-stream",
+          {
+            streamId: updatedStream.id,
+          },
+        );
+      }
     }
 
     return updatedStream;
