@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
   ServiceUnavailableException,
-  UnauthorizedException,
 } from "@nestjs/common";
 import { validate } from "nestjs-zod";
 import { DataSource } from "typeorm";
@@ -45,16 +44,7 @@ export class CommonService {
         const responseSchema = z.union([
           z.object({ success: z.literal(true) }),
           z
-            .object({
-              success: z.literal(false),
-              unauthorized: z.string().nonempty(),
-            })
-            .strict(),
-          z
-            .object({
-              error: z.string().nonempty(),
-              success: z.literal(false),
-            })
+            .object({ error: z.string().nonempty(), success: z.literal(false) })
             .strict(),
         ]);
 
@@ -63,12 +53,6 @@ export class CommonService {
           responseSchema,
           (zodError) => new BadGatewayException(zodError),
         );
-
-        if ("unauthorized" in validatedResponse) {
-          reject(new UnauthorizedException(validatedResponse.unauthorized));
-
-          return;
-        }
 
         if ("error" in validatedResponse) {
           reject(new BadRequestException(validatedResponse.error));
