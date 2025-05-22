@@ -105,7 +105,7 @@ export class HandlersService {
   ): Promise<HandlerComponentDto[]> {
     const response = await this.commonService.emitToHandler(
       handlerId,
-      "get-handler-components",
+      "get_handler_components",
     );
 
     const { handlerComponents } = validate(

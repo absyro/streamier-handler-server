@@ -138,7 +138,7 @@ export class HandlersGateway
     };
   }
 
-  @SubscribeMessage("start-streams")
+  @SubscribeMessage("start_streams")
   public async handleStartStreams(
     @ConnectedSocket()
     client: Socket<
@@ -155,7 +155,7 @@ export class HandlersGateway
     );
 
     for (const stream of activeStreams) {
-      client.emit("start-stream", stream);
+      client.emit("start_stream", stream);
     }
   }
 

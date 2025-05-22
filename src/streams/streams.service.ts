@@ -53,7 +53,7 @@ export class StreamsService {
 
     await this.commonService.emitToHandler(
       createStreamDto.handlerId,
-      "validate-stream-configuration",
+      "validate_stream_configuration",
       createStreamDto.configuration,
     );
 
@@ -256,7 +256,7 @@ export class StreamsService {
     if (permittedStreamUpdate.configuration) {
       await this.commonService.emitToHandler(
         stream.handlerId,
-        "validate-stream-configuration",
+        "validate_stream_configuration",
         permittedStreamUpdate.configuration,
       );
     }
@@ -373,13 +373,13 @@ export class StreamsService {
       if (updatedStream.isActive) {
         await this.commonService.emitToHandler(
           updatedStream.handlerId,
-          "start-stream",
+          "start_stream",
           pick(updatedStream, ["configuration", "id", "nodes", "variables"]),
         );
       } else {
         await this.commonService.emitToHandler(
           updatedStream.handlerId,
-          "stop-stream",
+          "stop_stream",
           {
             streamId: updatedStream.id,
           },
