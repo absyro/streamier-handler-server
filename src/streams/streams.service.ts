@@ -72,8 +72,6 @@ export class StreamsService {
       },
     };
 
-    stream.signature = randomatic("Aa0", 32);
-
     stream.userId = userId;
 
     stream.variables = {};

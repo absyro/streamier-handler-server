@@ -11,7 +11,6 @@ export class UpdateStreamDto extends createZodDto(
       nodes: true,
       permissions: true,
       roles: true,
-      signature: true,
       variables: true,
     })
     .partial()

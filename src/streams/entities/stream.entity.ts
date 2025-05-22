@@ -72,9 +72,6 @@ export class Stream implements z.infer<typeof streamSchema> {
   @Column({ length: 200, name: "short_description", nullable: true })
   public shortDescription?: string;
 
-  @Column({ length: 500, name: "signature" })
-  public signature!: string;
-
   @Column({ default: () => "CURRENT_TIMESTAMP", name: "updated_at" })
   public updatedAt!: string;
 

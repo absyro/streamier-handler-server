@@ -176,13 +176,6 @@ export const streamSchema = z.object({
     .max(200)
     .optional()
     .describe("Brief description of the stream (max 200 chars)"),
-  signature: z
-    .string()
-    .nonempty()
-    .max(500)
-    .describe(
-      "Cryptographic signature verifying the stream's integrity (max 500 chars)",
-    ),
   updatedAt: z
     .string()
     .datetime()

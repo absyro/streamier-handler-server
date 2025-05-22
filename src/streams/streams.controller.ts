@@ -41,7 +41,6 @@ import { PermittedStreamDto } from "./dto/permitted-stream.dto";
 import { SearchStreamDto } from "./dto/search-stream.dto";
 import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
-import { WebhookPayloadDto } from "./dto/webhook-payload.dto";
 import { StreamsService } from "./streams.service";
 
 @ApiBadGatewayResponse({
@@ -249,43 +248,5 @@ export class StreamsController {
     );
 
     return permittedStream;
-  }
-
-  @ApiBadGatewayResponse({
-    description: "Received data from handler is invalid",
-    type: BadGatewayResponseDto,
-  })
-  @ApiNotFoundResponse({
-    description: "Stream not found",
-    type: NotFoundResponseDto,
-  })
-  @ApiOkResponse({
-    description: "Webhook payload successfully received",
-    type: String,
-  })
-  @ApiOperation({
-    description:
-      "Forwards a webhook payload to the handler associated with the specified stream.",
-    summary: "Webhook",
-  })
-  @ApiServiceUnavailableResponse({
-    description: "Handler is offline",
-    type: ServiceUnavailableResponseDto,
-  })
-  @Post(":streamId/webhook")
-  public async webhook(
-    @Param("streamId") streamId: string,
-    @Body() webhookPayload: WebhookPayloadDto,
-  ): Promise<string> {
-    const stream = await this.streamsService.findOne(streamId);
-
-    await this.commonService.emitToHandler(
-      stream.handlerId,
-      "webhook",
-      streamId,
-      webhookPayload,
-    );
-
-    return "Received";
   }
 }
