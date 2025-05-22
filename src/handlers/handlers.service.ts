@@ -107,13 +107,13 @@ export class HandlersService {
       "get-handler-components",
     );
 
-    const { components } = validate(
+    const { handlerComponents } = validate(
       response,
-      z.object({ components: handlerComponentSchema.array() }),
+      z.object({ handlerComponents: handlerComponentSchema.array() }),
       (zodError) => new BadGatewayException(zodError),
     );
 
-    return components;
+    return handlerComponents;
   }
 
   public async regenerateAuthToken(handlerId: string): Promise<Handler> {
