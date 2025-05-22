@@ -12,6 +12,7 @@ import {
 } from "@nestjs/websockets";
 import { isString, tryit } from "radash";
 import { z } from "zod";
+import { fromZodError } from "zod-validation-error";
 
 import { CommonService } from "@/common/common.service";
 import { StreamDto } from "@/streams/dto/stream.dto";
@@ -161,7 +162,7 @@ export class HandlersGateway
   @SubscribeMessage("stream_communication")
   public async handleStreamCommunication(
     @MessageBody() message: unknown,
-  ): Promise<{ status: "failure" | "not_found" | "success" }> {
+  ): Promise<{ message: string; status: "failure" | "not_found" | "success" }> {
     const schema = z.object({
       data: z.record(z.unknown()),
       streamId: z.string().length(8),
@@ -170,7 +171,10 @@ export class HandlersGateway
     const result = schema.safeParse(message);
 
     if (!result.success) {
-      return { status: "failure" };
+      return {
+        message: fromZodError(result.error).message,
+        status: "failure",
+      };
     }
 
     const [error, stream] = await tryit(this.streamsService.findOne.bind(this))(
@@ -178,7 +182,10 @@ export class HandlersGateway
     );
 
     if (error) {
-      return { status: "not_found" };
+      return {
+        message: "Stream not found",
+        status: "not_found",
+      };
     }
 
     await this.commonService.emitToHandler(
@@ -187,6 +194,9 @@ export class HandlersGateway
       { data: result.data.data },
     );
 
-    return { status: "success" };
+    return {
+      message: "Stream communication sent successfully",
+      status: "success",
+    };
   }
 }
