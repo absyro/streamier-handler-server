@@ -12,8 +12,9 @@ import {
 } from "@nestjs/websockets";
 import { isString, tryit } from "radash";
 
-import { StreamDto } from "../streams/dto/stream.dto";
-import { StreamsService } from "../streams/streams.service";
+import { StreamDto } from "@/streams/dto/stream.dto";
+import { StreamsService } from "@/streams/streams.service";
+
 import { HandlersService } from "./handlers.service";
 import { HandlerSocketData } from "./interfaces/handler-socket-data.interface";
 

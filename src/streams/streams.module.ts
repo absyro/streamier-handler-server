@@ -1,7 +1,8 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { HandlersModule } from "../handlers/handlers.module";
+import { HandlersModule } from "@/handlers/handlers.module";
+
 import { Stream } from "./entities/stream.entity";
 import { StreamsController } from "./streams.controller";
 import { StreamsService } from "./streams.service";

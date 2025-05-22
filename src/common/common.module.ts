@@ -1,7 +1,8 @@
 import { Global, Module } from "@nestjs/common";
 
-import { HandlersGateway } from "../handlers/handlers.gateway";
-import { HandlersModule } from "../handlers/handlers.module";
+import { HandlersGateway } from "@/handlers/handlers.gateway";
+import { HandlersModule } from "@/handlers/handlers.module";
+
 import { CommonService } from "./common.service";
 
 @Global()

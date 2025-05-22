@@ -10,7 +10,8 @@ import randomatic from "randomatic";
 import { FindOneOptions, Repository } from "typeorm";
 import { z } from "zod";
 
-import { CommonService } from "../common/common.service";
+import { CommonService } from "@/common/common.service";
+
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { HandlerComponentDto } from "./dto/handler-component.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";

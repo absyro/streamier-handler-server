@@ -6,7 +6,8 @@ import {
   PrimaryColumn,
 } from "typeorm";
 
-import { Handler } from "../../handlers/entities/handler.entity";
+import { Handler } from "@/handlers/entities/handler.entity";
+
 import { StreamSchema } from "../schemas/stream.schema";
 
 @Entity({ name: "streams" })

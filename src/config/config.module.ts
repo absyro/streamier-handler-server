@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule as NestConfigModule } from "@nestjs/config";
 import Joi from "joi";
 
-import { Environment } from "../types/environment";
+import { Environment } from "@/types/environment";
 
 @Module({
   exports: [NestConfigModule],
