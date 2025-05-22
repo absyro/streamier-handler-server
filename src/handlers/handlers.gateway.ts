@@ -11,7 +11,9 @@ import {
   WsException,
 } from "@nestjs/websockets";
 import { isString, tryit } from "radash";
+import { z } from "zod";
 
+import { CommonService } from "@/common/common.service";
 import { StreamDto } from "@/streams/dto/stream.dto";
 import { StreamsService } from "@/streams/streams.service";
 
@@ -31,6 +33,7 @@ export class HandlersGateway
   >;
 
   public constructor(
+    private readonly commonService: CommonService,
     private readonly handlersService: HandlersService,
     private readonly streamsService: StreamsService,
   ) {}
@@ -153,5 +156,37 @@ export class HandlersGateway
     for (const stream of activeStreams) {
       client.emit("start-stream", stream);
     }
+  }
+
+  @SubscribeMessage("stream_communication")
+  public async handleStreamCommunication(
+    @MessageBody() message: unknown,
+  ): Promise<{ status: "failure" | "not_found" | "success" }> {
+    const schema = z.object({
+      data: z.record(z.unknown()),
+      streamId: z.string().length(8),
+    });
+
+    const result = schema.safeParse(message);
+
+    if (!result.success) {
+      return { status: "failure" };
+    }
+
+    const [error, stream] = await tryit(this.streamsService.findOne.bind(this))(
+      result.data.streamId,
+    );
+
+    if (error) {
+      return { status: "not_found" };
+    }
+
+    await this.commonService.emitToHandler(
+      stream.handlerId,
+      "stream_communication",
+      { data: result.data.data },
+    );
+
+    return { status: "success" };
   }
 }
