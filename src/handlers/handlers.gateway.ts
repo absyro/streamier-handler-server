@@ -35,24 +35,6 @@ export class HandlersGateway
     private readonly streamsService: StreamsService,
   ) {}
 
-  @SubscribeMessage("settings:canHostStreams")
-  public handleCanHostStreams(
-    @ConnectedSocket()
-    client: Socket<
-      DefaultEventsMap,
-      DefaultEventsMap,
-      DefaultEventsMap,
-      HandlerSocketData
-    >,
-    @MessageBody() canHostStreams: unknown,
-  ): void {
-    if (typeof canHostStreams !== "boolean") {
-      throw new WsException("Invalid canHostStreams state");
-    }
-
-    client.data.canHostStreams = canHostStreams;
-  }
-
   public async handleConnection(
     socket: Socket<
       DefaultEventsMap,
@@ -91,7 +73,7 @@ export class HandlersGateway
 
     socket.data.id = handler.id;
 
-    socket.data.canHostStreams = false;
+    socket.data.isHostingStreams = false;
 
     await this.handlersService.updateOne(handler.id, { isActive: true });
   }
@@ -150,5 +132,26 @@ export class HandlersGateway
       userId: stream.userId,
       variables: stream.variables,
     };
+  }
+
+  @SubscribeMessage("start-streams")
+  public async handleStartStreams(
+    @ConnectedSocket()
+    client: Socket<
+      DefaultEventsMap,
+      DefaultEventsMap,
+      DefaultEventsMap,
+      HandlerSocketData
+    >,
+  ): Promise<void> {
+    client.data.isHostingStreams = true;
+
+    const activeStreams = await this.streamsService.findActiveStreamsForHandler(
+      client.data.id,
+    );
+
+    for (const stream of activeStreams) {
+      client.emit("start-stream", stream);
+    }
   }
 }
