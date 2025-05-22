@@ -58,8 +58,6 @@ export class StreamsService {
 
     stream.isActive = true;
 
-    stream.name = createStreamDto.name;
-
     stream.nodes = [];
 
     stream.permissions = {
