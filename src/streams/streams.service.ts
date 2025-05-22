@@ -1,16 +1,18 @@
 import {
+  BadGatewayException,
   BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { validate } from "nestjs-zod";
 import { pick } from "radash";
 import randomatic from "randomatic";
 import { FindOneOptions, Repository } from "typeorm";
+import { z } from "zod";
 
 import { CommonService } from "@/common/common.service";
-import { HandlersService } from "@/handlers/handlers.service";
 
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { SearchStreamDto } from "./dto/search-stream.dto";
@@ -24,7 +26,6 @@ export class StreamsService {
     @InjectRepository(Stream)
     private readonly streamsRepository: Repository<Stream>,
     private readonly commonService: CommonService,
-    private readonly handlersService: HandlersService,
   ) {}
 
   public async createOne(
@@ -41,14 +42,6 @@ export class StreamsService {
       throw new ForbiddenException(
         `You have reached the maximum limit of ${maxStreamsPerUser} streams per user`,
       );
-    }
-
-    const doesHandlerExist = await this.handlersService.exists(
-      createStreamDto.handlerId,
-    );
-
-    if (!doesHandlerExist) {
-      throw new NotFoundException("Handler not found");
     }
 
     await this.commonService.emitToHandler(
@@ -163,6 +156,23 @@ export class StreamsService {
     );
 
     return permittedStream;
+  }
+
+  public async getStreamConfigurationSchema(
+    handlerId: string,
+  ): Promise<Record<string, unknown>> {
+    const response = await this.commonService.emitToHandler(
+      handlerId,
+      "get_stream_configuration_schema",
+    );
+
+    const { schema } = validate(
+      response,
+      z.object({ schema: z.record(z.unknown()) }),
+      (zodError) => new BadGatewayException(zodError),
+    );
+
+    return schema;
   }
 
   public async search(searchStreamDto: SearchStreamDto): Promise<Stream[]> {
