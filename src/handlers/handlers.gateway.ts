@@ -8,14 +8,12 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsException,
 } from "@nestjs/websockets";
 import { isString, tryit } from "radash";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
 import { CommonService } from "@/common/common.service";
-import { StreamDto } from "@/streams/dto/stream.dto";
 import { StreamsService } from "@/streams/streams.service";
 
 import { HandlersService } from "./handlers.service";
@@ -91,51 +89,6 @@ export class HandlersGateway
     >,
   ): Promise<void> {
     await this.handlersService.updateOne(socket.data.id, { isActive: false });
-  }
-
-  @SubscribeMessage("streams:get")
-  public async handleGetStream(
-    @ConnectedSocket()
-    client: Socket<
-      DefaultEventsMap,
-      DefaultEventsMap,
-      DefaultEventsMap,
-      HandlerSocketData
-    >,
-    @MessageBody() streamId: unknown,
-  ): Promise<
-    Pick<
-      StreamDto,
-      "configuration" | "id" | "name" | "nodes" | "userId" | "variables"
-    >
-  > {
-    if (!isString(streamId)) {
-      throw new WsException("Invalid stream ID");
-    }
-
-    const [error, stream] = await tryit(this.streamsService.findOne.bind(this))(
-      streamId,
-      {
-        select: ["configuration", "id", "name", "nodes", "userId", "variables"],
-      },
-    );
-
-    if (error) {
-      throw new WsException("Stream not found");
-    }
-
-    if (stream.handlerId !== client.data.id) {
-      throw new WsException("You are not authorized to access this stream");
-    }
-
-    return {
-      configuration: stream.configuration,
-      id: stream.id,
-      name: stream.name,
-      nodes: stream.nodes,
-      userId: stream.userId,
-      variables: stream.variables,
-    };
   }
 
   @SubscribeMessage("start_streams")

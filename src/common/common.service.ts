@@ -5,19 +5,21 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 import { validate } from "nestjs-zod";
-import { DataSource } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { z } from "zod";
 
+import { Handler } from "@/handlers/entities/handler.entity";
 import { HandlersGateway } from "@/handlers/handlers.gateway";
-import { HandlersService } from "@/handlers/handlers.service";
 
 @Injectable()
 export class CommonService {
   public constructor(
     private readonly dataSource: DataSource,
     private readonly handlersGateway: HandlersGateway,
-    private readonly handlersService: HandlersService,
+    @InjectRepository(Handler)
+    private readonly handlersRepository: Repository<Handler>,
   ) {}
 
   public async doesUserExist(userId: string): Promise<boolean> {
@@ -34,7 +36,9 @@ export class CommonService {
     event: string,
     ...parameters: unknown[]
   ): Promise<object> {
-    const doesHandlerExist = await this.handlersService.exists(handlerId);
+    const doesHandlerExist = await this.handlersRepository.exists({
+      where: { id: handlerId },
+    });
 
     if (!doesHandlerExist) {
       throw new NotFoundException("Handler not found");
