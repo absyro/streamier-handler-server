@@ -9,11 +9,10 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
-import { isString, tryit } from "radash";
+import { isString } from "radash";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
-import { CommonService } from "@/common/common.service";
 import { StreamsService } from "@/streams/streams.service";
 
 import { HandlersService } from "./handlers.service";
@@ -32,7 +31,6 @@ export class HandlersGateway
   >;
 
   public constructor(
-    private readonly commonService: CommonService,
     private readonly handlersService: HandlersService,
     private readonly streamsService: StreamsService,
   ) {}
@@ -114,42 +112,84 @@ export class HandlersGateway
 
   @SubscribeMessage("stream_communication")
   public async handleStreamCommunication(
+    @ConnectedSocket()
+    socket: Socket<
+      DefaultEventsMap,
+      DefaultEventsMap,
+      DefaultEventsMap,
+      HandlerSocketData
+    >,
+
     @MessageBody() message: unknown,
-  ): Promise<{ message: string; status: "failure" | "not_found" | "success" }> {
-    const schema = z.object({
+  ): Promise<
+    | {
+        data: Record<string, unknown>;
+        success: true;
+      }
+    | {
+        error: string;
+        success: false;
+      }
+  > {
+    const messageSchema = z.object({
       data: z.record(z.unknown()),
       streamId: z.string().length(8),
     });
 
-    const result = schema.safeParse(message);
+    const messageValidationResult = messageSchema.safeParse(message);
 
-    if (!result.success) {
+    if (!messageValidationResult.success) {
       return {
-        message: fromZodError(result.error).message,
-        status: "failure",
+        error: fromZodError(messageValidationResult.error).message,
+        success: false,
       };
     }
 
-    const [error, stream] = await tryit(this.streamsService.findOne.bind(this))(
-      result.data.streamId,
-    );
+    const communicationResult = await new Promise<
+      | {
+          data: Record<string, unknown>;
+          success: true;
+        }
+      | {
+          error: string;
+          success: false;
+        }
+    >((resolve) => {
+      socket.emit(
+        "stream_communication",
+        messageValidationResult.data,
+        (response: unknown) => {
+          const responseSchema = z.discriminatedUnion("success", [
+            z
+              .object({
+                data: z.record(z.unknown()),
+                success: z.literal(true),
+              })
+              .strict(),
+            z
+              .object({
+                error: z.string().nonempty().max(500),
+                success: z.literal(false),
+              })
+              .strict(),
+          ]);
 
-    if (error) {
-      return {
-        message: "Stream not found",
-        status: "not_found",
-      };
-    }
+          const responseValidationResult = responseSchema.safeParse(response);
 
-    await this.commonService.emitToHandler(
-      stream.handlerId,
-      "stream_communication",
-      { data: result.data.data },
-    );
+          if (!responseValidationResult.success) {
+            resolve({
+              error: fromZodError(responseValidationResult.error).message,
+              success: false,
+            });
 
-    return {
-      message: "Stream communication sent successfully",
-      status: "success",
-    };
+            return;
+          }
+
+          resolve(responseValidationResult.data);
+        },
+      );
+    });
+
+    return communicationResult;
   }
 }

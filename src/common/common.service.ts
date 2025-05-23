@@ -54,10 +54,15 @@ export class CommonService {
 
     return new Promise((resolve, reject) => {
       socket.emit(event, ...parameters, (response: unknown) => {
-        const responseSchema = z.union([
-          z.object({ success: z.literal(true) }),
+        const responseSchema = z.discriminatedUnion("success", [
+          z.object({
+            success: z.literal(true),
+          }),
           z
-            .object({ error: z.string().nonempty(), success: z.literal(false) })
+            .object({
+              error: z.string().nonempty().max(500),
+              success: z.literal(false),
+            })
             .strict(),
         ]);
 
