@@ -116,15 +116,6 @@ export class StreamsService {
     return this.streamsRepository.exists({ where: { id: streamId } });
   }
 
-  public async findActiveStreamsForHandler(
-    handlerId: string,
-  ): Promise<Pick<Stream, "configuration" | "id" | "nodes" | "variables">[]> {
-    return this.streamsRepository.find({
-      select: ["configuration", "id", "nodes", "variables"],
-      where: { handlerId, isActive: true },
-    });
-  }
-
   public async findOne(
     streamId: string,
     options?: FindOneOptions<Stream>,

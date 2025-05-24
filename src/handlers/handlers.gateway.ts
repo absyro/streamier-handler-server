@@ -1,5 +1,6 @@
 import type { DefaultEventsMap, Server, Socket } from "socket.io";
 
+import { InjectRepository } from "@nestjs/typeorm";
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,12 +11,13 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 import { isString } from "radash";
+import { Repository } from "typeorm";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
-import { StreamsService } from "@/streams/streams.service";
+import { Stream } from "@/streams/entities/stream.entity";
 
-import { HandlersService } from "./handlers.service";
+import { Handler } from "./entities/handler.entity";
 import { HandlerSocketData } from "./interfaces/handler-socket-data.interface";
 
 @WebSocketGateway({ namespace: "handlers" })
@@ -31,8 +33,10 @@ export class HandlersGateway
   >;
 
   public constructor(
-    private readonly handlersService: HandlersService,
-    private readonly streamsService: StreamsService,
+    @InjectRepository(Handler)
+    private readonly handlersRepository: Repository<Handler>,
+    @InjectRepository(Stream)
+    private readonly streamsRepository: Repository<Stream>,
   ) {}
 
   public async handleConnection(
@@ -63,7 +67,9 @@ export class HandlersGateway
       return;
     }
 
-    const handler = await this.handlersService.findOneUsingAuthToken(authToken);
+    const handler = await this.handlersRepository.findOne({
+      where: { authToken },
+    });
 
     if (!handler) {
       socket.disconnect(true);
@@ -75,7 +81,7 @@ export class HandlersGateway
 
     socket.data.isHostingStreams = false;
 
-    await this.handlersService.updateOne(handler.id, { isActive: true });
+    await this.handlersRepository.update(handler.id, { isActive: true });
   }
 
   public async handleDisconnect(
@@ -86,7 +92,7 @@ export class HandlersGateway
       HandlerSocketData
     >,
   ): Promise<void> {
-    await this.handlersService.updateOne(socket.data.id, { isActive: false });
+    await this.handlersRepository.update(socket.data.id, { isActive: false });
   }
 
   @SubscribeMessage("start_streams")
@@ -101,9 +107,10 @@ export class HandlersGateway
   ): Promise<void> {
     client.data.isHostingStreams = true;
 
-    const activeStreams = await this.streamsService.findActiveStreamsForHandler(
-      client.data.id,
-    );
+    const activeStreams = await this.streamsRepository.find({
+      select: ["configuration", "id", "nodes", "variables"],
+      where: { handlerId: client.data.id, isActive: true },
+    });
 
     for (const stream of activeStreams) {
       client.emit("start_stream", stream);

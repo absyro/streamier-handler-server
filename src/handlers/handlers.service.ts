@@ -94,12 +94,6 @@ export class HandlersService {
     return handler;
   }
 
-  public async findOneUsingAuthToken(
-    authToken: string,
-  ): Promise<Handler | null> {
-    return this.handlersRepository.findOne({ where: { authToken } });
-  }
-
   public async listHandlerComponents(
     handlerId: string,
   ): Promise<HandlerComponentDto[]> {
