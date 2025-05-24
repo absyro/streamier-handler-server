@@ -22,7 +22,7 @@ export class Stream implements StreamSchema {
   public handler!: Handler;
 
   @Column({ length: 8, name: "handler_id" })
-  public handlerId!: Handler["id"];
+  public handlerId!: string;
 
   @PrimaryColumn({ length: 8, name: "id" })
   public id!: string;

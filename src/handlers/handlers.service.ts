@@ -1,8 +1,10 @@
 import {
   BadGatewayException,
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { validate } from "nestjs-zod";
@@ -10,13 +12,12 @@ import randomatic from "randomatic";
 import { FindOneOptions, Repository } from "typeorm";
 import { z } from "zod";
 
-import { CommonService } from "@/common/common.service";
-
 import { CreateHandlerDto } from "./dto/create-handler.dto";
 import { HandlerComponentDto } from "./dto/handler-component.dto";
 import { SearchHandlerDto } from "./dto/search-handler.dto";
 import { UpdateHandlerDto } from "./dto/update-handler.dto";
 import { Handler } from "./entities/handler.entity";
+import { HandlersGateway } from "./handlers.gateway";
 import { handlerComponentSchema } from "./schemas/handler-component.schema";
 
 @Injectable()
@@ -24,7 +25,7 @@ export class HandlersService {
   public constructor(
     @InjectRepository(Handler)
     private readonly handlersRepository: Repository<Handler>,
-    private readonly commonService: CommonService,
+    private readonly handlersGateway: HandlersGateway,
   ) {}
 
   public async createOne(
@@ -74,6 +75,58 @@ export class HandlersService {
     }
   }
 
+  public async emitToHandler(
+    handlerId: string,
+    event: string,
+    ...parameters: unknown[]
+  ): Promise<object> {
+    const doesHandlerExist = await this.handlersRepository.exists({
+      where: { id: handlerId },
+    });
+
+    if (!doesHandlerExist) {
+      throw new NotFoundException("Handler not found");
+    }
+
+    const sockets = await this.handlersGateway.server.fetchSockets();
+
+    const socket = sockets.find((s) => s.data.id === handlerId);
+
+    if (!socket) {
+      throw new ServiceUnavailableException("Handler is offline");
+    }
+
+    return new Promise((resolve, reject) => {
+      socket.emit(event, ...parameters, (response: unknown) => {
+        const responseSchema = z.discriminatedUnion("success", [
+          z.object({
+            success: z.literal(true),
+          }),
+          z
+            .object({
+              error: z.string().nonempty().max(500),
+              success: z.literal(false),
+            })
+            .strict(),
+        ]);
+
+        const validatedResponse = validate(
+          response,
+          responseSchema,
+          (zodError) => new BadGatewayException(zodError),
+        );
+
+        if ("error" in validatedResponse) {
+          reject(new BadRequestException(validatedResponse.error));
+
+          return;
+        }
+
+        resolve(validatedResponse);
+      });
+    });
+  }
+
   public async exists(handlerId: string): Promise<boolean> {
     return this.handlersRepository.exists({ where: { id: handlerId } });
   }
@@ -97,7 +150,7 @@ export class HandlersService {
   public async listHandlerComponents(
     handlerId: string,
   ): Promise<HandlerComponentDto[]> {
-    const response = await this.commonService.emitToHandler(
+    const response = await this.emitToHandler(
       handlerId,
       "get_handler_components",
     );

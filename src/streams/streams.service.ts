@@ -13,6 +13,7 @@ import { FindOneOptions, Repository } from "typeorm";
 import { z } from "zod";
 
 import { CommonService } from "@/common/common.service";
+import { HandlersService } from "@/handlers/handlers.service";
 
 import { CreateStreamDto } from "./dto/create-stream.dto";
 import { SearchStreamDto } from "./dto/search-stream.dto";
@@ -26,6 +27,7 @@ export class StreamsService {
     @InjectRepository(Stream)
     private readonly streamsRepository: Repository<Stream>,
     private readonly commonService: CommonService,
+    private readonly handlersService: HandlersService,
   ) {}
 
   public async createOne(
@@ -44,7 +46,7 @@ export class StreamsService {
       );
     }
 
-    await this.commonService.emitToHandler(
+    await this.handlersService.emitToHandler(
       createStreamDto.handlerId,
       "validate_stream_configuration",
       createStreamDto.configuration,
@@ -152,7 +154,7 @@ export class StreamsService {
   public async getStreamConfigurationSchema(
     handlerId: string,
   ): Promise<Record<string, unknown>> {
-    const response = await this.commonService.emitToHandler(
+    const response = await this.handlersService.emitToHandler(
       handlerId,
       "get_stream_configuration_schema",
     );
@@ -255,7 +257,7 @@ export class StreamsService {
     ) as UpdateStreamDto;
 
     if (permittedStreamUpdate.configuration) {
-      await this.commonService.emitToHandler(
+      await this.handlersService.emitToHandler(
         stream.handlerId,
         "validate_stream_configuration",
         permittedStreamUpdate.configuration,
@@ -372,13 +374,13 @@ export class StreamsService {
 
     if (hasMonitoredFieldUpdate) {
       if (updatedStream.isActive) {
-        await this.commonService.emitToHandler(
+        await this.handlersService.emitToHandler(
           updatedStream.handlerId,
           "start_stream",
           pick(updatedStream, ["configuration", "id", "nodes", "variables"]),
         );
       } else {
-        await this.commonService.emitToHandler(
+        await this.handlersService.emitToHandler(
           updatedStream.handlerId,
           "stop_stream",
           {

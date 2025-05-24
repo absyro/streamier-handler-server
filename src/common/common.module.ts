@@ -1,6 +1,5 @@
 import { Global, Module } from "@nestjs/common";
 
-import { HandlersGateway } from "@/handlers/handlers.gateway";
 import { HandlersModule } from "@/handlers/handlers.module";
 
 import { CommonService } from "./common.service";
@@ -9,6 +8,6 @@ import { CommonService } from "./common.service";
 @Module({
   exports: [CommonService],
   imports: [HandlersModule],
-  providers: [CommonService, HandlersGateway],
+  providers: [CommonService],
 })
 export class CommonModule {}
