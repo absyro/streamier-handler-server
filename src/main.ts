@@ -11,6 +11,7 @@ import { dedent } from "ts-dedent";
 
 import packageJson from "../package.json";
 import { AppModule } from "./app.module";
+import { InternalServerErrorResponseDto } from "./common/dto/internal-server-error-response.dto";
 import { ZodValidationExceptionFilter } from "./common/filters/zod-validation-exception.filter";
 import { WsAdapter } from "./websocket/websocket.adapter";
 
@@ -27,6 +28,7 @@ async function bootstrap(): Promise<void> {
       .addGlobalResponse({
         description: "Internal server error",
         status: 500,
+        type: InternalServerErrorResponseDto,
       })
       .setTitle("Streamier API Server")
       .setDescription(
