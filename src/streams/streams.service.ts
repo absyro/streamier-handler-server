@@ -68,7 +68,7 @@ export class StreamsService {
 
     stream.handlerId = createStreamDto.handlerId;
 
-    stream.isActive = true;
+    stream.isActive = false;
 
     stream.nodes = [];
 
