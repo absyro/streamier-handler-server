@@ -7,8 +7,6 @@ export class ZodValidationExceptionFilter implements ExceptionFilter {
   public catch(exception: ZodValidationException): void {
     const zodError = exception.getZodError();
 
-    const formatted = fromZodError(zodError);
-
-    throw new BadRequestException(formatted.message);
+    throw new BadRequestException(fromZodError(zodError).message);
   }
 }
