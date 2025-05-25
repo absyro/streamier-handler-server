@@ -107,9 +107,11 @@ export class HandlersService {
     return new Promise((resolve, reject) => {
       socket.emit(event, ...parameters, (response: unknown) => {
         const responseSchema = z.discriminatedUnion("success", [
-          z.object({
-            success: z.literal(true),
-          }),
+          z
+            .object({
+              success: z.literal(true),
+            })
+            .passthrough(),
           z
             .object({
               error: z.string().nonempty().max(500),
