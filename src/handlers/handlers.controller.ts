@@ -214,9 +214,8 @@ export class HandlersController {
   public async readHandler(
     @Param("handlerId") handlerId: string,
   ): Promise<PermittedHandlerDto> {
-    const handler = await this.handlersService.findOne(handlerId, {
-      select: { authToken: false },
-    });
+    const { authToken, ...handler } =
+      await this.handlersService.findOne(handlerId);
 
     return handler;
   }
@@ -308,10 +307,8 @@ export class HandlersController {
       );
     }
 
-    const updatedHandler = await this.handlersService.updateOne(
-      handlerId,
-      updateHandlerDto,
-    );
+    const { authToken, ...updatedHandler } =
+      await this.handlersService.updateOne(handlerId, updateHandlerDto);
 
     return updatedHandler;
   }
