@@ -75,7 +75,6 @@ export class StreamsService {
     stream.permissions = {
       read: {
         all: [
-          "configuration",
           "createdAt",
           "handlerId",
           "id",
@@ -95,6 +94,8 @@ export class StreamsService {
         users: {},
       },
     };
+
+    stream.roles = {};
 
     stream.userId = userId;
 
