@@ -38,7 +38,7 @@ export class StreamsService {
       where: { userId },
     });
 
-    const maxStreamsPerUser = 100;
+    const maxStreamsPerUser = 1000;
 
     if (totalStreams >= maxStreamsPerUser) {
       throw new ForbiddenException(
