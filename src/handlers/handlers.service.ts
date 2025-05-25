@@ -67,6 +67,14 @@ export class HandlersService {
     return this.handlersRepository.save(handler);
   }
 
+  public async deactivateAllHandlers(): Promise<void> {
+    await this.handlersRepository
+      .createQueryBuilder()
+      .update()
+      .set({ isActive: false })
+      .execute();
+  }
+
   public async deleteOne(handlerId: string): Promise<void> {
     const result = await this.handlersRepository.delete({ id: handlerId });
 
@@ -93,7 +101,7 @@ export class HandlersService {
     const socket = sockets.find((s) => s.data.id === handlerId);
 
     if (!socket) {
-      throw new ServiceUnavailableException("Handler is offline");
+      throw new ServiceUnavailableException("Handler is not active");
     }
 
     return new Promise((resolve, reject) => {
@@ -237,14 +245,6 @@ export class HandlersService {
     const handlers = await queryBuilder.getMany();
 
     return handlers;
-  }
-
-  public async setAllHandlersOffline(): Promise<void> {
-    await this.handlersRepository
-      .createQueryBuilder()
-      .update()
-      .set({ isActive: false })
-      .execute();
   }
 
   public async updateOne(

@@ -160,7 +160,7 @@ export class HandlersController {
     summary: "List handler components",
   })
   @ApiServiceUnavailableResponse({
-    description: "Handler is offline",
+    description: "Handler is not active",
     type: ServiceUnavailableResponseDto,
   })
   @Get(":handlerId/components")

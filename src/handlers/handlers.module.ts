@@ -21,6 +21,6 @@ export class HandlersModule implements OnModuleInit {
   public constructor(private readonly handlersService: HandlersService) {}
 
   public async onModuleInit(): Promise<void> {
-    await this.handlersService.setAllHandlersOffline();
+    await this.handlersService.deactivateAllHandlers();
   }
 }

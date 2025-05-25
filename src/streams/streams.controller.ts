@@ -93,7 +93,7 @@ export class StreamsController {
     summary: "Create stream",
   })
   @ApiServiceUnavailableResponse({
-    description: "Handler is offline",
+    description: "Handler is not active",
     type: ServiceUnavailableResponseDto,
   })
   @ApiUnauthorizedResponse({
@@ -169,7 +169,7 @@ export class StreamsController {
     summary: "Get stream configuration schema",
   })
   @ApiServiceUnavailableResponse({
-    description: "Handler is offline",
+    description: "Handler is not active",
     type: ServiceUnavailableResponseDto,
   })
   @Get("configuration-schema/:handlerId")
@@ -273,7 +273,7 @@ export class StreamsController {
     summary: "Update stream",
   })
   @ApiServiceUnavailableResponse({
-    description: "Handler is offline",
+    description: "Handler is not active",
     type: ServiceUnavailableResponseDto,
   })
   @Put(":streamId")
