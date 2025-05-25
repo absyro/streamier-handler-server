@@ -113,7 +113,7 @@ export class HandlersGateway
     });
 
     for (const stream of activeStreams) {
-      client.emit("start_stream", stream);
+      client.emit("start_stream", stream, () => {});
     }
   }
 
