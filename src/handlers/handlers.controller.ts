@@ -14,6 +14,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import {
+  ApiBadGatewayResponse,
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -22,15 +23,18 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
+  ApiServiceUnavailableResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { dedent } from "ts-dedent";
 
 import { CommonService } from "@/common/common.service";
+import { BadGatewayResponseDto } from "@/common/dto/bad-gateway-response.dto";
 import { BadRequestResponseDto } from "@/common/dto/bad-request-response.dto";
 import { ForbiddenResponseDto } from "@/common/dto/forbidden-response.dto";
 import { NotFoundResponseDto } from "@/common/dto/not-found-response.dto";
+import { ServiceUnavailableResponseDto } from "@/common/dto/service-unavailable-response.dto";
 import { UnauthorizedResponseDto } from "@/common/dto/unauthorized-response.dto";
 
 import { CreateHandlerDto } from "./dto/create-handler.dto";
@@ -79,7 +83,7 @@ export class HandlersController {
     Creates a new handler with the specified configuration.
 
     The handler will be associated with the authenticated user and will be assigned a unique ID and authentication token.
-    The authentication token can be used to establish WebSocket connections to the handler.`,
+    The authentication token is used to authenticate the handler when establishing WebSocket connections.`,
     summary: "Create handler",
   })
   @ApiUnauthorizedResponse({
@@ -139,6 +143,14 @@ export class HandlersController {
     await this.handlersService.deleteOne(handlerId);
   }
 
+  @ApiBadGatewayResponse({
+    description: "Received data from handler is invalid",
+    type: BadGatewayResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: "Handler not found",
+    type: NotFoundResponseDto,
+  })
   @ApiOkResponse({
     description: "Successfully retrieved handler components",
     type: [HandlerComponentDto],
@@ -146,6 +158,10 @@ export class HandlersController {
   @ApiOperation({
     description: "Retrieves all components associated with a given handler ID.",
     summary: "List handler components",
+  })
+  @ApiServiceUnavailableResponse({
+    description: "Handler is offline",
+    type: ServiceUnavailableResponseDto,
   })
   @Get(":handlerId/components")
   public async listHandlerComponents(

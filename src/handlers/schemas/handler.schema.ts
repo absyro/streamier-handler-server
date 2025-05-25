@@ -4,7 +4,7 @@ export const handlerSchema = z.object({
   authToken: z
     .string()
     .length(64)
-    .describe("Authentication token used for WebSocket connections"),
+    .describe("Authentication token used for authentication"),
   createdAt: z
     .string()
     .datetime()
@@ -21,7 +21,7 @@ export const handlerSchema = z.object({
     .describe("Whether the handler is currently active and connected"),
   isSearchable: z
     .boolean()
-    .describe("Whether the handler should be excluded from search results"),
+    .describe("Whether the handler should be included in search results"),
   longDescription: z
     .string()
     .nonempty()

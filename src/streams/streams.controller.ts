@@ -44,14 +44,6 @@ import { StreamDto } from "./dto/stream.dto";
 import { UpdateStreamDto } from "./dto/update-stream.dto";
 import { StreamsService } from "./streams.service";
 
-@ApiBadGatewayResponse({
-  description: "Received data from handler is invalid",
-  type: BadGatewayResponseDto,
-})
-@ApiNotFoundResponse({
-  description: "Handler not found",
-  type: NotFoundResponseDto,
-})
 @ApiQuery({
   description: dedent`
   The fields to include in the response.
@@ -65,10 +57,6 @@ import { StreamsService } from "./streams.service";
   required: false,
   type: "string",
 })
-@ApiServiceUnavailableResponse({
-  description: "Handler is offline",
-  type: ServiceUnavailableResponseDto,
-})
 @ApiTags("Streams")
 @Controller("api/streams")
 export class StreamsController {
@@ -77,6 +65,10 @@ export class StreamsController {
     private readonly commonService: CommonService,
   ) {}
 
+  @ApiBadGatewayResponse({
+    description: "Received data from handler is invalid",
+    type: BadGatewayResponseDto,
+  })
   @ApiBadRequestResponse({
     description: "Request body parameters are invalid",
     type: BadRequestResponseDto,
@@ -89,12 +81,20 @@ export class StreamsController {
     description: "User has reached the maximum limit of streams (100)",
     type: ForbiddenResponseDto,
   })
+  @ApiNotFoundResponse({
+    description: "Handler not found",
+    type: NotFoundResponseDto,
+  })
   @ApiOperation({
     description: dedent`
     Creates a new stream associated with the specified handler.
 
     The stream will be configured according to the provided parameters and will be associated with the authenticated user.`,
     summary: "Create stream",
+  })
+  @ApiServiceUnavailableResponse({
+    description: "Handler is offline",
+    type: ServiceUnavailableResponseDto,
   })
   @ApiUnauthorizedResponse({
     description: "Missing or invalid authentication",
@@ -118,6 +118,10 @@ export class StreamsController {
 
   @ApiNoContentResponse({
     description: "Stream successfully deleted",
+  })
+  @ApiNotFoundResponse({
+    description: "Stream not found",
+    type: NotFoundResponseDto,
   })
   @ApiOperation({
     description: dedent`
@@ -164,6 +168,10 @@ export class StreamsController {
     The schema defines the structure and validation rules for stream configuration.`,
     summary: "Get stream configuration schema",
   })
+  @ApiServiceUnavailableResponse({
+    description: "Handler is offline",
+    type: ServiceUnavailableResponseDto,
+  })
   @Get("configuration-schema/:handlerId")
   public async getStreamConfigurationSchema(
     @Param("handlerId") handlerId: string,
@@ -208,6 +216,10 @@ export class StreamsController {
   }
 
   @ApiHeader({ name: "X-Session-Id", required: false })
+  @ApiNotFoundResponse({
+    description: "Stream not found",
+    type: NotFoundResponseDto,
+  })
   @ApiOkResponse({
     description: "Stream information retrieved successfully",
     type: PermittedStreamDto,
@@ -236,11 +248,19 @@ export class StreamsController {
     return permittedStream;
   }
 
+  @ApiBadGatewayResponse({
+    description: "Received data from handler is invalid",
+    type: BadGatewayResponseDto,
+  })
   @ApiBadRequestResponse({
     description: "Request body parameters are invalid",
     type: BadRequestResponseDto,
   })
   @ApiHeader({ name: "X-Session-Id", required: false })
+  @ApiNotFoundResponse({
+    description: "Stream or handler not found",
+    type: NotFoundResponseDto,
+  })
   @ApiOkResponse({
     description: "Stream successfully updated",
     type: PermittedStreamDto,
@@ -251,6 +271,10 @@ export class StreamsController {
 
     Only the provided fields will be updated, leaving other configuration unchanged.`,
     summary: "Update stream",
+  })
+  @ApiServiceUnavailableResponse({
+    description: "Handler is offline",
+    type: ServiceUnavailableResponseDto,
   })
   @Put(":streamId")
   public async updateStream(
