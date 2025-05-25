@@ -60,7 +60,7 @@ export class HandlersService {
 
     handler.userId = userId;
 
-    handler.isActive = true;
+    handler.isActive = false;
 
     handler.isSearchable = true;
 
