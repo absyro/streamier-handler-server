@@ -165,13 +165,13 @@ export class HandlersService {
       "get_handler_streams_configuration_schema",
     );
 
-    const { schema } = validate(
+    const { streamsConfigurationSchema } = validate(
       response,
-      z.object({ schema: z.record(z.unknown()) }),
+      z.object({ streamsConfigurationSchema: z.record(z.unknown()) }),
       (zodError) => new BadGatewayException(zodError),
     );
 
-    return schema;
+    return streamsConfigurationSchema;
   }
 
   public async listHandlerComponents(
