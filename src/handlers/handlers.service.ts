@@ -157,6 +157,23 @@ export class HandlersService {
     return handler;
   }
 
+  public async getHandlerStreamsConfigurationSchema(
+    handlerId: string,
+  ): Promise<Record<string, unknown>> {
+    const response = await this.emitToHandler(
+      handlerId,
+      "get_handler_streams_configuration_schema",
+    );
+
+    const { schema } = validate(
+      response,
+      z.object({ schema: z.record(z.unknown()) }),
+      (zodError) => new BadGatewayException(zodError),
+    );
+
+    return schema;
+  }
+
   public async listHandlerComponents(
     handlerId: string,
   ): Promise<HandlerComponentDto[]> {

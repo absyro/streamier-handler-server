@@ -152,6 +152,36 @@ export class HandlersController {
     type: NotFoundResponseDto,
   })
   @ApiOkResponse({
+    description: "Handler streams configuration schema retrieved successfully",
+    type: Object,
+  })
+  @ApiOperation({
+    description: dedent`
+    Gets the configuration schema for streams from the specified handler.
+
+    The schema defines the structure and validation rules for stream configuration.`,
+    summary: "Get handler streams configuration schema",
+  })
+  @ApiServiceUnavailableResponse({
+    description: "Handler is not active",
+    type: ServiceUnavailableResponseDto,
+  })
+  @Get(":handlerId/streams-configuration-schema")
+  public async getHandlerStreamsConfigurationSchema(
+    @Param("handlerId") handlerId: string,
+  ): Promise<Record<string, unknown>> {
+    return this.handlersService.getHandlerStreamsConfigurationSchema(handlerId);
+  }
+
+  @ApiBadGatewayResponse({
+    description: "Received data from handler is invalid",
+    type: BadGatewayResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: "Handler not found",
+    type: NotFoundResponseDto,
+  })
+  @ApiOkResponse({
     description: "Successfully retrieved handler components",
     type: [HandlerComponentDto],
   })

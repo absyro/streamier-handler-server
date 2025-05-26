@@ -1,16 +1,13 @@
 import {
-  BadGatewayException,
   BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { validate } from "nestjs-zod";
 import { pick } from "radash";
 import randomatic from "randomatic";
 import { FindOneOptions, Repository } from "typeorm";
-import { z } from "zod";
 
 import { CommonService } from "@/common/common.service";
 import { HandlersService } from "@/handlers/handlers.service";
@@ -150,23 +147,6 @@ export class StreamsService {
     );
 
     return permittedStream;
-  }
-
-  public async getStreamConfigurationSchema(
-    handlerId: string,
-  ): Promise<Record<string, unknown>> {
-    const response = await this.handlersService.emitToHandler(
-      handlerId,
-      "get_stream_configuration_schema",
-    );
-
-    const { schema } = validate(
-      response,
-      z.object({ schema: z.record(z.unknown()) }),
-      (zodError) => new BadGatewayException(zodError),
-    );
-
-    return schema;
   }
 
   public async search(searchStreamDto: SearchStreamDto): Promise<Stream[]> {

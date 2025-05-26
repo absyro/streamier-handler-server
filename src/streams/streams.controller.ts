@@ -149,36 +149,6 @@ export class StreamsController {
     return this.streamsService.deleteOne(streamId, userId);
   }
 
-  @ApiBadGatewayResponse({
-    description: "Received data from handler is invalid",
-    type: BadGatewayResponseDto,
-  })
-  @ApiNotFoundResponse({
-    description: "Handler not found",
-    type: NotFoundResponseDto,
-  })
-  @ApiOkResponse({
-    description: "Stream configuration schema retrieved successfully",
-    type: Object,
-  })
-  @ApiOperation({
-    description: dedent`
-    Gets the configuration schema for a stream from the specified handler.
-
-    The schema defines the structure and validation rules for stream configuration.`,
-    summary: "Get stream configuration schema",
-  })
-  @ApiServiceUnavailableResponse({
-    description: "Handler is not active",
-    type: ServiceUnavailableResponseDto,
-  })
-  @Get("configuration-schema/:handlerId")
-  public async getStreamConfigurationSchema(
-    @Param("handlerId") handlerId: string,
-  ): Promise<Record<string, unknown>> {
-    return this.streamsService.getStreamConfigurationSchema(handlerId);
-  }
-
   @ApiBadRequestResponse({
     description: "Request query parameters are invalid",
     type: BadRequestResponseDto,
