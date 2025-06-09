@@ -45,7 +45,7 @@
     "@swc/cli": "^0.7.7",
     "@swc/core": "^1.11.24",
     "@types/compression": "^1.7.5",
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.3",
     "@types/express-partial-response": "^1.0.0",
     "@types/node": "^22.15.18",
     "@types/randomatic": "^3.1.5",
